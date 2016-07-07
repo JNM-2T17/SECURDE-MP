@@ -6,6 +6,8 @@
 		<title>Talaria Footwear</title>
 		<link rel="stylesheet" href="<c:url value="resources/css/style.css"/>"/>
 		<link rel="shortcut icon" href="<c:url value="resources/images/icon.png"/>"/>
+		<script src="<c:url value="resources/js/jquery.min.js"/>"></script>
+		<script src="<c:url value="resources/js/jquery-migrate-1.2.1.min.js"/>"></script>
 	</head>
 	<body>
 		<div class="main-container">
