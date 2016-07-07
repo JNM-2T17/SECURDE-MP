@@ -1,5 +1,8 @@
-$font : "Segoe UI";
+@font-face {
+  font-family: 'Raleway';
+  src: url('../fonts/Raleway-Regular.ttf');
+}
 
-body {
-	font-family: $font;
+body{
+	font-family: Raleway;
 }
