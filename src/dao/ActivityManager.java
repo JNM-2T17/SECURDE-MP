@@ -1,6 +1,7 @@
 package dao;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 
 public class ActivityManager {
 	public void addActivity(String activity) throws Exception {
