@@ -1,0 +1,150 @@
+@font-face {
+  font-family: Zag;
+  src: url(../fonts/Zag.otf); }
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%; }
+
+body {
+  background-color: white;
+  color: black;
+  text-align: center;
+  font-family: Zag;
+  line-height: 1.7em; }
+
+div#container {
+  width: 1000px;
+  margin: 0 auto;
+  text-align: left;
+  border-left: 2px solid #e1e1e1;
+  border-right: 2px solid #e1e1e1;
+  min-height: 100%;
+  position: relative; }
+
+div#header {
+  background-color: lightgray;
+  box-shadow: 0px 2px 2px #939393;
+  position: relative; }
+  div#header h1 {
+    background-image: url("../images/logo-long.png");
+    background-size: 200px auto;
+    background-repeat: no-repeat;
+    width: 200px;
+    height: 75px;
+    margin: 10px 40px 5px;
+    display: inline-block; }
+  div#header input#search {
+    position: absolute;
+    height: 40px;
+    top: 28px;
+    left: 250px;
+    border: 1px #000 solid;
+    padding: 0 8px;
+    color: #6c6c6c;
+    font-family: Zag;
+    font-size: 1em;
+    width: 200px;
+    outline: none; }
+  div#header div#header-left {
+    float: left; }
+  div#header div#header-right {
+    float: right;
+    margin-right: 20px; }
+    div#header div#header-right button, div#header div#header-right a {
+      border: none;
+      background-color: transparent;
+      color: #b30000;
+      font-family: Zag;
+      font-size: 1.4em;
+      margin: 25px 20px 0;
+      height: 50px;
+      padding: 10px 0;
+      text-transform: lowercase;
+      cursor: pointer; }
+      div#header div#header-right button:hover, div#header div#header-right a:hover {
+        color: #6c6c6c; }
+    div#header div#header-right a#button-shoppingCart {
+      background-image: url("../images/cart.png");
+      background-repeat: no-repeat;
+      background-size: 30px 30px;
+      background-position: center right;
+      padding-right: 40px; }
+
+div#content div#sectionTitle h2 {
+  text-transform: lowercase;
+  font-size: 5em;
+  font-weight: 900;
+  margin: 80px 30px 20px; }
+div#content div#narrowContent {
+  float: left;
+  margin: 10px 30px 20px;
+  width: 280px;
+  font-size: 1.5em; }
+  div#content div#narrowContent p {
+    margin: 20px; }
+div#content div#wideContent {
+  float: right;
+  margin: 10px 30px 20px;
+  width: 600px; }
+
+div#footer {
+  border-top: 2px black solid;
+  text-align: center;
+  padding-top: 10px;
+  font-size: 0.8em; }
+  div#footer a {
+    color: #b30000;
+    text-decoration: none; }
+    div#footer a:hover {
+      color: black; }
+  div#footer span.copyright-text {
+    color: #9b9b9b; }
+
+ul#iconMenu {
+  position: relative;
+  list-style: none;
+  padding: 0;
+  margin-left: 10px; }
+  ul#iconMenu li {
+    display: inline-block;
+    margin-left: 5px; }
+    ul#iconMenu li a {
+      width: 280px;
+      height: 150px;
+      overflow: hidden;
+      display: inline-block;
+      position: relative;
+      transition: 0.25s; }
+      ul#iconMenu li a img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        margin-left: -30px;
+        width: 340px;
+        -webkit-filter: grayscale(100%);
+        filter: grayscale(100%);
+        opacity: 0.8; }
+      ul#iconMenu li a div.iconMenu-text {
+        display: none; }
+      ul#iconMenu li a:hover img {
+        -webkit-filter: grayscale(0%);
+        filter: grayscale(0%);
+        opacity: 1; }
+      ul#iconMenu li a:hover div.iconMenu-text {
+        display: block;
+        position: absolute;
+        bottom: 30px;
+        left: 30px;
+        text-transform: uppercase;
+        font-size: 2em;
+        color: #FFF;
+        text-shadow: 2px 2px #6c6c6c; }
+
+.hidden {
+  display: none; }
+
+.clear {
+  clear: both; }
+
+/*# sourceMappingURL=style.css.map */
