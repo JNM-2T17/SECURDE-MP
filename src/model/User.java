@@ -3,6 +3,14 @@ package model;
 import java.util.Date;
 
 public class User {
+	public static final String SEARCH_PRODUCT = "searchProduct";
+	public static final String PURCHASE_PRODUCT = "purchaseProduct";
+	public static final String REVIEW_PRODUCT = "reviewProduct";
+	public static final String ADD_PRODUCT = "addProduct";
+	public static final String EDIT_PRODUCT = "editProduct";
+	public static final String DELETE_PRODUCT = "deleteProduct";
+	public static final String VIEW_RECORDS = "viewRecords";
+	public static final String CREATE_ACCOUNT = "createAccount";
 	private int id;
 	private int role;
 	private String username;
@@ -315,5 +323,28 @@ public class User {
 
 	public void setCreateAccount(boolean createAccount) {
 		this.createAccount = createAccount;
+	}
+	
+	public boolean isAuth(String privilege) {
+		switch(privilege) {
+			case User.SEARCH_PRODUCT:
+				return searchProduct;
+			case User.PURCHASE_PRODUCT:
+				return purchaseProduct;
+			case User.REVIEW_PRODUCT:
+				return reviewProduct;
+			case User.ADD_PRODUCT:
+				return addProduct;
+			case User.EDIT_PRODUCT:
+				return editProduct;
+			case User.DELETE_PRODUCT:
+				return deleteProduct;
+			case User.VIEW_RECORDS:
+				return viewRecords;
+			case User.CREATE_ACCOUNT:
+				return createAccount;
+			default:
+				return false;
+		}
 	}
 }

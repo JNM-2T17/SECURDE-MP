@@ -22,6 +22,14 @@ public class ItemManager {
 		ps.execute();
 	}
 	
+	public static void deleteItem(int id) throws SQLException {
+		Connection con = DBManager.getInstance().getConnection();
+		String sql = "UPDATE tl_item SET status = 0 WHERE id = ?";
+		PreparedStatement ps = con.prepareStatement(sql);
+		ps.setInt(1,id);
+		ps.execute();
+	}
+	
 	public static void editItem(int id, int type, String name, String description, double price) throws SQLException {
 		Connection con = DBManager.getInstance().getConnection();
 		String sql = "UPDATE tl_item SET itemtype = ?, name = ?,description = ?,price = ? WHERE id = ?";
@@ -36,7 +44,7 @@ public class ItemManager {
 	
 	public static Item[] getAllItems(Integer type, String query, int start, int limit) throws SQLException {
 		Connection con = DBManager.getInstance().getConnection();
-		String sql = "SELECT id, I.name, T.name AS itemtype, description, price "
+		String sql = "SELECT I.id, I.name, T.name AS itemtype, description, price "
 				+ "FROM tl_item I INNER JOIN tl_item_type T ON I.itemtype = T.id AND "
 				+ "I.status = 1 AND T.status = 1 ";
 		String whereClause = "WHERE ";
@@ -74,6 +82,24 @@ public class ItemManager {
 						rs.getDouble("price")));
 		}
 		return items.toArray(new Item[0]);
+	}
+	
+	public static Item getItem(int id) throws SQLException {
+		Connection con = DBManager.getInstance().getConnection();
+		String sql = "SELECT I.id, I.name, T.id as typeId, T.name AS itemtype, description, price "
+				+ "FROM tl_item I INNER JOIN tl_item_type T ON I.itemtype = T.id AND "
+				+ "I.status = 1 AND T.status = 1 "
+				+ "WHERE I.id = ?";
+		PreparedStatement ps = con.prepareStatement(sql);
+		ps.setInt(1,id);
+		ResultSet rs = ps.executeQuery();
+		
+		if(rs.next()) {
+			return new Item(rs.getInt("id"),rs.getString("name"),
+						rs.getInt("typeId"),rs.getString("itemtype"),rs.getString("description"),
+						rs.getDouble("price"));
+		}
+		return null;
 	}
 	
 	public static void purchaseItem(int userId, int itemId, int quantity) throws SQLException {
