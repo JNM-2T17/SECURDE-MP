@@ -11,6 +11,8 @@
 		<script src="<c:url value="resources/js/jquery-migrate-1.2.1.min.js"/>"></script>
 	</head>
 	<body>
+		<input type="hidden" value="${error }" id="error" />
+		
 		<div id="container">
 			<div id="header">
 				<div id="header-left">
@@ -22,7 +24,7 @@
 				<div id="header-right">
 					<c:choose>
 					<c:when test="${empty sessionScope.sessionUser }">
-					<button>Login</button>
+					<button id="button-login">Login</button>
 					</c:when>
 					<c:otherwise>
 					<a href="logout">Logout</a>

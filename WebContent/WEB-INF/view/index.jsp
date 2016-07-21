@@ -2,6 +2,20 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
 
 <jsp:include page="header.jsp"/>
+		<script src="<c:url value="resources/js/login.js"/>"></script>
+		<div id="loginForm">
+				<form action="login" method="POST">
+					<div class="form-group">
+						<div class="form-label">Username</div>
+						<input class="form-input" name="username"/>
+					</div>
+					<div class="form-group">
+						<div class="form-label">Password</div>
+						<input class="form-input" type="password" name="password"/>
+					</div>
+					<input class="loginButton" type="submit" value="Login"/>
+				</form>
+			</div>
 			<div id="content">
 
 				<div id="sectionTitle">
@@ -53,9 +67,4 @@
 				<div class="clear"></div>
 
 			</div>
-			<form action="login" method="POST">
-				<input name="username"/>
-				<input type="password" name="password"/>
-				<input type="submit" value="Login"/>
-			</form>
 <jsp:include page="footer.jsp"/>

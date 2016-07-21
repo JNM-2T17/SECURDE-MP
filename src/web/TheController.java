@@ -185,6 +185,7 @@ public class TheController {
 				} else {
 					request.setAttribute("error", "Invalid Item Id");
 					home(request,response);
+					return;
 				}
 				request.getRequestDispatcher("WEB-INF/view/editProduct.jsp").forward(request, response);
 			} catch(SQLException se) {
