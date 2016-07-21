@@ -10,4 +10,4 @@
 		<script src="<c:url value="resources/js/jquery-migrate-1.2.1.min.js"/>"></script>
 	</head>
 	<body>
-		<div class="main-container">
+		<div class="container">
