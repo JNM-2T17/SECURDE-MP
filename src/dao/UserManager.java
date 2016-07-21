@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import model.BCrypt;
 import model.User;
@@ -25,6 +26,10 @@ public class UserManager {
 			ps.setString(5, mi);
 			ps.setString(6, lname);
 			ps.setString(7, email);
+			ps.execute();
+			sql = "UPDATE tl_user SET expiresOn = DATE_ADD(NOW(),INTERVAL 1 DAY) WHERE username = ?";
+			ps = con.prepareStatement(sql);
+			ps.setString(1, username);
 			ps.execute();
 			return true;
 		} else {
@@ -73,7 +78,7 @@ public class UserManager {
 	
 	public static void changePass(int id, String password) throws SQLException {
 		Connection con = DBManager.getInstance().getConnection();
-		String sql = "UPDATE tl_user SET password = ? WHERE id = ?";
+		String sql = "UPDATE tl_user SET password = ?,dateEdited = NOW(),expiresOn = DATE_ADD(NOW(), INTERVAL 3 MONTH) WHERE id = ?";
 		PreparedStatement ps = con.prepareStatement(sql);
 		String hashPW = BCrypt.hashpw(password, BCrypt.gensalt());
 		ps.setString(1,hashPW);
@@ -81,21 +86,31 @@ public class UserManager {
 		ps.execute();		
 	}
 	
-	public static User login(String username, String password) throws SQLException {
+	public static User login(String username, String password) throws Exception {
 		Connection con = DBManager.getInstance().getConnection();
 		String sql = "SELECT U.id,role,username,password,fName,mi,"
 				+ "lName,emailAddress,billHouseNo,billStreet,billSubd,"
 				+ "billCity,billPostCode,billCountry,shipHouseNo,shipStreet,"
 				+ "shipSubd,shipCity,shipPostCode,shipCountry,searchProduct,"
 				+ "purchaseProduct,reviewProduct,addProduct,editProduct,"
-				+ "deleteProduct,viewRecords,createAccount "
+				+ "deleteProduct,viewRecords,createAccount,expiresOn IS NOT NULL AND expiresOn < NOW() AS expired "
 				+ "FROM tl_user U INNER JOIN tl_role R ON U.role = R.id AND U.status = 1 AND R.status = 1 "
 				+ "WHERE username = ?";
 		PreparedStatement ps = con.prepareStatement(sql);
 		ps.setString(1,username);
 		ResultSet rs = ps.executeQuery();
 		if( rs.next() ) {
-			if(BCrypt.checkpw(password, rs.getString("password"))) {
+			if(rs.getBoolean("expired")) {
+				sql = "UPDATE tl_user SET status = 0 WHERE username = ?";
+				ps = con.prepareStatement(sql);
+				ps.setString(1,username);
+				ps.execute();
+				throw new Exception("Expired Account");
+			} else if(BCrypt.checkpw(password, rs.getString("password"))) {
+				sql = "UPDATE tl_user SET expiresOn = DATE_ADD(NOW(),INTERVAL 3 MONTH) WHERE username = ?";
+				ps = con.prepareStatement(sql);
+				ps.setString(1,username);
+				ps.execute();
 				return new User(rs.getInt("id"),rs.getInt("role"),
 						rs.getString("username"),rs.getString("fName"),
 						rs.getString("mi"),rs.getString("lName"),
@@ -145,6 +160,21 @@ public class UserManager {
 					rs.getBoolean("createAccount"));
 		}
 		return null;
+	}
+	
+	public static User[] getSpecialUsers() throws SQLException {
+		Connection con = DBManager.getInstance().getConnection();
+		String sql = "SELECT U.id,R.roleName as role,username,fName,mi,lName,emailAddress "
+				+ "FROM tl_user U INNER JOIN tl_role R ON U.role = R.id AND U.status = 1 AND R.status = 1 "
+				+ "WHERE U.role != 1 "
+				+ "ORDER BY username";
+		PreparedStatement ps = con.prepareStatement(sql);
+		ResultSet rs = ps.executeQuery();
+		ArrayList<User> users = new ArrayList<User>();
+		while(rs.next()){
+			users.add(new User(rs.getInt("id"),rs.getString("role"),rs.getString("username"),rs.getString("fName"),rs.getString("mi"),rs.getString("lName"),rs.getString("emailAddress")));
+		}
+		return users.toArray(new User[0]);
 	}
 	
 	public static User getUser(String username) throws SQLException {
