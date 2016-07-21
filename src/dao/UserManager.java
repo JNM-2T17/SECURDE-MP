@@ -83,7 +83,7 @@ public class UserManager {
 	
 	public static User login(String username, String password) throws SQLException {
 		Connection con = DBManager.getInstance().getConnection();
-		String sql = "SELECT U.id,R.name AS role,username,password,fName,mi,"
+		String sql = "SELECT U.id,role,username,password,fName,mi,"
 				+ "lName,emailAddress,billHouseNo,billStreet,billSubd,"
 				+ "billCity,billPostCode,billCountry,shipHouseNo,shipStreet,"
 				+ "shipSubd,shipCity,shipPostCode,shipCountry,searchProduct,"
@@ -111,6 +111,38 @@ public class UserManager {
 						rs.getBoolean("deleteProduct"),rs.getBoolean("viewRecords"),
 						rs.getBoolean("createAccount"));
 			}
+		}
+		return null;
+	}
+	
+	public static User getUser(int id) throws SQLException {
+		Connection con = DBManager.getInstance().getConnection();
+		String sql = "SELECT U.id,role,username,password,fName,mi,"
+				+ "lName,emailAddress,billHouseNo,billStreet,billSubd,"
+				+ "billCity,billPostCode,billCountry,shipHouseNo,shipStreet,"
+				+ "shipSubd,shipCity,shipPostCode,shipCountry,searchProduct,"
+				+ "purchaseProduct,reviewProduct,addProduct,editProduct,"
+				+ "deleteProduct,viewRecords,createAccount "
+				+ "FROM tl_user U INNER JOIN tl_role R ON U.role = R.id AND U.status = 1 AND R.status = 1 "
+				+ "WHERE U.id = ?";
+		PreparedStatement ps = con.prepareStatement(sql);
+		ps.setInt(1,id);
+		ResultSet rs = ps.executeQuery();
+		if( rs.next() ) {
+			return new User(rs.getInt("id"),rs.getInt("role"),
+					rs.getString("username"),rs.getString("fName"),
+					rs.getString("mi"),rs.getString("lName"),
+					rs.getString("emailAddress"),rs.getString("billHouseNo"),
+					rs.getString("billStreet"),rs.getString("billSubd"),
+					rs.getString("billCity"),rs.getString("billPostCode"),
+					rs.getString("billCountry"),rs.getString("shipHouseNo"),
+					rs.getString("shipStreet"),rs.getString("shipSubd"),
+					rs.getString("shipCity"),rs.getString("shipPostCode"),
+					rs.getString("shipCountry"),rs.getBoolean("searchProduct"),
+					rs.getBoolean("purchaseProduct"),rs.getBoolean("reviewProduct"),
+					rs.getBoolean("addProduct"),rs.getBoolean("editProduct"),
+					rs.getBoolean("deleteProduct"),rs.getBoolean("viewRecords"),
+					rs.getBoolean("createAccount"));
 		}
 		return null;
 	}

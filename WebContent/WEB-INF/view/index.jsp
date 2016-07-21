@@ -2,20 +2,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
 
 <jsp:include page="header.jsp"/>
-		<div id="header">
-				<div id="header-left">
-					<h1><span class="hidden">Talaria</span></h1>
-					<input id="search" placeholder="search item"/>
-				</div>
-
-				<div id="header-right">
-					<button>Login</button>
-					<a id="button-shoppingCart">Shopping Cart</a>
-				</div>
-
-				<div class="clear"></div>
-			</div>
-
 			<div id="content">
 
 				<div id="sectionTitle">
@@ -67,4 +53,9 @@
 				<div class="clear"></div>
 
 			</div>
+			<form action="login" method="POST">
+				<input name="username"/>
+				<input type="password" name="password"/>
+				<input type="submit" value="Login"/>
+			</form>
 <jsp:include page="footer.jsp"/>
