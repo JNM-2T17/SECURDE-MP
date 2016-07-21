@@ -48,3 +48,4 @@ Temporary Items
 /build/
 
 documentations/~$SRS Chap 2 Outline.xlsx
+*.classpath

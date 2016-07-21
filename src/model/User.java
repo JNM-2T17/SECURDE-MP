@@ -1,5 +1,7 @@
 package model;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 public class User {
@@ -13,11 +15,14 @@ public class User {
 	public static final String CREATE_ACCOUNT = "createAccount";
 	private int id;
 	private int role;
+	private String roleName;
 	private String username;
 	private String fName;
 	private String mi;
 	private String lName;
 	private String emailAddress;
+	private Date endIdle;
+	private Date endSession;
 	private String billHouseNo;
 	private String billStreet;
 	private String billSubd;
@@ -69,6 +74,18 @@ public class User {
 		this.shipPostCode = shipPostCode;
 		this.shipCountry = shipCountry;
 	}
+	
+	public User(int id, String roleName, String username, String fName, String mi,
+			String lName, String emailAddress) {
+		super();
+		this.id = id;
+		this.roleName = roleName;
+		this.username = username;
+		this.fName = fName;
+		this.mi = mi;
+		this.lName = lName;
+		this.emailAddress = emailAddress;
+	}
 
 	public User(int id, int role, String username, String fName, String mi,
 			String lName, String emailAddress, String billHouseNo,
@@ -107,8 +124,35 @@ public class User {
 		this.deleteProduct = deleteProduct;
 		this.viewRecords = viewRecords;
 		this.createAccount = createAccount;
+		setSessionExpiry();
+		refreshIdle();
+	}
+	
+	private void setSessionExpiry() {
+		Date d = new Date();
+		Calendar c = Calendar.getInstance();
+		c.setTime(d);
+		c.add(Calendar.MINUTE, 30);
+		endSession = c.getTime();
+		SimpleDateFormat df = new SimpleDateFormat("MMM/dd/yy hh:mm:ss aa");
+		System.out.println("Expires on " + df.format(endSession));
+	}
+	
+	public void refreshIdle() {
+		Date d = new Date();
+		Calendar c = Calendar.getInstance();
+		c.setTime(d);
+		c.add(Calendar.MINUTE, 5);
+		endIdle = c.getTime();
+		SimpleDateFormat df = new SimpleDateFormat("MMM/dd/yy hh:mm:ss aa");
+		System.out.println("Idleness Expires on " + df.format(endIdle));
 	}
 
+	public boolean isExpired() {
+		Date d = new Date();
+		return endSession.compareTo(d) < 0 || endIdle.compareTo(d) < 0;
+	}
+	
 	public int getId() {
 		return id;
 	}
@@ -123,6 +167,14 @@ public class User {
 
 	public void setRole(int role) {
 		this.role = role;
+	}
+
+	public String getRoleName() {
+		return roleName;
+	}
+
+	public void setRoleName(String roleName) {
+		this.roleName = roleName;
 	}
 
 	public String getUsername() {
