@@ -24,7 +24,7 @@
 				<div id="header-right">
 					<c:choose>
 					<c:when test="${empty sessionScope.sessionUser }">
-					<button>Login</button>
+					<button id="button-login">Login</button>
 					</c:when>
 					<c:otherwise>
 					<a href="logout">Logout</a>

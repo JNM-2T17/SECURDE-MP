@@ -84,6 +84,7 @@ div#header{
 			padding: 10px 0;
 			text-transform: lowercase;
 			cursor: pointer;
+			outline: none;
 
 			&:hover{
 				color: $fgColor1-fade;
@@ -207,8 +208,77 @@ ul#iconMenu{
 
 
 	}
+}
+
+// Login Form
+
+div#loginForm{
+	display: none;
+	position: absolute;
+		top: 80px;
+		right: 20px;
+	background-color: $bgColor1;
+	box-shadow: 0px 2px 2px rgb(147,147,147);
+	text-align: right;
+
+	&:after {
+	  content: "";
+	  display: block; /* reduce the damage in FF3.0 */
+	  position: absolute;
+	  top: -15px;
+	  right: 25px;
+	  width: 0;
+	  border-width: 0 15px 15px;
+	  border-style: solid;
+	  border-color: $bgColor1 transparent;
+	}
+
+	div.form-group{
+		display: block;
+		padding: 10px 10px 0;
+		text-align: left;
+
+		div.form-label{
+			text-transform: lowercase;
+			display: inline-block;
+			width: 70px;
+			font-size: 1.2em;
+			position: relative;
+			top: 2px;
+		}
+
+		input.form-input{
+			width: 180px;
+			height: 30px;
+		}
+	}
+
+	.loginButton{
+		border: none;
+		background-color: transparent;
+		color: $accentColor;
+		font-family: Zag;
+		font-size: 1.5em;
+		padding: 15px 10px 5px;
+		text-transform: uppercase;
+		cursor: pointer;
+
+		&:hover{
+			color: $fgColor1-fade;
+		}
+	}
+}
 
 
+
+input{
+	height: 40px;
+	border: 1px #000 solid;
+	padding: 0 8px;
+	color: $fgColor1-fade;
+	font-family: $mainFont;
+	font-size: 1em;
+	outline: none;
 }
 
 .hidden{
