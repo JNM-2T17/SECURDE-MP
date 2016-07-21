@@ -35,6 +35,33 @@ public class User {
 		super();
 	}
 
+	public User(int id, String username, String fName, String mi, String lName,
+			String emailAddress, String billHouseNo, String billStreet,
+			String billSubd, String billCity, String billPostCode,
+			String billCountry, String shipHouseNo, String shipStreet,
+			String shipSubd, String shipCity, String shipPostCode,
+			String shipCountry) {
+		super();
+		this.id = id;
+		this.username = username;
+		this.fName = fName;
+		this.mi = mi;
+		this.lName = lName;
+		this.emailAddress = emailAddress;
+		this.billHouseNo = billHouseNo;
+		this.billStreet = billStreet;
+		this.billSubd = billSubd;
+		this.billCity = billCity;
+		this.billPostCode = billPostCode;
+		this.billCountry = billCountry;
+		this.shipHouseNo = shipHouseNo;
+		this.shipStreet = shipStreet;
+		this.shipSubd = shipSubd;
+		this.shipCity = shipCity;
+		this.shipPostCode = shipPostCode;
+		this.shipCountry = shipCountry;
+	}
+
 	public User(int id, int role, String username, String fName, String mi,
 			String lName, String emailAddress, String billHouseNo,
 			String billStreet, String billSubd, String billCity,
