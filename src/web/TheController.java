@@ -26,14 +26,16 @@ import dao.UserManager;
 
 @Controller
 public class TheController {
-	private User restoreSession(HttpServletRequest request, HttpServletResponse response) {
+	private User restoreSession(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		User u = (User)request.getSession().getAttribute("sessionUser");
+		System.out.println(u);
 		if( u == null ) {
 			Cookie[] cookies = request.getCookies();
 			for(Cookie c : cookies) {
 				if( c.getName().equals("sessionUser") ) {
 					try {
 						u = UserManager.getUser(Integer.parseInt(c.getValue()));
+						request.getSession().setAttribute("sessionUser",u);
 						if( u != null ) {
 							ActivityManager.setUser(u);
 							ActivityManager.addActivity("refreshed their session.");
@@ -43,6 +45,12 @@ public class TheController {
 					}
 				}
 			}
+		} else {
+			if( u.isExpired() ) {
+				logoutUser(request,response);
+				return null;
+			}
+			u.refreshIdle();
 		}
 		return u;
 	}
@@ -74,6 +82,12 @@ public class TheController {
 		} else {
 			switch(u.getRole()) {
 			case 4:
+				try {
+					User[] users = UserManager.getSpecialUsers();
+					request.setAttribute("users", users.length == 0 ? null : users);
+				} catch(SQLException se) {
+					se.printStackTrace();
+				}
 				request.getRequestDispatcher("WEB-INF/view/admin-home.jsp").forward(request, response);
 				break;
 			case 3:
@@ -115,9 +129,14 @@ public class TheController {
 					response.addCookie(c);
 					ActivityManager.setUser(u);
 					ActivityManager.addActivity("logged in");
+				} else {
+					request.setAttribute("error","Invalid username/password combination");
 				}
 			} catch(SQLException se) {
 				se.printStackTrace();
+			} catch(Exception e) {
+				e.printStackTrace();
+				request.setAttribute("error","Invalid username/password combination");
 			}
 		}
 		home(request,response);
@@ -127,23 +146,27 @@ public class TheController {
 	public void logout(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		User u = restoreSession(request,response);
 		if( u != null) {
-			request.getSession().invalidate();
-			Cookie[] cookies = request.getCookies();
-			for(Cookie c : cookies) {
-				if( c.getName().equals("sessionUser") ) {
-					c.setMaxAge(0);
-					response.addCookie(c);
-				}
-			}
-			try {
-				ActivityManager.addActivity("logged out.");
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			ActivityManager.setUser(null);
+			logoutUser(request,response);
 		}
 		homePage(null,request,response);
+	}
+	
+	public void logoutUser(HttpServletRequest request,HttpServletResponse response) {
+		request.getSession().invalidate();
+		Cookie[] cookies = request.getCookies();
+		for(Cookie c : cookies) {
+			if( c.getName().equals("sessionUser") ) {
+				c.setMaxAge(0);
+				response.addCookie(c);
+			}
+		}
+		try {
+			ActivityManager.addActivity("logged out.");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		ActivityManager.setUser(null);
 	}
 	
 	@RequestMapping(value="/addProduct",method=RequestMethod.GET)
@@ -235,5 +258,87 @@ public class TheController {
 		pw.println("false");
 	}
 	
+	@RequestMapping(value="/createAccount",method=RequestMethod.GET)
+	public void createAccount(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		if(isAuth(request,response,User.CREATE_ACCOUNT)) {
+			request.getRequestDispatcher("WEB-INF/view/createAccount.jsp").forward(request, response);
+		}
+	}
 	
+	@ResponseBody
+	@RequestMapping(value="/createAccount",method=RequestMethod.POST)
+	public void createAccount(
+			@RequestParam("authPassword") String authPassword,
+			@RequestParam("role") int role,
+			@RequestParam("username") String username,
+			@RequestParam("password") String password,
+			@RequestParam("fname") String fname,
+			@RequestParam("mi") String mi,
+			@RequestParam("lname") String lname,
+			@RequestParam("email") String email,
+			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		if(isAuth(request,response,User.CREATE_ACCOUNT)) {
+			try {
+				User u = (User)request.getSession().getAttribute("sessionUser");
+				u = UserManager.login(u.getUsername(), authPassword);
+				if( u == null ) {
+					request.setAttribute("error", "Authentication Failed.");
+				} else {
+					UserManager.addUser(role, username, password, fname, mi, lname, email);
+					ActivityManager.addActivity("created user " + username);
+					home(request,response);
+					return;
+				}
+			} catch(SQLException se) {
+				se.printStackTrace();
+				request.setAttribute("error", "An unexpected error occured.");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				request.setAttribute("error", "Authentication Failed.");
+			}
+			request.getRequestDispatcher("WEB-INF/view/createAccount.jsp").forward(request, response);
+		}
+	}
+	
+	@RequestMapping(value="/editAccount",method=RequestMethod.GET)
+	public void editAccount(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		if(restoreSession(request,response) != null) {
+			request.getRequestDispatcher("WEB-INF/view/editAccount.jsp").forward(request, response);
+		}
+	}
+	
+	@ResponseBody
+	@RequestMapping(value="/editAccount",method=RequestMethod.POST)
+	public void editAccount(
+			@RequestParam("oldPassword") String oldPassword,
+			@RequestParam("newPassword") String newPassword,
+			@RequestParam("confirmPassword") String confirmPassword,
+			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		User u = null;
+		if((u = restoreSession(request,response)) != null) {
+			try {
+				if( UserManager.login(u.getUsername(),oldPassword) != null ) {
+					if( newPassword.equals(confirmPassword) ) {
+						UserManager.changePass(u.getId(), newPassword);
+						ActivityManager.addActivity("changed their password.");
+						home(request,response);
+						return;
+					} else {
+						request.setAttribute("error", "Passwords don't match.");
+					}
+				} else {
+					request.setAttribute("error", "Authentication Failed");
+				}
+			} catch(SQLException se) {
+				se.printStackTrace();
+				request.setAttribute("error", "An unexpected error occured.");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				request.setAttribute("error", "Authentication Failed.");
+			}
+			request.getRequestDispatcher("WEB-INF/view/editAccount.jsp").forward(request, response);
+		}
+	}
 }

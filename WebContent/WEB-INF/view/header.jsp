@@ -16,7 +16,7 @@
 		<div id="container">
 			<div id="header">
 				<div id="header-left">
-					<h1><span class="hidden">Talaria</span></h1>
+					<a href="."><h1><span class="hidden">Talaria</span></h1></a>
 					<c:if test="${empty sessionScope.sessionUser || sessionScope.sessionUser.searchProduct }">
 					<input id="search" placeholder="search item"/>
 					</c:if>
@@ -27,6 +27,8 @@
 					<button id="button-login">Login</button>
 					</c:when>
 					<c:otherwise>
+					<h2>Welcome, <c:out value="${sessionUser.username }"/></h2>
+					<a href="editAccount">Edit Account</a>
 					<a href="logout">Logout</a>
 					<c:if test="${sessionScope.sessionUser.purchaseProduct }">
 					<a id="button-shoppingCart">Shopping Cart</a>
