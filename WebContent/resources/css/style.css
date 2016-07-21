@@ -108,7 +108,8 @@ ul#iconMenu {
   margin-left: 10px; }
   ul#iconMenu li {
     display: inline-block;
-    margin-left: 5px; }
+    margin-left: 5px;
+    margin-bottom: 10px; }
     ul#iconMenu li a {
       width: 280px;
       height: 150px;

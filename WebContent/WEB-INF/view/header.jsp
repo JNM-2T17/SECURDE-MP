@@ -11,7 +11,7 @@
 		<script src="<c:url value="resources/js/jquery-migrate-1.2.1.min.js"/>"></script>
 	</head>
 	<body>
-		<div class="container">
+		<div id="container">
 			<div id="header">
 				<div id="header-left">
 					<h1><span class="hidden">Talaria</span></h1>
