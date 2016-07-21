@@ -84,6 +84,7 @@ div#header{
 			padding: 10px 0;
 			text-transform: lowercase;
 			cursor: pointer;
+			outline: none;
 
 			&:hover{
 				color: $fgColor1-fade;

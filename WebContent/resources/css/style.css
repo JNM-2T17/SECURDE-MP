@@ -61,7 +61,8 @@ div#header {
       height: 50px;
       padding: 10px 0;
       text-transform: lowercase;
-      cursor: pointer; }
+      cursor: pointer;
+      outline: none; }
       div#header div#header-right button:hover, div#header div#header-right a:hover {
         color: #6c6c6c; }
     div#header div#header-right a#button-shoppingCart {
