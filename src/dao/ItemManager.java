@@ -34,16 +34,22 @@ public class ItemManager {
 		ps.execute();
 	}
 	
-	public static Item[] getAllItems(Integer type, String query) throws SQLException {
+	public static Item[] getAllItems(Integer type, String query, int start, int limit) throws SQLException {
 		Connection con = DBManager.getInstance().getConnection();
 		String sql = "SELECT id, I.name, T.name AS itemtype, description, price "
 				+ "FROM tl_item I INNER JOIN tl_item_type T ON I.itemtype = T.id AND "
 				+ "I.status = 1 AND T.status = 1 ";
+		String whereClause = "WHERE ";
 		if( type != null ) {
-			sql += "AND itemtype = ? ";
+			whereClause += (whereClause.length() == 6 ? "" : "AND ") + "itemtype = ? ";
 		}
 		if( query != null ) {
-			sql += "AND name LIKE ?";
+			whereClause += (whereClause.length() == 6 ? "" : "AND ") + "name LIKE ? ";
+		}
+		sql += (whereClause.length() == 6 ? "" : whereClause) + "ORDER BY I.dateAdded DESC ";
+		
+		if( start != 0 && limit != 0) {
+			sql += "LIMIT ?,?";
 		}
 		PreparedStatement ps = con.prepareStatement(sql);
 		int index = 1;
@@ -53,6 +59,11 @@ public class ItemManager {
 		}
 		if( query != null ) {
 			ps.setString(index,"%" + query + "%");
+			index++;
+		}
+		if( start != 0 && limit != 0 ) {
+			ps.setInt(index, start);
+			ps.setInt(index + 1, limit);
 		}
 		ResultSet rs = ps.executeQuery();
 		
@@ -105,7 +116,8 @@ public class ItemManager {
 				+ "FROM tl_purchase P INNER JOIN tl_item I ON P.itemId = I.id AND "
 				+ "P.status = 1 AND I.status = 1 "
 				+ "INNER JOIN tl_item_type T ON I.itemtype = T.id AND T.status = 1 "
-				+ "GROUP BY T.id";
+				+ "GROUP BY T.id "
+				+ "ORDER BY TotalSales DESC";
 		PreparedStatement ps = con.prepareStatement(sql);
 		ResultSet rs = ps.executeQuery();
 		ArrayList<SaleMapping> sm = new ArrayList<SaleMapping>();
@@ -120,7 +132,8 @@ public class ItemManager {
 		String sql = "SELECT I.name, SUM(quantity * price) AS TotalSales "
 				+ "FROM tl_purchase P INNER JOIN tl_item I ON P.itemId = I.id AND "
 				+ "P.status = 1 AND I.status = 1 "
-				+ "GROUP BY I.id";
+				+ "GROUP BY I.id "
+				+ "ORDER BY TotalSales DESC";
 		PreparedStatement ps = con.prepareStatement(sql);
 		ResultSet rs = ps.executeQuery();
 		ArrayList<SaleMapping> sm = new ArrayList<SaleMapping>();
@@ -134,7 +147,8 @@ public class ItemManager {
 		Connection con = DBManager.getInstance().getConnection();
 		String sql = "SELECT username, rating, review "
 				+ "FROM tl_review R INNER JOIN tl_user U ON R.userId = U.id AND R.status = 1 AND U.status = 1 "
-				+ "WHERE R.itemId = ?"
+				+ "WHERE R.itemId = ? "
+				+ "ORDER BY R.dateAdded DESC "
 				+ "LIMIT ?,?";
 		PreparedStatement ps = con.prepareStatement(sql);
 		ps.setInt(1,itemId);
