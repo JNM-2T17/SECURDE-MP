@@ -11,6 +11,8 @@
 		<script src="<c:url value="resources/js/jquery-migrate-1.2.1.min.js"/>"></script>
 	</head>
 	<body>
+		<input type="hidden" value="${error }" id="error" />
+		
 		<div id="container">
 			<div id="header">
 				<div id="header-left">
