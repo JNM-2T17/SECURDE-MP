@@ -9,6 +9,7 @@
 		<link rel="shortcut icon" href="<c:url value="resources/images/icon.png"/>"/>
 		<script src="<c:url value="resources/js/jquery.min.js"/>"></script>
 		<script src="<c:url value="resources/js/jquery-migrate-1.2.1.min.js"/>"></script>
+		<script src="<c:url value="resources/js/login.js"/>"></script>
 	</head>
 	<body>
 		<div id="container">
@@ -22,7 +23,7 @@
 				<div id="header-right">
 					<c:choose>
 					<c:when test="${empty sessionScope.sessionUser }">
-					<button>Login</button>
+					<button id="button-login">Login</button>
 					</c:when>
 					<c:otherwise>
 					<a href="logout">Logout</a>

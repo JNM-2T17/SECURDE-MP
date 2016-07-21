@@ -53,9 +53,4 @@
 				<div class="clear"></div>
 
 			</div>
-			<form action="login" method="POST">
-				<input name="username"/>
-				<input type="password" name="password"/>
-				<input type="submit" value="Login"/>
-			</form>
 <jsp:include page="footer.jsp"/>
