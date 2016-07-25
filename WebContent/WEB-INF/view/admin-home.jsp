@@ -8,6 +8,7 @@
 		<h1>No Users</h1>
 		</c:when>
 		<c:otherwise>
+		<h1>Users</h1>
 		<table>
 			<tr>
 				<th>Username</th>

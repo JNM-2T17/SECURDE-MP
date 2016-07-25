@@ -20,7 +20,7 @@ public class UserManager {
 			PreparedStatement ps = con.prepareStatement(sql);
 			ps.setInt(1, role);
 			ps.setString(2, username);
-			String hashPW = BCrypt.hashpw(password, BCrypt.gensalt());
+			String hashPW = BCrypt.hashpw(password, BCrypt.gensalt(12));
 			ps.setString(3, hashPW);
 			ps.setString(4, fname);
 			ps.setString(5, mi);
@@ -51,7 +51,7 @@ public class UserManager {
 			PreparedStatement ps = con.prepareStatement(sql);
 			ps.setInt(1, role);
 			ps.setString(2, username);
-			String hashPW = BCrypt.hashpw(password, BCrypt.gensalt());
+			String hashPW = BCrypt.hashpw(password, BCrypt.gensalt(12));
 			ps.setString(3, hashPW);
 			ps.setString(4, fname);
 			ps.setString(5, mi);
@@ -80,12 +80,13 @@ public class UserManager {
 		Connection con = DBManager.getInstance().getConnection();
 		String sql = "UPDATE tl_user SET password = ?,dateEdited = NOW(),expiresOn = DATE_ADD(NOW(), INTERVAL 3 MONTH) WHERE id = ?";
 		PreparedStatement ps = con.prepareStatement(sql);
-		String hashPW = BCrypt.hashpw(password, BCrypt.gensalt());
+		String hashPW = BCrypt.hashpw(password, BCrypt.gensalt(12));
 		ps.setString(1,hashPW);
 		ps.setInt(2,id);
 		ps.execute();		
 	}
 	
+	@SuppressWarnings("resource")
 	public static User login(String username, String password) throws Exception {
 		Connection con = DBManager.getInstance().getConnection();
 		String sql = "SELECT U.id,role,username,password,fName,mi,"
@@ -93,7 +94,7 @@ public class UserManager {
 				+ "billCity,billPostCode,billCountry,shipHouseNo,shipStreet,"
 				+ "shipSubd,shipCity,shipPostCode,shipCountry,searchProduct,"
 				+ "purchaseProduct,reviewProduct,addProduct,editProduct,"
-				+ "deleteProduct,viewRecords,createAccount,expiresOn IS NOT NULL AND expiresOn < NOW() AS expired "
+				+ "deleteProduct,viewRecords,createAccount,U.dateEdited > U.dateAdded AS passChanged, expiresOn IS NOT NULL AND expiresOn < NOW() AS expired "
 				+ "FROM tl_user U INNER JOIN tl_role R ON U.role = R.id AND U.status = 1 AND R.status = 1 "
 				+ "WHERE username = ?";
 		PreparedStatement ps = con.prepareStatement(sql);
@@ -107,10 +108,12 @@ public class UserManager {
 				ps.execute();
 				throw new Exception("Expired Account");
 			} else if(BCrypt.checkpw(password, rs.getString("password"))) {
-				sql = "UPDATE tl_user SET expiresOn = DATE_ADD(NOW(),INTERVAL 3 MONTH) WHERE username = ?";
-				ps = con.prepareStatement(sql);
-				ps.setString(1,username);
-				ps.execute();
+				if( rs.getBoolean("passChanged")) {
+					sql = "UPDATE tl_user SET expiresOn = DATE_ADD(NOW(),INTERVAL 3 MONTH) WHERE username = ?";
+					ps = con.prepareStatement(sql);
+					ps.setString(1,username);
+					ps.execute();
+				}
 				return new User(rs.getInt("id"),rs.getInt("role"),
 						rs.getString("username"),rs.getString("fName"),
 						rs.getString("mi"),rs.getString("lName"),
