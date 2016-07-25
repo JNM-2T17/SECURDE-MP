@@ -41,12 +41,19 @@ public class TheController {
 							ActivityManager.addActivity("refreshed their session.");
 						}
 					} catch(SQLException se) {
+						logError(se);
 						se.printStackTrace();
 					}
 				}
 			}
 		} else {
 			if( u.isExpired() ) {
+				try {
+					ActivityManager.addActivity("'s session expired.");
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				logoutUser(request,response);
 				return null;
 			}
@@ -55,19 +62,35 @@ public class TheController {
 		return u;
 	}
 	
-	private boolean isAuth(HttpServletRequest request, HttpServletResponse response, String privilege) throws ServletException, IOException {
-		User u = restoreSession(request,response);
-		if( u == null ) {
-			request.getRequestDispatcher("WEB-INF/view/index.jsp").forward(request, response);
-			return false;
-		} else {
-			if( u.isAuth(privilege) ) {
-				return true;
-			} else {
-				home(request,response);
-				return false;
-			}
+	private void logError(Exception e) {
+		try {
+			ActivityManager.addActivity("ran into the error " + e.getMessage() + ".");
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
+	}
+	
+	private boolean isAuth(HttpServletRequest request, HttpServletResponse response, String privilege) throws ServletException, IOException {
+		try {
+			User u = restoreSession(request,response);
+			if( u == null ) {
+				ActivityManager.addActivity("tried to access " + privilege + " and failed.");
+				request.getRequestDispatcher("WEB-INF/view/index.jsp").forward(request, response);
+			} else {
+				if( u.isAuth(privilege) ) {
+					return true;
+				} else {
+					ActivityManager.addActivity("tried to access " + privilege + " and failed.");
+					home(request,response);
+				}
+			}
+		} catch (SQLException e) {
+			logError(e);
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
 	}
 	
 	@RequestMapping("/")
@@ -86,6 +109,7 @@ public class TheController {
 					User[] users = UserManager.getSpecialUsers();
 					request.setAttribute("users", users.length == 0 ? null : users);
 				} catch(SQLException se) {
+					logError(se);
 					se.printStackTrace();
 				}
 				request.getRequestDispatcher("WEB-INF/view/admin-home.jsp").forward(request, response);
@@ -102,6 +126,7 @@ public class TheController {
 					}
 					request.setAttribute("products",items);
 				} catch (SQLException e) {
+					logError(e);
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -128,13 +153,15 @@ public class TheController {
 					c.setMaxAge(1800);
 					response.addCookie(c);
 					ActivityManager.setUser(u);
-					ActivityManager.addActivity("logged in");
+					ActivityManager.addActivity("logged in.");
 				} else {
 					request.setAttribute("error","Invalid username/password combination");
 				}
 			} catch(SQLException se) {
+				logError(se);
 				se.printStackTrace();
 			} catch(Exception e) {
+				logError(e);
 				e.printStackTrace();
 				request.setAttribute("error","Invalid username/password combination");
 			}
@@ -163,6 +190,7 @@ public class TheController {
 		try {
 			ActivityManager.addActivity("logged out.");
 		} catch (SQLException e) {
+			logError(e);
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -187,10 +215,11 @@ public class TheController {
 		if(isAuth(request,response,User.ADD_PRODUCT)) {
 			try {
 				ItemManager.addItem(itemtype,name,description,price);
-				ActivityManager.addActivity("added product " + name);
+				ActivityManager.addActivity("added product " + name + ".");
 				home(request,response);
 				return;
 			} catch(SQLException se) {
+				logError(se);
 				se.printStackTrace();
 			}
 		}
@@ -212,6 +241,7 @@ public class TheController {
 				}
 				request.getRequestDispatcher("WEB-INF/view/editProduct.jsp").forward(request, response);
 			} catch(SQLException se) {
+				logError(se);
 				se.printStackTrace();
 				request.setAttribute("error", "An unexpected error occured.");
 				home(request,response);
@@ -230,10 +260,11 @@ public class TheController {
 		if(isAuth(request,response,User.EDIT_PRODUCT)) {
 			try {
 				ItemManager.editItem(id, itemtype, name, description, price);
-				ActivityManager.addActivity("edited item " + id);
+				ActivityManager.addActivity("edited item " + id + ".");
 				home(request,response);
 				return;
 			} catch(SQLException se) {
+				logError(se);
 				se.printStackTrace();
 				editProduct(id,request,response);
 			}
@@ -249,9 +280,10 @@ public class TheController {
 			try {
 				ItemManager.deleteItem(id);
 				pw.println("true");
-				ActivityManager.addActivity("deleted item " + id);
+				ActivityManager.addActivity("deleted item " + id + ".");
 				return;
 			} catch(SQLException se) {
+				logError(se);
 				se.printStackTrace();
 			}
 		}
@@ -285,14 +317,16 @@ public class TheController {
 					request.setAttribute("error", "Authentication Failed.");
 				} else {
 					UserManager.addUser(role, username, password, fname, mi, lname, email);
-					ActivityManager.addActivity("created user " + username);
+					ActivityManager.addActivity("created user " + username + ".");
 					home(request,response);
 					return;
 				}
 			} catch(SQLException se) {
+				logError(se);
 				se.printStackTrace();
 				request.setAttribute("error", "An unexpected error occured.");
 			} catch (Exception e) {
+				logError(e);
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				request.setAttribute("error", "Authentication Failed.");
@@ -303,7 +337,7 @@ public class TheController {
 	
 	@RequestMapping(value="/editAccount",method=RequestMethod.GET)
 	public void editAccount(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if(restoreSession(request,response) != null) {
+		if(isAuth(request, response, User.EDIT_ACCOUNT)) {
 			request.getRequestDispatcher("WEB-INF/view/editAccount.jsp").forward(request, response);
 		}
 	}
@@ -315,8 +349,8 @@ public class TheController {
 			@RequestParam("newPassword") String newPassword,
 			@RequestParam("confirmPassword") String confirmPassword,
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		User u = null;
-		if((u = restoreSession(request,response)) != null) {
+		if(isAuth(request, response, User.EDIT_ACCOUNT)) {
+			User u = (User)request.getSession().getAttribute("sessionUser");
 			try {
 				if( UserManager.login(u.getUsername(),oldPassword) != null ) {
 					if( newPassword.equals(confirmPassword) ) {
@@ -331,9 +365,11 @@ public class TheController {
 					request.setAttribute("error", "Authentication Failed");
 				}
 			} catch(SQLException se) {
+				logError(se);
 				se.printStackTrace();
 				request.setAttribute("error", "An unexpected error occured.");
-			} catch (Exception e) {
+			} catch(Exception e) {
+				logError(e);
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				request.setAttribute("error", "Authentication Failed.");

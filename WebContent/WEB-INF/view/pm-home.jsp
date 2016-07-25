@@ -9,6 +9,7 @@
 		<h1>No Products</h1>
 		</c:when>
 		<c:otherwise>
+		<h1>Products</h1>
 		<table>
 			<tr>
 				<th>Name</th>

@@ -13,6 +13,7 @@ public class User {
 	public static final String DELETE_PRODUCT = "deleteProduct";
 	public static final String VIEW_RECORDS = "viewRecords";
 	public static final String CREATE_ACCOUNT = "createAccount";
+	public static final String EDIT_ACCOUNT = "editAccount";
 	private int id;
 	private int role;
 	private String roleName;
@@ -134,8 +135,6 @@ public class User {
 		c.setTime(d);
 		c.add(Calendar.MINUTE, 30);
 		endSession = c.getTime();
-		SimpleDateFormat df = new SimpleDateFormat("MMM/dd/yy hh:mm:ss aa");
-		System.out.println("Expires on " + df.format(endSession));
 	}
 	
 	public void refreshIdle() {
@@ -144,13 +143,15 @@ public class User {
 		c.setTime(d);
 		c.add(Calendar.MINUTE, 5);
 		endIdle = c.getTime();
-		SimpleDateFormat df = new SimpleDateFormat("MMM/dd/yy hh:mm:ss aa");
-		System.out.println("Idleness Expires on " + df.format(endIdle));
 	}
 
 	public boolean isExpired() {
 		Date d = new Date();
-		return endSession.compareTo(d) < 0 || endIdle.compareTo(d) < 0;
+		SimpleDateFormat df = new SimpleDateFormat("MMM/dd/yy hh:mm:ss aa");
+		System.out.println("Current Time: " + df.format(d));
+		System.out.println("Idle Expiry: " + df.format(endIdle));
+		System.out.println("Session Expiry: " + df.format(endSession));
+		return endSession.compareTo(d) <= 0 || endIdle.compareTo(d) <= 0;
 	}
 	
 	public int getId() {
@@ -395,6 +396,8 @@ public class User {
 				return viewRecords;
 			case User.CREATE_ACCOUNT:
 				return createAccount;
+			case User.EDIT_ACCOUNT:
+				return true;
 			default:
 				return false;
 		}
