@@ -27,5 +27,6 @@ public class ActivityManager {
 		PreparedStatement ps = con.prepareStatement(sql);
 		ps.setString(1,start + activity);
 		ps.execute();
+		con.close();
 	}
 }

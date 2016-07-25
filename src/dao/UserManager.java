@@ -31,6 +31,7 @@ public class UserManager {
 			ps = con.prepareStatement(sql);
 			ps.setString(1, username);
 			ps.execute();
+			con.close();
 			return true;
 		} else {
 			return false;
@@ -70,6 +71,7 @@ public class UserManager {
 			ps.setString(18,shipPostCode);
 			ps.setString(19,shipCountry);
 			ps.execute();
+			con.close();
 			return true;
 		} else {
 			return false;
@@ -83,38 +85,79 @@ public class UserManager {
 		String hashPW = BCrypt.hashpw(password, BCrypt.gensalt(12));
 		ps.setString(1,hashPW);
 		ps.setInt(2,id);
-		ps.execute();		
+		ps.execute();	
+		con.close();	
 	}
 	
 	@SuppressWarnings("resource")
 	public static User login(String username, String password) throws Exception {
 		Connection con = DBManager.getInstance().getConnection();
-		String sql = "SELECT U.id,role,username,password,fName,mi,"
-				+ "lName,emailAddress,billHouseNo,billStreet,billSubd,"
-				+ "billCity,billPostCode,billCountry,shipHouseNo,shipStreet,"
-				+ "shipSubd,shipCity,shipPostCode,shipCountry,searchProduct,"
-				+ "purchaseProduct,reviewProduct,addProduct,editProduct,"
-				+ "deleteProduct,viewRecords,createAccount,U.dateEdited > U.dateAdded AS passChanged, expiresOn IS NOT NULL AND expiresOn < NOW() AS expired "
-				+ "FROM tl_user U INNER JOIN tl_role R ON U.role = R.id AND U.status = 1 AND R.status = 1 "
-				+ "WHERE username = ?";
-		PreparedStatement ps = con.prepareStatement(sql);
-		ps.setString(1,username);
-		ResultSet rs = ps.executeQuery();
-		if( rs.next() ) {
-			System.out.println(rs.getBoolean("expired"));
-			if(rs.getBoolean("expired")) {
-				sql = "UPDATE tl_user SET status = 0 WHERE username = ?";
-				ps = con.prepareStatement(sql);
-				ps.setString(1,username);
-				ps.execute();
-				throw new Exception("Expired Account");
-			} else if(BCrypt.checkpw(password, rs.getString("password"))) {
-				if( rs.getBoolean("passChanged")) {
-					sql = "UPDATE tl_user SET expiresOn = DATE_ADD(NOW(),INTERVAL 3 MONTH) WHERE username = ?";
+		try {
+			String sql = "SELECT U.id,role,username,password,fName,mi,"
+					+ "lName,emailAddress,billHouseNo,billStreet,billSubd,"
+					+ "billCity,billPostCode,billCountry,shipHouseNo,shipStreet,"
+					+ "shipSubd,shipCity,shipPostCode,shipCountry,searchProduct,"
+					+ "purchaseProduct,reviewProduct,addProduct,editProduct,"
+					+ "deleteProduct,viewRecords,createAccount,U.dateEdited > U.dateAdded AS passChanged, expiresOn IS NOT NULL AND expiresOn < NOW() AS expired "
+					+ "FROM tl_user U INNER JOIN tl_role R ON U.role = R.id AND U.status = 1 AND R.status = 1 "
+					+ "WHERE username = BINARY ?";
+			PreparedStatement ps = con.prepareStatement(sql);
+			ps.setString(1,username);
+			ResultSet rs = ps.executeQuery();
+			if( rs.next() ) {
+				System.out.println(rs.getBoolean("expired"));
+				if(rs.getBoolean("expired")) {
+					sql = "UPDATE tl_user SET status = 0 WHERE username = ?";
 					ps = con.prepareStatement(sql);
 					ps.setString(1,username);
 					ps.execute();
+					throw new Exception("Expired Account");
+				} else if(BCrypt.checkpw(password, rs.getString("password"))) {
+					if( rs.getBoolean("passChanged")) {
+						sql = "UPDATE tl_user SET expiresOn = DATE_ADD(NOW(),INTERVAL 3 MONTH) WHERE username = ?";
+						ps = con.prepareStatement(sql);
+						ps.setString(1,username);
+						ps.execute();
+					}
+					return new User(rs.getInt("id"),rs.getInt("role"),
+							rs.getString("username"),rs.getString("fName"),
+							rs.getString("mi"),rs.getString("lName"),
+							rs.getString("emailAddress"),rs.getString("billHouseNo"),
+							rs.getString("billStreet"),rs.getString("billSubd"),
+							rs.getString("billCity"),rs.getString("billPostCode"),
+							rs.getString("billCountry"),rs.getString("shipHouseNo"),
+							rs.getString("shipStreet"),rs.getString("shipSubd"),
+							rs.getString("shipCity"),rs.getString("shipPostCode"),
+							rs.getString("shipCountry"),rs.getBoolean("searchProduct"),
+							rs.getBoolean("purchaseProduct"),rs.getBoolean("reviewProduct"),
+							rs.getBoolean("addProduct"),rs.getBoolean("editProduct"),
+							rs.getBoolean("deleteProduct"),rs.getBoolean("viewRecords"),
+							rs.getBoolean("createAccount"));
 				}
+			}
+			return null;
+		} catch(Exception e) {
+			throw e;
+		} finally {
+			con.close();
+		}
+	}
+	
+	public static User getUser(int id) throws SQLException {
+		Connection con = DBManager.getInstance().getConnection();
+		try {
+			String sql = "SELECT U.id,role,username,password,fName,mi,"
+					+ "lName,emailAddress,billHouseNo,billStreet,billSubd,"
+					+ "billCity,billPostCode,billCountry,shipHouseNo,shipStreet,"
+					+ "shipSubd,shipCity,shipPostCode,shipCountry,searchProduct,"
+					+ "purchaseProduct,reviewProduct,addProduct,editProduct,"
+					+ "deleteProduct,viewRecords,createAccount "
+					+ "FROM tl_user U INNER JOIN tl_role R ON U.role = R.id AND U.status = 1 AND R.status = 1 "
+					+ "WHERE U.id = ?";
+			PreparedStatement ps = con.prepareStatement(sql);
+			ps.setInt(1,id);
+			ResultSet rs = ps.executeQuery();
+			if( rs.next() ) {
 				return new User(rs.getInt("id"),rs.getInt("role"),
 						rs.getString("username"),rs.getString("fName"),
 						rs.getString("mi"),rs.getString("lName"),
@@ -130,40 +173,12 @@ public class UserManager {
 						rs.getBoolean("deleteProduct"),rs.getBoolean("viewRecords"),
 						rs.getBoolean("createAccount"));
 			}
+			return null;
+		} catch(Exception e) {
+			throw e;
+		} finally {
+			con.close();
 		}
-		return null;
-	}
-	
-	public static User getUser(int id) throws SQLException {
-		Connection con = DBManager.getInstance().getConnection();
-		String sql = "SELECT U.id,role,username,password,fName,mi,"
-				+ "lName,emailAddress,billHouseNo,billStreet,billSubd,"
-				+ "billCity,billPostCode,billCountry,shipHouseNo,shipStreet,"
-				+ "shipSubd,shipCity,shipPostCode,shipCountry,searchProduct,"
-				+ "purchaseProduct,reviewProduct,addProduct,editProduct,"
-				+ "deleteProduct,viewRecords,createAccount "
-				+ "FROM tl_user U INNER JOIN tl_role R ON U.role = R.id AND U.status = 1 AND R.status = 1 "
-				+ "WHERE U.id = ?";
-		PreparedStatement ps = con.prepareStatement(sql);
-		ps.setInt(1,id);
-		ResultSet rs = ps.executeQuery();
-		if( rs.next() ) {
-			return new User(rs.getInt("id"),rs.getInt("role"),
-					rs.getString("username"),rs.getString("fName"),
-					rs.getString("mi"),rs.getString("lName"),
-					rs.getString("emailAddress"),rs.getString("billHouseNo"),
-					rs.getString("billStreet"),rs.getString("billSubd"),
-					rs.getString("billCity"),rs.getString("billPostCode"),
-					rs.getString("billCountry"),rs.getString("shipHouseNo"),
-					rs.getString("shipStreet"),rs.getString("shipSubd"),
-					rs.getString("shipCity"),rs.getString("shipPostCode"),
-					rs.getString("shipCountry"),rs.getBoolean("searchProduct"),
-					rs.getBoolean("purchaseProduct"),rs.getBoolean("reviewProduct"),
-					rs.getBoolean("addProduct"),rs.getBoolean("editProduct"),
-					rs.getBoolean("deleteProduct"),rs.getBoolean("viewRecords"),
-					rs.getBoolean("createAccount"));
-		}
-		return null;
 	}
 	
 	public static User[] getSpecialUsers() throws SQLException {
@@ -178,32 +193,39 @@ public class UserManager {
 		while(rs.next()){
 			users.add(new User(rs.getInt("id"),rs.getString("role"),rs.getString("username"),rs.getString("fName"),rs.getString("mi"),rs.getString("lName"),rs.getString("emailAddress")));
 		}
+		con.close();
 		return users.toArray(new User[0]);
 	}
 	
 	public static User getUser(String username) throws SQLException {
 		Connection con = DBManager.getInstance().getConnection();
-		String sql = "SELECT id,username,fName,mi,"
-				+ "lName,emailAddress,billHouseNo,billStreet,billSubd,"
-				+ "billCity,billPostCode,billCountry,shipHouseNo,shipStreet,"
-				+ "shipSubd,shipCity,shipPostCode,shipCountry "
-				+ "FROM tl_user "
-				+ "WHERE status = 1 AND username = ?";
-		PreparedStatement ps = con.prepareStatement(sql);
-		ps.setString(1,username);
-		ResultSet rs = ps.executeQuery();
-		if( rs.next() ) {
-			return new User(rs.getInt("id"),
-					rs.getString("username"),rs.getString("fName"),
-					rs.getString("mi"),rs.getString("lName"),
-					rs.getString("emailAddress"),rs.getString("billHouseNo"),
-					rs.getString("billStreet"),rs.getString("billSubd"),
-					rs.getString("billCity"),rs.getString("billPostCode"),
-					rs.getString("billCountry"),rs.getString("shipHouseNo"),
-					rs.getString("shipStreet"),rs.getString("shipSubd"),
-					rs.getString("shipCity"),rs.getString("shipPostCode"),
-					rs.getString("shipCountry"));
+		try {
+			String sql = "SELECT id,username,fName,mi,"
+					+ "lName,emailAddress,billHouseNo,billStreet,billSubd,"
+					+ "billCity,billPostCode,billCountry,shipHouseNo,shipStreet,"
+					+ "shipSubd,shipCity,shipPostCode,shipCountry "
+					+ "FROM tl_user "
+					+ "WHERE status = 1 AND username = BINARY ?";
+			PreparedStatement ps = con.prepareStatement(sql);
+			ps.setString(1,username);
+			ResultSet rs = ps.executeQuery();
+			if( rs.next() ) {
+				return new User(rs.getInt("id"),
+						rs.getString("username"),rs.getString("fName"),
+						rs.getString("mi"),rs.getString("lName"),
+						rs.getString("emailAddress"),rs.getString("billHouseNo"),
+						rs.getString("billStreet"),rs.getString("billSubd"),
+						rs.getString("billCity"),rs.getString("billPostCode"),
+						rs.getString("billCountry"),rs.getString("shipHouseNo"),
+						rs.getString("shipStreet"),rs.getString("shipSubd"),
+						rs.getString("shipCity"),rs.getString("shipPostCode"),
+						rs.getString("shipCountry"));
+			}
+			return null;
+		} catch(Exception e) {
+			throw e;
+		} finally {
+			con.close();
 		}
-		return null;
 	}
 }
