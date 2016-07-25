@@ -6,7 +6,7 @@
 		<a href="addProduct">Add Product</a>
 		<c:choose>
 		<c:when test="${empty products }">
-		<h1>No Results for <c:out value="${query }"/></h1>
+		<h1>No Results for ${query }</h1>
 		</c:when>
 		<c:otherwise>
 		<div id="item-list">

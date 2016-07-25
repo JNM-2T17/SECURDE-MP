@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import javax.servlet.http.HttpServletRequest;
+
 import model.User;
 
 public class ActivityManager {
@@ -13,10 +15,15 @@ public class ActivityManager {
 		start = u == null ? "Anonymous user " : "User with id#" + u.getId() + " - " + u.getUsername() + " ";
 	}
 	
+	public static void setUser(HttpServletRequest request) {
+		start = "Anonymous user with ip address " + request.getRemoteAddr() + " ";
+	}
+	
 	public static void addActivity(String activity) throws SQLException {
 		Connection con = DBManager.getInstance().getConnection();
 		
 		String sql = "INSERT INTO tl_activity(activity) VALUES (?)";
+		System.out.println(con);
 		PreparedStatement ps = con.prepareStatement(sql);
 		ps.setString(1,start + activity);
 		ps.execute();

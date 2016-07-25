@@ -101,6 +101,7 @@ public class UserManager {
 		ps.setString(1,username);
 		ResultSet rs = ps.executeQuery();
 		if( rs.next() ) {
+			System.out.println(rs.getBoolean("expired"));
 			if(rs.getBoolean("expired")) {
 				sql = "UPDATE tl_user SET status = 0 WHERE username = ?";
 				ps = con.prepareStatement(sql);
