@@ -197,6 +197,32 @@ public class TheController {
 		ActivityManager.setUser(null);
 	}
 	
+	@RequestMapping("search")
+	public void search(@RequestParam(value="type",required=false) Integer type, 
+			@RequestParam(value="query",required=false) String query, 
+			@RequestParam(value="start",required=false) Integer start,
+			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		if( start == null ) {
+			start = 0;
+		}
+		if( type != null && type.intValue() == 0 ) {
+			type = null;
+		}
+		try {
+			Item[] items = ItemManager.getAllItems(type,query,start,26);
+			request.setAttribute("products", items);
+			request.setAttribute("type",type);
+			request.setAttribute("query",query);
+			request.setAttribute("start",items.length == 26 ? start + 25 : null);
+			request.getRequestDispatcher("WEB-INF/view/search.jsp").forward(request,response);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			logError(e);
+			e.printStackTrace();
+			home(request,response);
+		}
+	}
+	
 	@RequestMapping(value="/addProduct",method=RequestMethod.GET)
 	public void addProduct(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if(isAuth(request,response,User.ADD_PRODUCT)) {

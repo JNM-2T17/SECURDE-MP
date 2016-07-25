@@ -52,7 +52,7 @@ public class ItemManager {
 			whereClause += (whereClause.length() == 6 ? "" : "AND ") + "itemtype = ? ";
 		}
 		if( query != null ) {
-			whereClause += (whereClause.length() == 6 ? "" : "AND ") + "name LIKE ? ";
+			whereClause += (whereClause.length() == 6 ? "" : "AND ") + "I.name LIKE ? ";
 		}
 		sql += (whereClause.length() == 6 ? "" : whereClause) + "ORDER BY I.dateAdded DESC ";
 		
