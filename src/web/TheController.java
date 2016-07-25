@@ -31,18 +31,22 @@ public class TheController {
 		System.out.println(u);
 		if( u == null ) {
 			Cookie[] cookies = request.getCookies();
-			for(Cookie c : cookies) {
-				if( c.getName().equals("sessionUser") ) {
-					try {
-						u = UserManager.getUser(Integer.parseInt(c.getValue()));
-						request.getSession().setAttribute("sessionUser",u);
-						if( u != null ) {
-							ActivityManager.setUser(u);
-							ActivityManager.addActivity("refreshed their session.");
+			if( cookies != null ) {
+				for(Cookie c : cookies) {
+					if( c.getName().equals("sessionUser") ) {
+						try {
+							u = UserManager.getUser(Integer.parseInt(c.getValue()));
+							request.getSession().setAttribute("sessionUser",u);
+							if( u != null ) {
+								ActivityManager.setUser(u);
+								ActivityManager.addActivity("refreshed their session.");
+							} else {
+								ActivityManager.setUser(request);
+							}
+						} catch(SQLException se) {
+							logError(se);
+							se.printStackTrace();
 						}
-					} catch(SQLException se) {
-						logError(se);
-						se.printStackTrace();
 					}
 				}
 			}
@@ -194,7 +198,38 @@ public class TheController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		ActivityManager.setUser(null);
+		ActivityManager.setUser(request);
+	}
+	
+	@RequestMapping("search")
+	public void search(@RequestParam(value="type",required=false) Integer type, 
+			@RequestParam(value="query",required=false) String query, 
+			@RequestParam(value="start",required=false) Integer start,
+			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		User u = restoreSession(request, response);
+		if( u == null ) {
+			ActivityManager.setUser(request);
+		}
+		if( start == null ) {
+			start = 0;
+		}
+		if( type != null && type.intValue() == 0 ) {
+			type = null;
+		}
+		try {
+			Item[] items = ItemManager.getAllItems(type,query,start,26);
+			request.setAttribute("products", items);
+			request.setAttribute("type",type);
+			request.setAttribute("query",query);
+			request.setAttribute("start",items.length == 26 ? start + 25 : null);
+			ActivityManager.addActivity("searched for \"" + query + "\" of type " + type + ".");
+			request.getRequestDispatcher("WEB-INF/view/search.jsp").forward(request,response);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			logError(e);
+			e.printStackTrace();
+			home(request,response);
+		}
 	}
 	
 	@RequestMapping(value="/addProduct",method=RequestMethod.GET)

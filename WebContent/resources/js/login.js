@@ -4,13 +4,17 @@ $(document).ready(function(){
 	});
 });
 
-var LoginNS = {
-	clickLogin : function(){
-		if($("#loginForm").css("display") == "none"){
-			$("#loginForm").css("display", "block");
+var LoginNS = (function() {
+	var visible = false;
+	return {
+		clickLogin : function(){
+			if(!visible){
+				$("#loginForm").css("display", "block");
+				visible = true;
+			} else {
+				$("#loginForm").css("display", "none");
+				visible = false;
+			}
 		}
-		else if($("#loginForm").css("display") == "block"){
-			$("#loginForm").css("display", "none");
-		}
-	}
-}
+	};
+})();
