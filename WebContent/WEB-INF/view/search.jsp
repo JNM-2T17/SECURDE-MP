@@ -6,15 +6,11 @@
 		<!-- <a href="addProduct">Add Product</a> -->
 		<c:choose>
 		<c:when test="${empty products }">
-<<<<<<< HEAD
 			<div id="content">
 				<div id="sectionTitle">
 					<h2 class="resultsHeader"><span class="resultsText">No results for</span> <span class="resultsQuery"><c:out value="${query }"/></span></h2>
 				</div>
 			</div>
-=======
-		<h1>No Results for <c:out value="${query }"/></h1>
->>>>>>> origin/develop
 		</c:when>
 		<c:otherwise>
 		
