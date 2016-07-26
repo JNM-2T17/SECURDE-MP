@@ -38,7 +38,7 @@ public class UserManager {
 		}
 	}
 	
-	public static boolean addUser(String username, 
+	public static boolean addUser(int role, String username, 
 						String password, String fname, String mi, 
 						String lname,String emailAddress,String billHouseNo,
 						String billStreet,String billSubd,String billCity,
@@ -48,31 +48,28 @@ public class UserManager {
 		if( getUser(username) == null ) { 
 			Connection con = DBManager.getInstance().getConnection();
 			String sql = "INSERT INTO tl_user(role,username,password,fName,mi,lName,emailAddress,billHouseNo,billStreet,billSubd,billCity,billPostCode,billCountry,shipHouseNo,shipStreet,shipSubd,shipCity,shipPostCode,shipCountry) "
-			+ "VALUES (1,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+			+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			PreparedStatement ps = con.prepareStatement(sql);
-			ps.setString(1, username);
+			ps.setInt(1, role);
+			ps.setString(2, username);
 			String hashPW = BCrypt.hashpw(password, BCrypt.gensalt(12));
-			ps.setString(2, hashPW);
-			ps.setString(3, fname);
-			ps.setString(4, mi);
-			ps.setString(5, lname);
-			ps.setString(6, emailAddress);
-			ps.setString(7,billHouseNo);
-			ps.setString(8,billStreet);
-			ps.setString(9,billSubd);
-			ps.setString(10,billCity);
-			ps.setString(11,billPostCode);
-			ps.setString(12,billCountry);
-			ps.setString(13,shipHouseNo);
-			ps.setString(14,shipStreet);
-			ps.setString(15,shipSubd);
-			ps.setString(16,shipCity);
-			ps.setString(17,shipPostCode);
-			ps.setString(18,shipCountry);
-			ps.execute();
-			sql = "UPDATE tl_user SET expiresOn = DATE_ADD(NOW(),INTERVAL 3 MONTH) WHERE username = ?";
-			ps = con.prepareStatement(sql);
-			ps.setString(1, username);
+			ps.setString(3, hashPW);
+			ps.setString(4, fname);
+			ps.setString(5, mi);
+			ps.setString(6, lname);
+			ps.setString(7, emailAddress);
+			ps.setString(8,billHouseNo);
+			ps.setString(9,billStreet);
+			ps.setString(10,billSubd);
+			ps.setString(11,billCity);
+			ps.setString(12,billPostCode);
+			ps.setString(13,billCountry);
+			ps.setString(14,shipHouseNo);
+			ps.setString(15,shipStreet);
+			ps.setString(16,shipSubd);
+			ps.setString(17,shipCity);
+			ps.setString(18,shipPostCode);
+			ps.setString(19,shipCountry);
 			ps.execute();
 			con.close();
 			return true;

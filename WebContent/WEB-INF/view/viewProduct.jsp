@@ -37,7 +37,7 @@
 				<h3>No Reviews Yet</h3>
 			</c:when>
 			<c:otherwise>
-				<c:forEach items="${reviews }" var="r">
+				<c:forEach items="${reviews }" begin="0" end="9" var="r">
 				<div>
 					<c:out value="${r.username }"/>
 					Rating: 
