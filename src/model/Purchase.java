@@ -25,5 +25,8 @@ public class Purchase {
 		this.quantity = quantity;
 	}
 	
+	public double getTotal() {
+		return item.getPrice() * quantity;
+	}
 	
 }
