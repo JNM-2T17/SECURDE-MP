@@ -177,6 +177,57 @@ public class TheController {
 		home(request,response);
 	}
 	
+	@RequestMapping(value="register",method = RequestMethod.GET)
+	public void register(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		User u = restoreSession(request, response);
+		if( u != null ) {
+			home(request,response);
+		} else {
+			request.getRequestDispatcher("WEB-INF/view/register.jsp").forward(request, response);
+		}
+	}
+	
+	@ResponseBody
+	@RequestMapping(value="register",method = RequestMethod.POST)
+	public void register(@RequestParam("username") String username,
+						@RequestParam("password") String password,
+						@RequestParam("confirmPassword") String confirmPassword,
+						@RequestParam("fname") String fname,
+						@RequestParam("mi") String mi,
+						@RequestParam("lname") String lname,
+						@RequestParam("email") String email,
+						@RequestParam("billHouseNo") String billHouseNo,
+						@RequestParam("billStreet") String billStreet,
+						@RequestParam("billSubd") String billSubd,
+						@RequestParam("billCity") String billCity,
+						@RequestParam("billPostCode") String billPostCode,
+						@RequestParam("billCountry") String billCountry,
+						@RequestParam("shipHouseNo") String shipHouseNo,
+						@RequestParam("shipStreet") String shipStreet,
+						@RequestParam("shipSubd") String shipSubd,
+						@RequestParam("shipCity") String shipCity,
+						@RequestParam("shipPostCode") String shipPostCode,
+						@RequestParam("shipCountry") String shipCountry,
+			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		User u = restoreSession(request, response);
+		if( u != null ) {
+			home(request,response);
+		} else {
+			try {
+				UserManager.addUser(username, password, fname, mi, lname, email, billHouseNo, billStreet, billSubd, billCity, billPostCode, billCountry, shipHouseNo, shipStreet, shipSubd, shipCity, shipPostCode, shipCountry);
+				login(username,password,request,response);
+				ActivityManager.addActivity("registered their account.");
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				logError(e);
+				request.setAttribute("error","An unexpected error occured.");
+				register(request,response);
+				return;
+			}
+		}
+	}
+	
 	@RequestMapping("/logout")
 	public void logout(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		User u = restoreSession(request,response);
@@ -252,7 +303,7 @@ public class TheController {
 			if( canReview ) {
 				canReview = u == null ? false : ItemManager.canReview(u.getId(),id);
 			}
-			Review[] reviews = ItemManager.getReviews(id, 0, 11);
+			Review[] reviews = ItemManager.getReviews(id, null, null);
 			request.setAttribute("reviews",reviews.length == 0 ? null : reviews);
 			request.setAttribute("loadMore",reviews.length == 11 ? true : false);
 			request.setAttribute("review", r);
@@ -412,6 +463,7 @@ public class TheController {
 			@RequestParam("role") int role,
 			@RequestParam("username") String username,
 			@RequestParam("password") String password,
+			@RequestParam("confirmPassword") String confirmPassword,
 			@RequestParam("fname") String fname,
 			@RequestParam("mi") String mi,
 			@RequestParam("lname") String lname,
@@ -424,9 +476,14 @@ public class TheController {
 				if( u == null ) {
 					request.setAttribute("error", "Authentication Failed.");
 				} else {
-					UserManager.addUser(role, username, password, fname, mi, lname, email);
-					ActivityManager.addActivity("created user " + username + ".");
-					home(request,response);
+					if( password == confirmPassword ) {
+						UserManager.addUser(role, username, password, fname, mi, lname, email);
+						ActivityManager.addActivity("created user " + username + ".");
+						home(request,response);
+					} else {
+						request.setAttribute("error","Passwords don't match");
+						createAccount(request,response);
+					}
 					return;
 				}
 			} catch(SQLException se) {
