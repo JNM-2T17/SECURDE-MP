@@ -229,10 +229,17 @@ div#content{
 
 					li{
 						background: none;
+						margin: 0;
+						padding: 0;
+
 						input{
 							position: relative;
 	    					vertical-align: middle;
 	    				}
+
+	    				& + li{
+							margin-top: -10px;
+						}
 					}
 				}
 			}
