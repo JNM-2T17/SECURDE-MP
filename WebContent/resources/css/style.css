@@ -156,10 +156,14 @@ div#content div#narrowContent {
         font-size: 0.8em;
         display: none; }
         div#content div#narrowContent ul#filterList li ul li {
-          background: none; }
+          background: none;
+          margin: 0;
+          padding: 0; }
           div#content div#narrowContent ul#filterList li ul li input {
             position: relative;
             vertical-align: middle; }
+          div#content div#narrowContent ul#filterList li ul li + li {
+            margin-top: -10px; }
 div#content div#wideContent {
   float: right;
   margin: 10px 30px 20px;
