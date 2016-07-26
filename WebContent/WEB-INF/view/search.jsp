@@ -19,11 +19,11 @@
 				<div id="sectionTitle">
 					<h2 class="resultsHeader"><span class="resultsText">Results for</span> <span class="resultsQuery"><c:out value="${query }"/></span></h2>
 					<ul id="typeList">
-						<li class="active">All</li>
-						<li>Boots</li>
-						<li>Slippers</li>
-						<li>Sandals</li>
-						<li>Shoes</li>
+						<li <c:if test="${empty type }">class="active"</c:if>><a href="search?type=0&query=<c:out value="${query }"/>&start=<c:out value="${start }"/>">All</a></li>
+						<li <c:if test="${type == 1 }">class="active"</c:if>><a href="search?type=1&query=<c:out value="${query }"/>&start=<c:out value="${start }"/>">Boots</a></li>
+						<li <c:if test="${type == 4 }">class="active"</c:if>><a href="search?type=4&query=<c:out value="${query }"/>&start=<c:out value="${start }"/>">Slippers</a></li>
+						<li <c:if test="${type == 3 }">class="active"</c:if>><a href="search?type=3&query=<c:out value="${query }"/>&start=<c:out value="${start }"/>">Sandals</a></li>
+						<li <c:if test="${type == 2 }">class="active"</c:if>><a href="search?type=2&query=<c:out value="${query }"/>&start=<c:out value="${start }"/>">Shoes</a></li>
 					</ul>
 				</div>
 
@@ -71,8 +71,8 @@
 						<a href="viewProduct?id=<c:out value="${p.id }"/>">View Product</a>
 					</div>
 					</c:forEach>
-					<c:if test="${not empty start}">
-					<a href="search?type=<c:out value="${type }"/>&query=<c:out value="${query }"/>&start=<c:out value="${start }"/>">Load More</a>
+					<c:if test="${more }">
+					<a href="search?type=<c:out value="${type }"/>&query=<c:out value="${query }"/>&start=<c:out value="${start + 25 }"/>">Load More</a>
 					</c:if>
 				</div>
 
