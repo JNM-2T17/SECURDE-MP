@@ -221,7 +221,8 @@ public class TheController {
 			request.setAttribute("products", items);
 			request.setAttribute("type",type);
 			request.setAttribute("query",query);
-			request.setAttribute("start",items.length == 26 ? start + 25 : null);
+			request.setAttribute("start",start);
+			request.setAttribute("more", items.length == 26 ? true : false);
 			ActivityManager.addActivity("searched for \"" + query + "\" of type " + type + ".");
 			request.getRequestDispatcher("WEB-INF/view/search.jsp").forward(request,response);
 		} catch (SQLException e) {
