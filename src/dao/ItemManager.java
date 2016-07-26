@@ -237,18 +237,22 @@ public class ItemManager {
 		}
 	}
 	
-	public static Review[] getReviews(int itemId, int start, int limit) throws SQLException {
+	public static Review[] getReviews(int itemId, Integer start, Integer limit) throws SQLException {
 		Connection con = DBManager.getInstance().getConnection();
 		try {
 			String sql = "SELECT username, rating, review "
 					+ "FROM tl_review R INNER JOIN tl_user U ON R.userId = U.id AND R.status = 1 AND U.status = 1 "
 					+ "WHERE R.itemId = ? "
-					+ "ORDER BY R.dateAdded DESC "
-					+ "LIMIT ?,?";
+					+ "ORDER BY R.dateAdded DESC ";
+			if( start != null && limit != null ) {
+				sql += "LIMIT ?,?";
+			}
 			PreparedStatement ps = con.prepareStatement(sql);
 			ps.setInt(1,itemId);
-			ps.setInt(2,start);
-			ps.setInt(3,limit);
+			if( start != null && limit != null ) {
+				ps.setInt(2,start);
+				ps.setInt(3,limit);
+			}
 			ResultSet rs = ps.executeQuery();
 			ArrayList<Review> reviews = new ArrayList<Review>();
 			while(rs.next()) {

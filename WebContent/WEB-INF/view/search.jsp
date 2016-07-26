@@ -52,7 +52,7 @@
 			</div>
 
 			<div id="wideContent" class="wider">
-				<c:forEach var="p" items="${products }">
+				<c:forEach var="p" items="${products }" begin="0" end="24">
 				<div id="product-<c:out value="${p.id }"/>" class="product">
 					<c:out value="${p.name }"/><br/>
 					<c:out value="${p.itemtype }"/><br/>
