@@ -3,6 +3,7 @@
 
 <jsp:include page="header.jsp"/>
 			<script src="<c:url value="resources/js/register.js"/>"></script>
+			<h1>Register</h1>
 			<form action="register" method="POST" onsubmit="return register.checkSubmit();">
 				<input type="text" name="username" placeholder="Username" id="username"/><br/>
 				<input type="password" name="password" placeholder="Password" id="password"/><br/>
