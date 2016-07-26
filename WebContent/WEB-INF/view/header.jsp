@@ -19,7 +19,7 @@
 					<a href="."><h1><span class="hidden">Talaria</span></h1></a>
 					<form action="search">
 					<input id="search" value="<c:out value="${query }"/>" name="query" placeholder="search item"/>
-					<select name="type">
+					<select id="searchType" name="type">
 						<option value="0">All</option>
 						<option value="1">Boots</option>
 						<option value="2">Shoes</option>

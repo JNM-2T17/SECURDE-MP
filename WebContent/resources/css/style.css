@@ -34,18 +34,33 @@ div#header {
     height: 75px;
     margin: 10px 40px 5px;
     display: inline-block; }
-  div#header input#search {
-    position: absolute;
+  div#header input, div#header select {
     height: 40px;
-    top: 28px;
-    left: 250px;
     border: 1px #000 solid;
     padding: 0 8px;
     color: #6c6c6c;
     font-family: Zag;
     font-size: 1em;
-    width: 200px;
     outline: none; }
+  div#header select {
+    -webkit-padding-end: 16px;
+    -webkit-padding-start: 8px;
+    -webkit-appearance: button;
+    -webkit-border-radius: 0;
+    -webkit-box-shadow: none;
+    background-image: url("../images/arrow-down.png");
+    background-repeat: no-repeat;
+    background-size: 10px 10px;
+    background-position: center right 5px; }
+  div#header input#search {
+    position: absolute;
+    top: 28px;
+    left: 250px;
+    width: 200px; }
+  div#header select#searchType {
+    position: absolute;
+    top: 28px;
+    left: 455px; }
   div#header div#header-left {
     float: left; }
   div#header div#header-right {
@@ -77,17 +92,80 @@ div#content div#sectionTitle h2 {
   font-size: 5em;
   font-weight: 900;
   margin: 80px 30px 20px; }
+div#content div#sectionTitle h2.resultsHeader {
+  font-size: 2em;
+  font-weight: lighter;
+  font-style: italic;
+  margin: 40px 30px 20px;
+  text-transform: none; }
+  div#content div#sectionTitle h2.resultsHeader span.resultsText {
+    text-transform: lowercase; }
+  div#content div#sectionTitle h2.resultsHeader span.resultsQuery {
+    text-transform: uppercase;
+    color: #b30000; }
+div#content div#sectionTitle ul#typeList {
+  list-style: none;
+  font-size: 3.8em;
+  text-transform: lowercase;
+  font-weight: 900;
+  margin: 40px 0 60px 30px;
+  padding: 0; }
+  div#content div#sectionTitle ul#typeList li {
+    display: inline-block;
+    color: #939393;
+    cursor: pointer; }
+    div#content div#sectionTitle ul#typeList li + li {
+      margin-left: 15px; }
+    div#content div#sectionTitle ul#typeList li.active {
+      font-size: 1.5em;
+      color: black;
+      text-shadow: 2px 2px #939393; }
 div#content div#narrowContent {
   float: left;
   margin: 10px 30px 20px;
   width: 280px;
   font-size: 1.5em; }
+  div#content div#narrowContent.narrower {
+    width: 220px; }
   div#content div#narrowContent p {
     margin: 20px; }
+  div#content div#narrowContent h3 {
+    text-transform: uppercase;
+    color: #939393;
+    font-size: 1.2em;
+    margin: 0 0 10px; }
+  div#content div#narrowContent ul#filterList {
+    list-style: none;
+    margin-left: 5px;
+    padding: 0;
+    text-transform: lowercase; }
+    div#content div#narrowContent ul#filterList li {
+      background-image: url("../images/chevron-arrow-down.png");
+      background-size: 15px 15px;
+      background-repeat: no-repeat;
+      background-position: top 8px right 10px; }
+      div#content div#narrowContent ul#filterList li + li {
+        margin-top: 10px; }
+      div#content div#narrowContent ul#filterList li.active {
+        background-image: url("../images/chevron-arrow-up.png"); }
+        div#content div#narrowContent ul#filterList li.active ul {
+          display: block; }
+      div#content div#narrowContent ul#filterList li ul {
+        list-style: none;
+        padding: 0 0 0 10px;
+        font-size: 0.8em;
+        display: none; }
+        div#content div#narrowContent ul#filterList li ul li {
+          background: none; }
+          div#content div#narrowContent ul#filterList li ul li input {
+            position: relative;
+            vertical-align: middle; }
 div#content div#wideContent {
   float: right;
   margin: 10px 30px 20px;
   width: 600px; }
+  div#content div#wideContent.wider {
+    width: 660px; }
 
 div#footer {
   border-top: 2px black solid;

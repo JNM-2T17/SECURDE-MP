@@ -13,9 +13,7 @@
 
 					<p>Remember to register or log into your Talaria&#8482; account in order to purchase our products.</p>
 
-					<div id="footer">
-						<a href="">Contact Us</a> :: <a href="">About Us</a> <span class="copyright-text">&copy; 2016</span>
-					</div>
+					<jsp:include page="sidefooter.jsp"/>
 				</div>
 
 				<div id="wideContent">
