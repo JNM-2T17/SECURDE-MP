@@ -6,7 +6,7 @@
 		<title>Talaria Footwear</title>
 		<link rel="stylesheet" href="<c:url value="resources/css/style.css"/>"/>
 		<link rel="stylesheet" href="<c:url value="resources/font-awesome/css/font-awesome.min.css"/>"/>
-		<link rel="shortcut icon" href="<c:url value="resources/images/icon.png"/>"/>
+		<link rel="shortcut icon" href="<c:url value="resources/images/logo-red.png"/>"/>
 		<script src="<c:url value="resources/js/jquery.min.js"/>"></script>
 		<script src="<c:url value="resources/js/jquery-migrate-1.2.1.min.js"/>"></script>
 	</head>
@@ -32,6 +32,7 @@
 					<c:choose>
 					<c:when test="${empty sessionScope.sessionUser }">
 					<button id="button-login">Login</button>
+					<a href="register">Register</a>
 					</c:when>
 					<c:otherwise>
 					<h2>Welcome, <c:out value="${sessionUser.username }"/></h2>

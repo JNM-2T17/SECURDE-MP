@@ -98,7 +98,7 @@ public class UserManager {
 					+ "billCity,billPostCode,billCountry,shipHouseNo,shipStreet,"
 					+ "shipSubd,shipCity,shipPostCode,shipCountry,searchProduct,"
 					+ "purchaseProduct,reviewProduct,addProduct,editProduct,"
-					+ "deleteProduct,viewRecords,createAccount,U.dateEdited > U.dateAdded AS passChanged, expiresOn IS NOT NULL AND expiresOn < NOW() AS expired "
+					+ "deleteProduct,viewRecords,createAccount,U.dateEdited > '0000-00-00 00:00:00' AS passChanged, expiresOn IS NOT NULL AND expiresOn < NOW() AS expired "
 					+ "FROM tl_user U INNER JOIN tl_role R ON U.role = R.id AND U.status = 1 AND R.status = 1 "
 					+ "WHERE username = BINARY ?";
 			PreparedStatement ps = con.prepareStatement(sql);
