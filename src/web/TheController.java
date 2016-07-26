@@ -247,10 +247,10 @@ public class TheController {
 		try {
 			Item i = ItemManager.getItem(id);
 			request.setAttribute("p", i);
-			Review r = ItemManager.getReview(u.getId(),id);
+			Review r = u == null ? null : ItemManager.getReview(u.getId(),id);
 			boolean canReview = (r == null);
 			if( canReview ) {
-				canReview = ItemManager.canReview(u.getId(),id);
+				canReview = u == null ? false : ItemManager.canReview(u.getId(),id);
 			}
 			Review[] reviews = ItemManager.getReviews(id, 0, 11);
 			request.setAttribute("reviews",reviews.length == 0 ? null : reviews);
