@@ -3,13 +3,17 @@ package web;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import model.Cart;
 import model.Item;
+import model.Purchase;
+import model.Review;
 import model.User;
 
 import org.springframework.stereotype.Controller;
@@ -230,6 +234,74 @@ public class TheController {
 			logError(e);
 			e.printStackTrace();
 			home(request,response);
+		}
+	}
+	
+	@RequestMapping("viewProduct")
+	public void viewProduct(@RequestParam("id") int id,
+			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		User u = restoreSession(request, response);
+		if( u == null ) {
+			ActivityManager.setUser(request);
+		}
+		try {
+			Item i = ItemManager.getItem(id);
+			request.setAttribute("p", i);
+			Review r = ItemManager.getReview(u.getId(),id);
+			boolean canReview = (r == null);
+			if( canReview ) {
+				canReview = ItemManager.canReview(u.getId(),id);
+			}
+			Review[] reviews = ItemManager.getReviews(id, 0, 11);
+			request.setAttribute("reviews",reviews.length == 0 ? null : reviews);
+			request.setAttribute("loadMore",reviews.length == 11 ? true : false);
+			request.setAttribute("review", r);
+			request.setAttribute("canReview", canReview);
+			ActivityManager.addActivity("viewed item " + id + ": " + i.getName() + ".");
+			request.getRequestDispatcher("WEB-INF/view/viewProduct.jsp").forward(request,response);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logError(e);
+			home(request,response);
+		}
+	}
+	
+	private Cart refreshCart(HttpServletRequest request) throws ServletException, IOException {
+		Cart c = (Cart)request.getSession().getAttribute("sessionCart");
+		if( c == null ) {
+			c = new Cart();
+			request.getSession().setAttribute("sessionCart",c);
+		}
+		return c;
+	}
+	
+	@RequestMapping("addToCart")
+	@ResponseBody
+	public void addToCart(@RequestParam("productId") int productId,
+			@RequestParam("quantity") int quantity,
+			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		if( isAuth(request,response,User.PURCHASE_PRODUCT)) {
+			Cart c = refreshCart(request);
+			try {
+				c.addPurchase(ItemManager.getItem(productId), quantity);
+				ActivityManager.addActivity("added item " + productId + " to their cart.");
+				shoppingCart(request,response);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				logError(e);
+				request.setAttribute("error","Failed to add item to cart");
+				viewProduct(productId,request,response);
+			}
+		}
+	}
+	
+	@RequestMapping("shoppingCart")
+	public void shoppingCart(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		if(isAuth(request,response,User.PURCHASE_PRODUCT)) {
+			refreshCart(request);
+			request.getRequestDispatcher("WEB-INF/view/shoppingCart.jsp").forward(request,response);
 		}
 	}
 	

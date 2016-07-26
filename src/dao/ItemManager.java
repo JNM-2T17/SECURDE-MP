@@ -23,6 +23,44 @@ public class ItemManager {
 		con.close();
 	}
 	
+	public static boolean canReview(int userId,int itemId) throws SQLException {
+		Connection con = DBManager.getInstance().getConnection();
+		try {
+			String sql = "SELECT id FROM tl_purchase P WHERE status = 1 AND userId = ? AND itemId = ?";
+			PreparedStatement ps = con.prepareStatement(sql);
+			ps.setInt(1, userId);
+			ps.setInt(2, itemId);
+			ResultSet rs = ps.executeQuery();
+			return rs.next();
+		} catch(Exception e) {
+			throw e;
+		} finally {
+			con.close();
+		}
+	}
+	
+	public static Review getReview(int userId, int itemId) throws SQLException {
+		Connection con = DBManager.getInstance().getConnection();
+		try {
+			String sql = "SELECT username, review, rating "
+					+ "FROM tl_review P INNER JOIN tl_user U ON P.userId = U.id AND P.status = 1 AND U.status = 1 "
+					+ "WHERE userId = ? AND itemId = ?";
+			PreparedStatement ps = con.prepareStatement(sql);
+			ps.setInt(1, userId);
+			ps.setInt(2, itemId);
+			ResultSet rs = ps.executeQuery();
+			if( rs.next() ) {
+				Review r = new Review(rs.getString("username"),rs.getInt("rating"),rs.getString("review"));
+				return r;
+			}
+		} catch(Exception e) {
+			throw e;
+		} finally {
+			con.close();
+		}
+		return null;
+	}
+	
 	public static void deleteItem(int id) throws SQLException {
 		Connection con = DBManager.getInstance().getConnection();
 		String sql = "UPDATE tl_item SET status = 0 WHERE id = ?";

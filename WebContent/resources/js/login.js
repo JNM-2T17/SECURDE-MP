@@ -2,6 +2,14 @@ $(document).ready(function(){
 	$("#button-login").click(function(){
 		LoginNS.clickLogin();
 	});
+	
+	$("#button-register").click(function(){
+		window.location = "register";
+	});
+	
+	$("#button-cart").click(function(){
+		window.location = "shoppingCart";
+	});
 });
 
 var LoginNS = (function() {
