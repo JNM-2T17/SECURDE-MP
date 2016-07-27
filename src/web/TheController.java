@@ -37,7 +37,6 @@ import dao.UserManager;
 public class TheController {
 	private void restoreToken(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String token = (String)request.getSession().getAttribute("sessionToken");
-		System.out.println(token);
 		if(token == null || token.length() == 0 ) {
 			try {
 				Hasher hash = new Hasher(Hasher.SHA256);
@@ -46,7 +45,6 @@ public class TheController {
 				hash.updateHash(request.getRemoteAddr(),"UTF-8");
 				token = hash.getHashBASE64();
 				request.getSession().setAttribute("sessionToken",token);
-				System.out.println("New Token: " + token);
 			} catch (NoSuchAlgorithmException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -271,6 +269,7 @@ public class TheController {
 			home(request,response);
 		} else {
 			try {
+				checkToken(token,request,response);
 				UserManager.addUser(username, password, fname, mi, lname, email, billHouseNo, billStreet, billSubd, billCity, billPostCode, billCountry, shipHouseNo, shipStreet, shipSubd, shipCity, shipPostCode, shipCountry);
 				login(token,username,password,request,response);
 				ActivityManager.addActivity("registered their account.");
@@ -280,7 +279,10 @@ public class TheController {
 				logError(e);
 				request.setAttribute("error","An unexpected error occured.");
 				register(request,response);
-				return;
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				logError(e);
+				home(request,response);
 			}
 		}
 	}
