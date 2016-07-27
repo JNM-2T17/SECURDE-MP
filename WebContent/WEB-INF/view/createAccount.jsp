@@ -10,7 +10,7 @@
 				<label for="am">Accounting Manager</label><br/>
 				<input type="text" name="username" placeholder="Username" id="username"/><br/>
 				<input type="password" name="password" placeholder="Password" id="password"/><br/>
-				<input type="password" name="confirmPassword" placeholder="Confirm Password" id="password"/><br/>
+				<input type="password" name="confirmPassword" placeholder="Confirm Password" id="confirmPassword"/><br/>
 				<input type="text" name="fname" placeholder="First Name" id="fname"/><br/>
 				<input type="text" name="mi" placeholder="Middle Initial" id="mi"/><br/>
 				<input type="text" name="lname" placeholder="Last Name" id="lname"/><br/>

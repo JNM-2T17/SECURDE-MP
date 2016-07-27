@@ -7,6 +7,7 @@ public class Cart {
 	
 	public Cart() {
 		super();
+		purchases = new ArrayList<Purchase>();
 	}
 
 	public ArrayList<Purchase> getPurchases() {
@@ -31,6 +32,14 @@ public class Cart {
 				purchases.add(new Purchase(item,quantity));
 			}
 		}
+	}
+	
+	public double getTotal() {
+		double total = 0;
+		for(Purchase p : purchases) {
+			total += p.getTotal();
+		}
+		return total;
 	}
 	
 	public void clear() {

@@ -31,15 +31,15 @@
 				<div id="header-right">
 					<c:choose>
 					<c:when test="${empty sessionScope.sessionUser }">
+					<button id="button-register">Register</button>
 					<button id="button-login">Login</button>
-					<a href="register">Register</a>
 					</c:when>
 					<c:otherwise>
 					<h2>Welcome, <c:out value="${sessionUser.username }"/></h2>
 					<a href="editAccount">Edit Account</a>
 					<a href="logout">Logout</a>
 					<c:if test="${sessionScope.sessionUser.purchaseProduct }">
-					<a id="button-shoppingCart">Shopping Cart</a>
+					<a id="button-shoppingCart" href="shoppingCart">Shopping Cart</a>
 					</c:if>
 					</c:otherwise>
 					</c:choose>
