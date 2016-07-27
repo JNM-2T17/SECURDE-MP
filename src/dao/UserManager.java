@@ -10,8 +10,8 @@ import model.BCrypt;
 import model.User;
 
 public class UserManager {
-	private static final int LOGIN_MAX_ATTEMPTS = 1;
-	private static final int LOCKOUT_MINUTES = 15;
+	public static final int LOGIN_MAX_ATTEMPTS = 1;
+	public static final int LOCKOUT_MINUTES = 15;
 	
 	public static boolean addUser(int role, String username, 
 								String password, String fname, String mi, 

@@ -209,7 +209,7 @@ public class TheController {
 				} catch(LockoutException le) {
 					try {
 						request.setAttribute("error", le.getMessage());
-						ActivityManager.addActivity(le.getMinutes() < 10 ? "tried to login to " + username + "'s locked account." : "locked " + username + "'s account.");
+						ActivityManager.addActivity(le.getMinutes() < UserManager.LOCKOUT_MINUTES ? "tried to login to " + username + "'s locked account." : "locked " + username + "'s account.");
 					} catch (SQLException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
