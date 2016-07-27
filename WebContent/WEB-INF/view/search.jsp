@@ -7,7 +7,9 @@
 		<div id="content">
 
 			<div id="sectionTitle">
-				<h2 class="resultsHeader"><span class="resultsText"><c:if test="${empty products }">No </c:if>Results for</span> <span class="resultsQuery"><c:out value="${query }"/></span></h2>
+					<c:if test="${not empty query}" >
+					<h2 class="resultsHeader"><span class="resultsText">Results for</span> <span class="resultsQuery"><c:out value="${query }"/></span></h2>
+ 					</c:if>
 				<ul id="typeList">
 					<li <c:if test="${empty type }">class="active"</c:if>><a href="search?type=0&query=<c:out value="${query }"/>&start=<c:out value="${start }"/>">All</a></li>
 					<li <c:if test="${type == 1 }">class="active"</c:if>><a href="search?type=1&query=<c:out value="${query }"/>&start=<c:out value="${start }"/>">Boots</a></li>
