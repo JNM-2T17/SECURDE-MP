@@ -50,6 +50,7 @@
 			<script src="<c:url value="resources/js/login.js"/>"></script>
 			<div id="loginForm">
 				<form action="login" method="POST">
+					<input type="hidden" value="<c:out value="${sessionToken }"/>" name="token"/>
 					<div class="form-group">
 						<div class="form-label">Username</div>
 						<input class="form-input" name="username"/>

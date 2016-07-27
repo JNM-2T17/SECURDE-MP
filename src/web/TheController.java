@@ -2,6 +2,7 @@ package web;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -22,16 +23,38 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import security.Hasher;
+import security.Randomizer;
+
 import com.google.gson.Gson;
 
 import dao.ActivityManager;
 import dao.ItemManager;
+import dao.LockoutException;
 import dao.UserManager;
 
 @Controller
 public class TheController {
+	private void restoreToken(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String token = (String)request.getSession().getAttribute("sessionToken");
+		if(token == null || token.length() == 0 ) {
+			try {
+				Hasher hash = new Hasher(Hasher.SHA256);
+				Randomizer random = new Randomizer(1234);
+				hash.updateHash(random.getRandomLong() + "","UTF-8");
+				hash.updateHash(request.getRemoteAddr(),"UTF-8");
+				token = hash.getHashBASE64();
+				request.getSession().setAttribute("sessionToken",token);
+			} catch (NoSuchAlgorithmException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	private User restoreSession(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		User u = (User)request.getSession().getAttribute("sessionUser");
+		restoreToken(request,response);
 		System.out.println(u);
 		if( u == null ) {
 			Cookie[] cookies = request.getCookies();
@@ -68,6 +91,17 @@ public class TheController {
 			u.refreshIdle();
 		}
 		return u;
+	}
+	
+	private void checkToken(String token,HttpServletRequest request,HttpServletResponse response) throws Exception {
+		String sessionToken = (String)request.getSession().getAttribute("sessionToken");
+		if( sessionToken == null ) {
+			restoreSession(request,response);
+			sessionToken = (String)request.getSession().getAttribute("sessionToken");
+		}
+		if(!sessionToken.equals(token)) {
+			throw new Exception("Missing token");
+		}
 	}
 	
 	private void logError(Exception e) {
@@ -149,29 +183,49 @@ public class TheController {
 	
 	@ResponseBody
 	@RequestMapping("/login")
-	public void login(@RequestParam("username") String username,
+	public void login(@RequestParam("token") String token,
+			@RequestParam("username") String username,
 			@RequestParam("password") String password,
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if(request.getSession().getAttribute("sessionUser") == null) {
+		User u = restoreSession(request,response);
+		if( u == null) {
 			try {
-				User u = UserManager.login(username, password);
-				if( u != null ) {
-					request.getSession().setAttribute("sessionUser", u);
-					Cookie c = new Cookie("sessionUser","" + u.getId());
-					c.setMaxAge(1800);
-					response.addCookie(c);
-					ActivityManager.setUser(u);
-					ActivityManager.addActivity("logged in.");
-				} else {
+				checkToken(token,request,response);
+				try {
+					u = UserManager.login(username, password);
+					if( u != null ) {
+						request.getSession().setAttribute("sessionUser", u);
+						Cookie c = new Cookie("sessionUser","" + u.getId());
+						c.setMaxAge(1800);
+						response.addCookie(c);
+						ActivityManager.setUser(u);
+						ActivityManager.addActivity("logged in.");
+					} else {
+						request.setAttribute("error","Invalid username/password combination");
+					}
+				} catch(SQLException se) {
+					logError(se);
+					se.printStackTrace();
+				} catch(LockoutException le) {
+					try {
+						request.setAttribute("error", le.getMessage());
+						ActivityManager.addActivity(le.getMinutes() < 10 ? "tried to login to " + username + "'s locked account." : "locked " + username + "'s account.");
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						logError(e);
+					}
+				} catch(Exception e) {
+					logError(e);
+					e.printStackTrace();
 					request.setAttribute("error","Invalid username/password combination");
 				}
-			} catch(SQLException se) {
-				logError(se);
-				se.printStackTrace();
+			} catch(IOException ioe) {
+				ioe.printStackTrace();
+				logError(ioe);
 			} catch(Exception e) {
 				logError(e);
-				e.printStackTrace();
-				request.setAttribute("error","Invalid username/password combination");
+				request.setAttribute("error","An unexpected error occured.");
 			}
 		}
 		home(request,response);
@@ -189,7 +243,8 @@ public class TheController {
 	
 	@ResponseBody
 	@RequestMapping(value="register",method = RequestMethod.POST)
-	public void register(@RequestParam("username") String username,
+	public void register(@RequestParam("token") String token,
+						@RequestParam("username") String username,
 						@RequestParam("password") String password,
 						@RequestParam("confirmPassword") String confirmPassword,
 						@RequestParam("fname") String fname,
@@ -214,8 +269,9 @@ public class TheController {
 			home(request,response);
 		} else {
 			try {
+				checkToken(token,request,response);
 				UserManager.addUser(username, password, fname, mi, lname, email, billHouseNo, billStreet, billSubd, billCity, billPostCode, billCountry, shipHouseNo, shipStreet, shipSubd, shipCity, shipPostCode, shipCountry);
-				login(username,password,request,response);
+				login(token,username,password,request,response);
 				ActivityManager.addActivity("registered their account.");
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -223,7 +279,10 @@ public class TheController {
 				logError(e);
 				request.setAttribute("error","An unexpected error occured.");
 				register(request,response);
-				return;
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				logError(e);
+				home(request,response);
 			}
 		}
 	}
@@ -233,6 +292,7 @@ public class TheController {
 		User u = restoreSession(request,response);
 		if( u != null) {
 			logoutUser(request,response);
+			restoreToken(request,response);
 		}
 		homePage(null,request,response);
 	}
