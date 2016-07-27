@@ -10,6 +10,8 @@ import model.BCrypt;
 import model.User;
 
 public class UserManager {
+	private static final int LOGIN_MAX_ATTEMPTS = 1;
+	
 	public static boolean addUser(int role, String username, 
 								String password, String fname, String mi, 
 								String lname,String email) throws SQLException {
@@ -101,7 +103,9 @@ public class UserManager {
 					+ "billCity,billPostCode,billCountry,shipHouseNo,shipStreet,"
 					+ "shipSubd,shipCity,shipPostCode,shipCountry,searchProduct,"
 					+ "purchaseProduct,reviewProduct,addProduct,editProduct,"
-					+ "deleteProduct,viewRecords,createAccount,U.dateEdited > '0000-00-00 00:00:00' AS passChanged, expiresOn IS NOT NULL AND expiresOn < NOW() AS expired "
+					+ "deleteProduct,viewRecords,createAccount,U.dateEdited > '0000-00-00 00:00:00' AS passChanged, expiresOn IS NOT NULL AND expiresOn < NOW() AS expired, "
+					+ "loginAttempts,IFNULL(NOW() > lockedUntil,TRUE) AS unlocked, lockedUntil, "
+					+ "TIMESTAMPDIFF(MINUTE,NOW(),lockedUntil) AS unlockTime "
 					+ "FROM tl_user U INNER JOIN tl_role R ON U.role = R.id AND U.status = 1 AND R.status = 1 "
 					+ "WHERE username = BINARY ?";
 			PreparedStatement ps = con.prepareStatement(sql);
@@ -115,27 +119,46 @@ public class UserManager {
 					ps.setString(1,username);
 					ps.execute();
 					throw new Exception("Expired Account");
-				} else if(BCrypt.checkpw(password, rs.getString("password"))) {
-					if( rs.getBoolean("passChanged")) {
-						sql = "UPDATE tl_user SET expiresOn = DATE_ADD(NOW(),INTERVAL 3 MONTH) WHERE username = ?";
+				} else if(rs.getBoolean("unlocked")) {
+					if(BCrypt.checkpw(password, rs.getString("password"))) {
+						if( rs.getBoolean("passChanged")) {
+							sql = "UPDATE tl_user SET expiresOn = DATE_ADD(NOW(),INTERVAL 3 MONTH) WHERE username = ?";
+							ps = con.prepareStatement(sql);
+							ps.setString(1,username);
+							ps.execute();
+						}
+						sql = "UPDATE tl_user SET lockedUntil = NULL WHERE username = ?";
 						ps = con.prepareStatement(sql);
 						ps.setString(1,username);
 						ps.execute();
+						return new User(rs.getInt("id"),rs.getInt("role"),
+								rs.getString("username"),rs.getString("fName"),
+								rs.getString("mi"),rs.getString("lName"),
+								rs.getString("emailAddress"),rs.getString("billHouseNo"),
+								rs.getString("billStreet"),rs.getString("billSubd"),
+								rs.getString("billCity"),rs.getString("billPostCode"),
+								rs.getString("billCountry"),rs.getString("shipHouseNo"),
+								rs.getString("shipStreet"),rs.getString("shipSubd"),
+								rs.getString("shipCity"),rs.getString("shipPostCode"),
+								rs.getString("shipCountry"),rs.getBoolean("searchProduct"),
+								rs.getBoolean("purchaseProduct"),rs.getBoolean("reviewProduct"),
+								rs.getBoolean("addProduct"),rs.getBoolean("editProduct"),
+								rs.getBoolean("deleteProduct"),rs.getBoolean("viewRecords"),
+								rs.getBoolean("createAccount"));
+					} else {
+						int loginAttempts = rs.getInt("loginAttempts") + 1;
+						sql = "UPDATE tl_user SET loginAttempts = " + (loginAttempts >= LOGIN_MAX_ATTEMPTS ? "0, lockedUntil = DATE_ADD(NOW(),INTERVAL 15 MINUTE)" : 
+							"loginAttempts + 1") + " WHERE username = ?";
+						ps = con.prepareStatement(sql);
+						ps.setString(1,username);
+						ps.execute();
+						if( loginAttempts >= LOGIN_MAX_ATTEMPTS) {
+							throw new LockoutException("Account locked out for 10 minutes", 10);
+						}
 					}
-					return new User(rs.getInt("id"),rs.getInt("role"),
-							rs.getString("username"),rs.getString("fName"),
-							rs.getString("mi"),rs.getString("lName"),
-							rs.getString("emailAddress"),rs.getString("billHouseNo"),
-							rs.getString("billStreet"),rs.getString("billSubd"),
-							rs.getString("billCity"),rs.getString("billPostCode"),
-							rs.getString("billCountry"),rs.getString("shipHouseNo"),
-							rs.getString("shipStreet"),rs.getString("shipSubd"),
-							rs.getString("shipCity"),rs.getString("shipPostCode"),
-							rs.getString("shipCountry"),rs.getBoolean("searchProduct"),
-							rs.getBoolean("purchaseProduct"),rs.getBoolean("reviewProduct"),
-							rs.getBoolean("addProduct"),rs.getBoolean("editProduct"),
-							rs.getBoolean("deleteProduct"),rs.getBoolean("viewRecords"),
-							rs.getBoolean("createAccount"));
+				} else {
+					int minute = rs.getInt("unlockTime");
+					throw new LockoutException("Account locked out for " + minute + " minutes", minute);
 				}
 			}
 			return null;
