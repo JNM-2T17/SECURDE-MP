@@ -11,6 +11,7 @@ import model.User;
 
 public class UserManager {
 	private static final int LOGIN_MAX_ATTEMPTS = 1;
+	private static final int LOCKOUT_MINUTES = 15;
 	
 	public static boolean addUser(int role, String username, 
 								String password, String fname, String mi, 
@@ -147,13 +148,13 @@ public class UserManager {
 								rs.getBoolean("createAccount"));
 					} else {
 						int loginAttempts = rs.getInt("loginAttempts") + 1;
-						sql = "UPDATE tl_user SET loginAttempts = " + (loginAttempts >= LOGIN_MAX_ATTEMPTS ? "0, lockedUntil = DATE_ADD(NOW(),INTERVAL 15 MINUTE)" : 
+						sql = "UPDATE tl_user SET loginAttempts = " + (loginAttempts >= LOGIN_MAX_ATTEMPTS ? "0, lockedUntil = DATE_ADD(NOW(),INTERVAL " + LOCKOUT_MINUTES + " MINUTE)" : 
 							"loginAttempts + 1") + " WHERE username = ?";
 						ps = con.prepareStatement(sql);
 						ps.setString(1,username);
 						ps.execute();
 						if( loginAttempts >= LOGIN_MAX_ATTEMPTS) {
-							throw new LockoutException("Account locked out for 10 minutes", 10);
+							throw new LockoutException("Account locked out for " + LOCKOUT_MINUTES + " minutes", LOCKOUT_MINUTES);
 						}
 					}
 				} else {
