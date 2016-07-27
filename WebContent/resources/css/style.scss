@@ -163,7 +163,7 @@ div#content{
 				color: $fgColor2;
 				cursor: pointer;
 
-				&+ li{
+				& + li{
 					margin-left: 15px;
 				}
 
@@ -171,6 +171,15 @@ div#content{
 					font-size: 1.5em;
 					color: $fgColor1;
 					text-shadow: 2px 2px $fgColor2;
+				}
+
+				a{
+					color: inherit;
+					text-decoration: none;
+
+					&:hover{
+						color: inherit;
+					}
 				}
 			}
 		}

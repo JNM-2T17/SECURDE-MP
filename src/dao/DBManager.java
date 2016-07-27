@@ -47,7 +47,7 @@ public class DBManager {
 			}
 			instance = new DBManager("com.mysql.jdbc.DriverManager"
 					,"jdbc:mysql://127.0.0.1:3306/"
-					,"db_talaria","root","");
+					,"db_talaria","root","1234");
 			return instance;
 		}
 	}
