@@ -16,6 +16,31 @@ public class UserManager {
 	public static final int LOGIN_MAX_ATTEMPTS = 5;
 	public static final int LOCKOUT_MINUTES = 15;
 	
+	public static boolean checkPass(String password) {
+		if( password.length() < 8 ) {
+			return false;
+		}
+		
+		boolean cap = false;
+		boolean low = false;
+		boolean num = false;
+		boolean spec = false;
+		
+		for(int i = 0; i < password.length(); i++) {
+			if( password.substring(i,i + 1).matches("/[A-Z]/")) {
+				cap = true;
+			} else if(password.substring(i,i + 1).matches("/[a-z]/")) {
+				low = true;
+			} else if(password.substring(i,i + 1).matches("/[0-9]/")) {
+				num = true;
+			} else {
+				spec = true;
+			}
+		}
+		
+		return (cap && low && num && spec);
+	}
+	
 	public static boolean addUser(int role, String username, 
 								String password, String fname, String mi, 
 								String lname,String email) throws SQLException {

@@ -287,9 +287,15 @@ public class TheController {
 		} else {
 			try {
 				checkToken(token,request,response);
-				UserManager.addUser(username, password, fname, mi, lname, email, billHouseNo, billStreet, billSubd, billCity, billPostCode, billCountry, shipHouseNo, shipStreet, shipSubd, shipCity, shipPostCode, shipCountry);
-				login(token,username,password,request,response);
-				ActivityManager.addActivity("registered their account.");
+				if( UserManager.checkPass(password) && password.equals(confirmPassword)) {
+					UserManager.addUser(username, password, fname, mi, lname, email, billHouseNo, billStreet, billSubd, billCity, billPostCode, billCountry, shipHouseNo, shipStreet, shipSubd, shipCity, shipPostCode, shipCountry);
+					login(token,username,password,request,response);
+					ActivityManager.addActivity("registered their account.");
+				} else {
+					logError(new Exception("Data validation failed on register."));
+					request.setAttribute("error","Failed to register account.");
+					register(request,response);
+				}
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -557,12 +563,13 @@ public class TheController {
 				if( u == null ) {
 					request.setAttribute("error", "Authentication Failed.");
 				} else {
-					if( password == confirmPassword ) {
+					if( UserManager.checkPass(password) && password == confirmPassword ) {
 						UserManager.addUser(role, username, password, fname, mi, lname, email);
 						ActivityManager.addActivity("created user " + username + ".");
 						home(request,response);
 					} else {
-						request.setAttribute("error","Passwords don't match");
+						logError(new Exception("Data validation failed on create account."));
+						request.setAttribute("error","Failed to register account.");
 						createAccount(request,response);
 					}
 					return;
