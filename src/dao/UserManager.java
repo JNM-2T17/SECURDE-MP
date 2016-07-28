@@ -6,11 +6,41 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import security.AuthenticationException;
+import security.ExpiredAccountException;
+import security.LockoutException;
 import model.BCrypt;
 import model.User;
 
 public class UserManager {
-	private static final int LOGIN_MAX_ATTEMPTS = 1;
+	public static final int LOGIN_MAX_ATTEMPTS = 5;
+	public static final int LOCKOUT_MINUTES = 15;
+	
+	public static boolean checkPass(String password) {
+		if( password.length() < 8 ) {
+			return false;
+		}
+		
+		boolean cap = false;
+		boolean low = false;
+		boolean num = false;
+		boolean spec = false;
+		
+		for(int i = 0; i < password.length(); i++) {
+			if( password.substring(i,i + 1).matches("[A-Z]")) {
+				cap = true;
+			} else if(password.substring(i,i + 1).matches("[a-z]")) {
+				low = true;
+			} else if(password.substring(i,i + 1).matches("[0-9]")) {
+				num = true;
+			} else {
+				spec = true;
+			}
+		}
+		
+		
+		return (cap && low && num && spec);
+	}
 	
 	public static boolean addUser(int role, String username, 
 								String password, String fname, String mi, 
@@ -95,7 +125,7 @@ public class UserManager {
 	}
 	
 	@SuppressWarnings("resource")
-	public static User login(String username, String password) throws Exception {
+	public static User login(String username, String password) throws LockoutException, SQLException, ExpiredAccountException, AuthenticationException {
 		Connection con = DBManager.getInstance().getConnection();
 		try {
 			String sql = "SELECT U.id,role,username,password,fName,mi,"
@@ -118,7 +148,7 @@ public class UserManager {
 					ps = con.prepareStatement(sql);
 					ps.setString(1,username);
 					ps.execute();
-					throw new Exception("Expired Account");
+					throw new ExpiredAccountException();
 				} else if(rs.getBoolean("unlocked")) {
 					if(BCrypt.checkpw(password, rs.getString("password"))) {
 						if( rs.getBoolean("passChanged")) {
@@ -147,13 +177,15 @@ public class UserManager {
 								rs.getBoolean("createAccount"));
 					} else {
 						int loginAttempts = rs.getInt("loginAttempts") + 1;
-						sql = "UPDATE tl_user SET loginAttempts = " + (loginAttempts >= LOGIN_MAX_ATTEMPTS ? "0, lockedUntil = DATE_ADD(NOW(),INTERVAL 15 MINUTE)" : 
+						sql = "UPDATE tl_user SET loginAttempts = " + (loginAttempts >= LOGIN_MAX_ATTEMPTS ? "0, lockedUntil = DATE_ADD(NOW(),INTERVAL " + LOCKOUT_MINUTES + " MINUTE)" : 
 							"loginAttempts + 1") + " WHERE username = ?";
 						ps = con.prepareStatement(sql);
 						ps.setString(1,username);
 						ps.execute();
 						if( loginAttempts >= LOGIN_MAX_ATTEMPTS) {
-							throw new LockoutException("Account locked out for 10 minutes", 10);
+							throw new LockoutException("Account locked out for " + LOCKOUT_MINUTES + " minutes", LOCKOUT_MINUTES);
+						} else {
+							throw new AuthenticationException();
 						}
 					}
 				} else {
@@ -162,10 +194,13 @@ public class UserManager {
 				}
 			}
 			return null;
-		} catch(Exception e) {
-			throw e;
 		} finally {
-			con.close();
+			try {
+				con.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	

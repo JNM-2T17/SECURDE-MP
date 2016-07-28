@@ -1,4 +1,4 @@
-package dao;
+package security;
 
 public class LockoutException extends Exception {
 	/**

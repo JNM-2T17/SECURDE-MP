@@ -31,6 +31,7 @@
 				<td colspan="2"></td>
 			</tr>
 		</table>
+		<button onclick="window.location='checkout';">Proceed to Checkout</button>
 		</c:otherwise>
 		</c:choose>
 <jsp:include page="footer.jsp"/>

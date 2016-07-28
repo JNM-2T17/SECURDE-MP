@@ -19,14 +19,22 @@ public class ActivityManager {
 		start = "Anonymous user with ip address " + request.getRemoteAddr() + " ";
 	}
 	
-	public static void addActivity(String activity) throws SQLException {
+	public static void addActivity(String activity) {
 		Connection con = DBManager.getInstance().getConnection();
-		
-		String sql = "INSERT INTO tl_activity(activity) VALUES (?)";
-		System.out.println(con);
-		PreparedStatement ps = con.prepareStatement(sql);
-		ps.setString(1,start + activity);
-		ps.execute();
-		con.close();
+		try {
+			String sql = "INSERT INTO tl_activity(activity) VALUES (?)";
+			System.out.println(con);
+			PreparedStatement ps = con.prepareStatement(sql);
+			ps.setString(1,start + activity);
+			ps.execute();
+		} catch(SQLException se) {
+			se.printStackTrace();
+		} finally {
+			try {
+				con.close();
+			} catch(SQLException se) {
+				se.printStackTrace();
+			}
+		}
 	}
 }

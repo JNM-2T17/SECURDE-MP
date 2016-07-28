@@ -1,7 +1,4 @@
 var register = (function(){
-	function appendMessage(message, add) {
-		return message + (message.length == 0 ? "" : "\n") + add;
-	}
 	return {
 		copyBill : function() {
 			$("#shipHouseNo").val($("#billHouseNo").val());
@@ -34,8 +31,9 @@ var register = (function(){
 			
 			var message = "";
 			
-			if( password.length == 0 ) {
-				message = appendMessage(message,"Password cannot be empty.");
+			var passCheck = checkPass(password);
+			if( passCheck !== true ) {
+				message = appendMessage(message,passCheck);
 			} else if(password != confirmPassword) {
 				message = appendMessage(message,"Passwords don't match.");
 			}

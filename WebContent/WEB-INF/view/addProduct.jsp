@@ -3,6 +3,7 @@
 
 <jsp:include page="header.jsp"/>
 		<form action="addProduct" method="POST">
+			<input type="hidden" value="${sessionToken }" name="token"/>
 			<input placeholder="Name" name="name"/><br/>
 			<select name="itemtype">
 				<option value="1">Boots</option>
