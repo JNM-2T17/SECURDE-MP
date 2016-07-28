@@ -9,9 +9,13 @@ public class Cart {
 		super();
 		purchases = new ArrayList<Purchase>();
 	}
+	
+	public int size() {
+		return purchases.size();
+	}
 
-	public ArrayList<Purchase> getPurchases() {
-		return purchases;
+	public Purchase[] getPurchases() {
+		return purchases.toArray(new Purchase[0]);
 	}
 
 	public void setPurchases(ArrayList<Purchase> purchases) {

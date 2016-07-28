@@ -14,6 +14,8 @@ public class User {
 	public static final String VIEW_RECORDS = "viewRecords";
 	public static final String CREATE_ACCOUNT = "createAccount";
 	public static final String EDIT_ACCOUNT = "editAccount";
+	public static final int IDLE_EXPIRY = 10;
+	public static final int SESSION_EXPIRY = 30;
 	private int id;
 	private int role;
 	private String roleName;
@@ -133,7 +135,7 @@ public class User {
 		Date d = new Date();
 		Calendar c = Calendar.getInstance();
 		c.setTime(d);
-		c.add(Calendar.MINUTE, 30);
+		c.add(Calendar.MINUTE, SESSION_EXPIRY);
 		endSession = c.getTime();
 	}
 	
@@ -141,7 +143,7 @@ public class User {
 		Date d = new Date();
 		Calendar c = Calendar.getInstance();
 		c.setTime(d);
-		c.add(Calendar.MINUTE, 5);
+		c.add(Calendar.MINUTE, IDLE_EXPIRY);
 		endIdle = c.getTime();
 	}
 

@@ -434,6 +434,102 @@ public class TheController {
 		}
 	}
 	
+	@RequestMapping(value="checkout",method=RequestMethod.GET)
+	public void checkout(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		if(isAuth(request,response,User.PURCHASE_PRODUCT)) {
+			Cart c = refreshCart(request);
+			if( c.size() > 0 ) {
+				request.getRequestDispatcher("WEB-INF/view/checkout.jsp").forward(request,response);
+			} else {
+				request.setAttribute("error", "Cart is empty.");
+				request.getRequestDispatcher("WEB-INF/view/shoppingCart.jsp").forward(request,response);
+			}
+		}
+	}
+	
+	@ResponseBody
+	@RequestMapping(value="checkout",method=RequestMethod.POST)
+	public void checkout(@RequestParam("token") String token,
+			@RequestParam("ccno") String ccno,
+			@RequestParam("cardtype") String cardtype,
+			@RequestParam("expmm") int expmm,
+			@RequestParam("expyy") int expyy,
+			@RequestParam("cvc") String cvc,
+			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		if(isAuth(request,response,User.PURCHASE_PRODUCT)) {
+			try {
+				checkToken(token,request,response);
+				User u = restoreSession(request,response);
+				Cart c = refreshCart(request);
+				if( c.size() > 0 ) {
+					if( ccno.matches("^([0-9]{16}|([0-9]{4}-){3}[0-9]{4})$") && 
+							cardtype.matches("^(visa|mastercard)$") && 
+							("" + expmm).matches("^((0|)[1-9]|1[0-2])$") && 
+							("" + expyy).matches("^2[0-9]{3}$") && 
+							cvc.matches("^[0-9]{3}$") ){
+						ItemManager.purchaseCart(u.getId(), c, cardtype, expmm, expyy, cvc);
+						request.setAttribute("message", "Transaction Successful");
+						c.clear();
+						ActivityManager.addActivity("checked out their cart.");
+						home(request,response);
+					} else {
+						logError(new Exception("Data validation failed on checkout."));
+						request.setAttribute("error","Failed to checkout.");
+						checkout(request,response);
+					}
+				} else {
+					request.setAttribute("error", "Cart is empty.");
+					request.getRequestDispatcher("WEB-INF/view/shoppingCart.jsp").forward(request,response);
+				}
+			} catch (MissingTokenException | SQLException e) {
+				logError(e);
+				e.printStackTrace();
+				request.setAttribute("error", "An unexpected error occured.");
+				checkout(request,response);
+			}
+		}
+	}
+	
+	@ResponseBody
+	@RequestMapping("review")
+	public void review(@RequestParam("token") String token,
+			@RequestParam("prodId") int prodId,
+			@RequestParam("review") String review,
+			@RequestParam("rating") int rating,
+			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		if(isAuth(request,response,User.REVIEW_PRODUCT)) {
+			try {
+				checkToken(token,request,response);
+				User u = restoreSession(request,response);
+				Review r = ItemManager.getReview(u.getId(), prodId);
+				if( r == null ) {
+					boolean canReview = ItemManager.canReview(u.getId(), prodId);
+					if( canReview ) {
+						if( review.length() > 0 && rating >= 1 && rating <= 5 ) {
+							ItemManager.reviewItem(u.getId(), prodId, rating, review);
+							request.setAttribute("message", "Review Submitted");
+							response.getWriter().print("true");
+							ActivityManager.addActivity("reviewed item " + prodId + ".");
+						} else {
+							logError(new Exception("Data validation failed on review product."));
+							response.getWriter().print("Failed to review product.");
+						}
+					} else {
+						response.getWriter().print("Please purchase this item before reviewing.");
+						ActivityManager.addActivity("tried to review item " + prodId + " but hasn't purchased it yet.");
+					}
+				} else {
+					ItemManager.updateReview(u.getId(), prodId, rating, review);
+					response.getWriter().print("true");
+				}
+			} catch (MissingTokenException | SQLException e) {
+				logError(e);
+				e.printStackTrace();
+				response.getWriter().print("An unexpected error occured.");
+			}
+		}
+	}
+	
 	@RequestMapping(value="/addProduct",method=RequestMethod.GET)
 	public void addProduct(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if(isAuth(request,response,User.ADD_PRODUCT)) {

@@ -2,6 +2,10 @@ function showError(message) {
 	alert(message);
 }
 
+function showMessage(message) {
+	alert(message);
+}
+
 function appendMessage(message, add) {
 	return message + (message.length == 0 ? "" : "\n") + add;
 }
@@ -50,5 +54,10 @@ $(document).ready(function() {
 	var error = $("#error").val() ? $("#error").val() : "";
 	if( error.length > 0 ) {
 		showError(error);
+	}
+	
+	var message= $("#message").val() ? $("#message").val() : "";
+	if( message.length > 0 ) {
+		showError(message);
 	}
 });

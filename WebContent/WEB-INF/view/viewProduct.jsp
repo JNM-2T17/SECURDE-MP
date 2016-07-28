@@ -16,15 +16,28 @@
 					<input type="submit" value="Add to Cart"/>
 				</form>
 				<c:choose>
-				<c:when test="${not empty review }">
-				<div>
-					Your review: <c:out value="${review }"/>
-				</div>
-				</c:when>
-				<c:when test="${canReview }">
-					<form onsubmit="viewProduct.checkReview">
+				<c:when test="${not empty review || canReview}">
+					<c:if test="${not empty review }">
+						<div id="user-review">
+						Your review: <p id="review-rating"><c:forEach begin="1" end="${review.rating }">*</c:forEach><c:forEach begin="${review.rating + 1 }" end="5">_</c:forEach></p>
+						<p id="review-content"><c:out value="${review.review }"/></p>
+						<button id="button-update">Update Review</button>
+						</div>
+					</c:if>
+					<form id="reviewForm" onsubmit="return viewProduct.checkReview();">
 						Add Review:
-						<textarea id="review"></textarea>
+						<input type="hidden" value="${sessionToken }" id="review-token" name="token"/>
+						Rating: <input type="radio" name="rating" id="rating-1" value="1" <c:if test="${review.rating == 1 }">checked</c:if>/>
+						<label for="rating-1">1</label>
+						<input type="radio" name="rating" id="rating-2" value="2" <c:if test="${review.rating == 2 }">checked</c:if>/>
+						<label for="rating-2">2</label>
+						<input type="radio" name="rating" id="rating-3" value="3" <c:if test="${review.rating == 3 }">checked</c:if>/>
+						<label for="rating-3">3</label>
+						<input type="radio" name="rating" id="rating-4" value="4" <c:if test="${review.rating == 4 }">checked</c:if>/>
+						<label for="rating-4">4</label>
+						<input type="radio" name="rating" id="rating-5" value="5" <c:if test="${review.rating == 5 }">checked</c:if>/>
+						<label for="rating-5">5</label>
+						<textarea id="review" name='review'><c:if test="${not empty review }"><c:out value="${review.review }"/></c:if></textarea>
 						<input type="submit" value="Send Review"/>
 					</form>
 				</c:when>
@@ -38,12 +51,12 @@
 				<h3>No Reviews Yet</h3>
 			</c:when>
 			<c:otherwise>
+				<h2>Reviews</h2>
 				<c:forEach items="${reviews }" var="r">
 				<div>
 					<c:out value="${r.username }"/>
 					Rating: 
-					<c:forEach begin="1" end="${r.rating }">*</c:forEach>
-					<c:forEach begin="${r.rating + 1 }" end="5">_</c:forEach>
+					<c:forEach begin="1" end="${r.rating }">*</c:forEach><c:forEach begin="${r.rating + 1 }" end="5">_</c:forEach>
 					<c:out value="${r.review }"/>
 				</div>
 				</c:forEach>
