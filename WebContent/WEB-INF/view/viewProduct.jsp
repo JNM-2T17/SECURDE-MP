@@ -10,6 +10,7 @@
 			<c:if test="${not empty sessionUser }">
 				<button id="addButton">Add to Cart</button>
 				<form id="addForm" action="addToCart" method="post" onsubmit="return viewProduct.checkSubmit();">
+					<input type="hidden" value="${sessionToken }" name="token"/>
 					<input type="hidden" id="productId" name="productId" value="<c:out value="${p.id }"/>"/>
 					<input type="number" name="quantity" id="quantity"/>
 					<input type="submit" value="Add to Cart"/>

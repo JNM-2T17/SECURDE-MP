@@ -3,6 +3,7 @@ function submit(id) {
 		url:"deleteProduct",
 		method : "POST",
 		data : {
+			token : $("#token").val(),
 			id : id
 		},
 		success : function(a) {

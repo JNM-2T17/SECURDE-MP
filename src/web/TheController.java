@@ -2,9 +2,9 @@ package web;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import model.Cart;
 import model.Item;
-import model.Purchase;
 import model.Review;
 import model.User;
 
@@ -23,14 +22,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import security.AuthenticationException;
+import security.ExpiredAccountException;
 import security.Hasher;
+import security.LockoutException;
+import security.MissingTokenException;
 import security.Randomizer;
 
 import com.google.gson.Gson;
 
 import dao.ActivityManager;
 import dao.ItemManager;
-import dao.LockoutException;
 import dao.UserManager;
 
 @Controller
@@ -51,6 +53,31 @@ public class TheController {
 			}
 		}
 	}
+
+	private String genHash(User u,String ip) {
+		Hasher hash;
+		try {
+			hash = new Hasher(Hasher.SHA256);
+			hash.updateHash(u.getId() + u.getUsername(),"UTF-8");
+			hash.updateHash(ip,"UTF-8");
+			String token = u.getId() + "$" + hash.getHashBASE64();
+			return token;
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "";
+	}
+	
+	private void genToken(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		User u = restoreSession(request,response);
+		if( u != null ) {
+			request.getSession().setAttribute("sessionToken",genHash(u,request.getRemoteAddr())); 
+		}
+	}
 	
 	private User restoreSession(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		User u = (User)request.getSession().getAttribute("sessionUser");
@@ -60,13 +87,17 @@ public class TheController {
 			Cookie[] cookies = request.getCookies();
 			if( cookies != null ) {
 				for(Cookie c : cookies) {
-					if( c.getName().equals("sessionUser") ) {
+					if( c.getName().equals("sessionToken") ) {
 						try {
-							u = UserManager.getUser(Integer.parseInt(c.getValue()));
-							request.getSession().setAttribute("sessionUser",u);
+							int dollar = c.getValue().indexOf('$');
+							u = UserManager.getUser(Integer.parseInt(c.getValue().substring(0,dollar)));
 							if( u != null ) {
-								ActivityManager.setUser(u);
-								ActivityManager.addActivity("refreshed their session.");
+								String genHash = genHash(u,request.getRemoteAddr());
+								if( genHash.equals(c.getValue())) {			
+									request.getSession().setAttribute("sessionUser",u);
+									ActivityManager.setUser(u);
+									ActivityManager.addActivity("refreshed their session.");
+								} 
 							} else {
 								ActivityManager.setUser(request);
 							}
@@ -74,17 +105,13 @@ public class TheController {
 							logError(se);
 							se.printStackTrace();
 						}
+						break;
 					}
 				}
 			}
 		} else {
 			if( u.isExpired() ) {
-				try {
-					ActivityManager.addActivity("'s session expired.");
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				ActivityManager.addActivity("'s session expired.");
 				logoutUser(request,response);
 				return null;
 			}
@@ -93,44 +120,33 @@ public class TheController {
 		return u;
 	}
 	
-	private void checkToken(String token,HttpServletRequest request,HttpServletResponse response) throws Exception {
+	private void checkToken(String token,HttpServletRequest request,HttpServletResponse response) throws MissingTokenException, ServletException, IOException {
 		String sessionToken = (String)request.getSession().getAttribute("sessionToken");
 		if( sessionToken == null ) {
 			restoreSession(request,response);
 			sessionToken = (String)request.getSession().getAttribute("sessionToken");
 		}
 		if(!sessionToken.equals(token)) {
-			throw new Exception("Missing token");
+			throw new MissingTokenException();
 		}
 	}
 	
 	private void logError(Exception e) {
-		try {
-			ActivityManager.addActivity("ran into the error " + e.getMessage() + ".");
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		ActivityManager.addActivity("ran into the error " + e.getMessage() + ".");
 	}
 	
 	private boolean isAuth(HttpServletRequest request, HttpServletResponse response, String privilege) throws ServletException, IOException {
-		try {
-			User u = restoreSession(request,response);
-			if( u == null ) {
-				ActivityManager.addActivity("tried to access " + privilege + " and failed.");
-				request.getRequestDispatcher("WEB-INF/view/index.jsp").forward(request, response);
+		User u = restoreSession(request,response);
+		if( u == null ) {
+			ActivityManager.addActivity("tried to access " + privilege + " and failed.");
+			request.getRequestDispatcher("WEB-INF/view/index.jsp").forward(request, response);
+		} else {
+			if( u.isAuth(privilege) ) {
+				return true;
 			} else {
-				if( u.isAuth(privilege) ) {
-					return true;
-				} else {
-					ActivityManager.addActivity("tried to access " + privilege + " and failed.");
-					home(request,response);
-				}
+				ActivityManager.addActivity("tried to access " + privilege + " and failed.");
+				home(request,response);
 			}
-		} catch (SQLException e) {
-			logError(e);
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		return false;
 	}
@@ -191,42 +207,43 @@ public class TheController {
 		if( u == null) {
 			try {
 				checkToken(token,request,response);
-				try {
-					u = UserManager.login(username, password);
-					if( u != null ) {
-						request.getSession().setAttribute("sessionUser", u);
-						Cookie c = new Cookie("sessionUser","" + u.getId());
-						c.setMaxAge(1800);
-						response.addCookie(c);
-						ActivityManager.setUser(u);
-						ActivityManager.addActivity("logged in.");
-					} else {
-						request.setAttribute("error","Invalid username/password combination");
-					}
-				} catch(SQLException se) {
-					logError(se);
-					se.printStackTrace();
-				} catch(LockoutException le) {
-					try {
-						request.setAttribute("error", le.getMessage());
-						ActivityManager.addActivity(le.getMinutes() < UserManager.LOCKOUT_MINUTES ? "tried to login to " + username + "'s locked account." : "locked " + username + "'s account.");
-					} catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						logError(e);
-					}
-				} catch(Exception e) {
-					logError(e);
-					e.printStackTrace();
+				u = UserManager.login(username, password);
+				if( u != null ) {
+					String genHash = genHash(u,request.getRemoteAddr());
+					request.getSession().setAttribute("sessionUser", u);
+					Cookie c = new Cookie("sessionToken",genHash);
+					c.setMaxAge(1800);
+					response.addCookie(c);
+					ActivityManager.setUser(u);
+					ActivityManager.addActivity("logged in.");
+				} else {
 					request.setAttribute("error","Invalid username/password combination");
 				}
-			} catch(IOException ioe) {
-				ioe.printStackTrace();
-				logError(ioe);
-			} catch(Exception e) {
-				logError(e);
-				request.setAttribute("error","An unexpected error occured.");
-			}
+			} catch(SQLException se) {
+				logError(se);
+				se.printStackTrace();
+			} catch (LockoutException e) {
+				// TODO Auto-generated catch block
+				if(e.getMinutes() == UserManager.LOCKOUT_MINUTES) {
+					ActivityManager.addActivity("locked out " + username + "'s account." );
+					request.setAttribute("error", e.getMessage());
+				} else {
+					ActivityManager.addActivity("tried to login to " + username + "'s locked account." );
+					request.setAttribute("error", e.getMessage());
+				}
+			} catch (ExpiredAccountException e) {
+				// TODO Auto-generated catch block
+				ActivityManager.addActivity("tried to login to " + username + "'s expired account.");
+				request.setAttribute("error", "Invalid username/password combination");
+			} catch (AuthenticationException e) {
+				// TODO Auto-generated catch block
+				ActivityManager.addActivity("failed to login to " + username + "'s account.");
+				request.setAttribute("error", "Invalid username/password combination");
+			} catch (MissingTokenException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				request.setAttribute("error", "An unexpected error occured.");
+			} 
 		}
 		home(request,response);
 	}
@@ -279,11 +296,10 @@ public class TheController {
 				logError(e);
 				request.setAttribute("error","An unexpected error occured.");
 				register(request,response);
-			} catch (Exception e) {
+			} catch (MissingTokenException e) {
 				// TODO Auto-generated catch block
 				logError(e);
-				home(request,response);
-			}
+			} 
 		}
 	}
 	
@@ -306,13 +322,7 @@ public class TheController {
 				response.addCookie(c);
 			}
 		}
-		try {
-			ActivityManager.addActivity("logged out.");
-		} catch (SQLException e) {
-			logError(e);
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		ActivityManager.addActivity("logged out.");
 		ActivityManager.setUser(request);
 	}
 	
@@ -389,22 +399,24 @@ public class TheController {
 	
 	@RequestMapping("addToCart")
 	@ResponseBody
-	public void addToCart(@RequestParam("productId") int productId,
+	public void addToCart(@RequestParam("token") String token,
+			@RequestParam("productId") int productId,
 			@RequestParam("quantity") int quantity,
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if( isAuth(request,response,User.PURCHASE_PRODUCT)) {
 			Cart c = refreshCart(request);
 			try {
+				checkToken(token,request,response);
 				c.addPurchase(ItemManager.getItem(productId), quantity);
 				ActivityManager.addActivity("added item " + productId + " to their cart.");
 				shoppingCart(request,response);
-			} catch (SQLException e) {
+			} catch (SQLException | MissingTokenException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				logError(e);
 				request.setAttribute("error","Failed to add item to cart");
 				viewProduct(productId,request,response);
-			}
+			} 
 		}
 	}
 	
@@ -425,7 +437,8 @@ public class TheController {
 	
 	@ResponseBody
 	@RequestMapping(value="/addProduct",method=RequestMethod.POST)
-	public void addProductPost(
+	public void addProduct(
+			@RequestParam("token") String token,
 			@RequestParam("name") String name,
 			@RequestParam("itemtype") int itemtype,
 			@RequestParam("description") String description,
@@ -433,13 +446,15 @@ public class TheController {
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if(isAuth(request,response,User.ADD_PRODUCT)) {
 			try {
+				checkToken(token,request,response);
 				ItemManager.addItem(itemtype,name,description,price);
 				ActivityManager.addActivity("added product " + name + ".");
 				home(request,response);
 				return;
-			} catch(SQLException se) {
+			} catch(SQLException | MissingTokenException se) {
 				logError(se);
 				se.printStackTrace();
+				request.setAttribute("error", "An unexpected error occured");
 			}
 		}
 		request.getRequestDispatcher("WEB-INF/view/addProduct.jsp").forward(request, response);
@@ -470,7 +485,8 @@ public class TheController {
 	
 	@ResponseBody
 	@RequestMapping(value="editProduct",method = RequestMethod.POST)
-	public void editProduct(@RequestParam("id") int id,
+	public void editProduct(@RequestParam("token") String token,
+			@RequestParam("id") int id,
 			@RequestParam("name") String name,
 			@RequestParam("itemtype") int itemtype,
 			@RequestParam("description") String description,
@@ -478,13 +494,15 @@ public class TheController {
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if(isAuth(request,response,User.EDIT_PRODUCT)) {
 			try {
+				checkToken(token,request,response);
 				ItemManager.editItem(id, itemtype, name, description, price);
 				ActivityManager.addActivity("edited item " + id + ".");
 				home(request,response);
 				return;
-			} catch(SQLException se) {
+			} catch(SQLException | MissingTokenException se) {
 				logError(se);
 				se.printStackTrace();
+				request.setAttribute("error", "An unexpected error occured.");
 				editProduct(id,request,response);
 			}
 		}
@@ -492,7 +510,8 @@ public class TheController {
 	
 	@ResponseBody
 	@RequestMapping("/deleteProduct")
-	public void deleteProduct(@RequestParam("id") int id,
+	public void deleteProduct(@RequestParam("token") String token,
+			@RequestParam("id") int id,
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		PrintWriter pw = response.getWriter();
 		if(isAuth(request,response,User.DELETE_PRODUCT)) {
@@ -519,6 +538,7 @@ public class TheController {
 	@ResponseBody
 	@RequestMapping(value="/createAccount",method=RequestMethod.POST)
 	public void createAccount(
+			@RequestParam("token") String token,
 			@RequestParam("authPassword") String authPassword,
 			@RequestParam("role") int role,
 			@RequestParam("username") String username,
@@ -531,6 +551,7 @@ public class TheController {
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if(isAuth(request,response,User.CREATE_ACCOUNT)) {
 			try {
+				checkToken(token,request,response);
 				User u = (User)request.getSession().getAttribute("sessionUser");
 				u = UserManager.login(u.getUsername(), authPassword);
 				if( u == null ) {
@@ -550,7 +571,12 @@ public class TheController {
 				logError(se);
 				se.printStackTrace();
 				request.setAttribute("error", "An unexpected error occured.");
+			} catch (MissingTokenException e) {
+				// TODO Auto-generated catch block
+				logError(e);
+				createAccount(request,response);
 			} catch (Exception e) {
+				// TODO Auto-generated catch block
 				logError(e);
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -570,6 +596,7 @@ public class TheController {
 	@ResponseBody
 	@RequestMapping(value="/editAccount",method=RequestMethod.POST)
 	public void editAccount(
+			@RequestParam("token") String token,
 			@RequestParam("oldPassword") String oldPassword,
 			@RequestParam("newPassword") String newPassword,
 			@RequestParam("confirmPassword") String confirmPassword,
@@ -577,6 +604,7 @@ public class TheController {
 		if(isAuth(request, response, User.EDIT_ACCOUNT)) {
 			User u = (User)request.getSession().getAttribute("sessionUser");
 			try {
+				checkToken(token,request,response);
 				if( UserManager.login(u.getUsername(),oldPassword) != null ) {
 					if( newPassword.equals(confirmPassword) ) {
 						UserManager.changePass(u.getId(), newPassword);
@@ -593,12 +621,29 @@ public class TheController {
 				logError(se);
 				se.printStackTrace();
 				request.setAttribute("error", "An unexpected error occured.");
-			} catch(Exception e) {
-				logError(e);
+			} catch (LockoutException e) {
+				// TODO Auto-generated catch block
+				if(e.getMinutes() == UserManager.LOCKOUT_MINUTES) {
+					ActivityManager.addActivity("locked out " + u.getUsername() + "'s account." );
+				} else {
+					ActivityManager.addActivity("tried to login to " + u.getUsername() + "'s locked account." );
+				}
+				logout(request,response);
+				return;
+			} catch (ExpiredAccountException e) {
+				// TODO Auto-generated catch block
+				ActivityManager.addActivity("tried to login to " + u.getUsername() + "'s expired account.");
+				logout(request,response);
+				return;
+			} catch (AuthenticationException e) {
+				// TODO Auto-generated catch block
+				ActivityManager.addActivity("failed to login to " + u.getUsername() + "'s account.");
+				request.setAttribute("error", "Authentication Failed");
+			} catch (MissingTokenException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				request.setAttribute("error", "Authentication Failed.");
-			}
+				request.setAttribute("error", "An unexpected error occured.");
+			} 
 			request.getRequestDispatcher("WEB-INF/view/editAccount.jsp").forward(request, response);
 		}
 	}

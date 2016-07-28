@@ -4,6 +4,7 @@
 <jsp:include page="header.jsp"/>
 		<script src="<c:out value="resources/js/editProduct.js"/>"></script>
 		<form action="editProduct" method="POST">
+			<input type="hidden" value="${sessionToken }" name="token"/>
 			<input type="hidden" name="id" value="<c:out value="${item.id }"/>"/>
 			<input type="hidden" id="typeId" value="${item.typeId }"/>
 			<input placeholder="Name" name="name" value="<c:out value="${item.name }"/>"/><br/>

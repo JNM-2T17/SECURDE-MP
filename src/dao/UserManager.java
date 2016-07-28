@@ -6,11 +6,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import security.AuthenticationException;
+import security.ExpiredAccountException;
+import security.LockoutException;
 import model.BCrypt;
 import model.User;
 
 public class UserManager {
-	public static final int LOGIN_MAX_ATTEMPTS = 1;
+	public static final int LOGIN_MAX_ATTEMPTS = 5;
 	public static final int LOCKOUT_MINUTES = 15;
 	
 	public static boolean addUser(int role, String username, 
@@ -96,7 +99,7 @@ public class UserManager {
 	}
 	
 	@SuppressWarnings("resource")
-	public static User login(String username, String password) throws Exception {
+	public static User login(String username, String password) throws LockoutException, SQLException, ExpiredAccountException, AuthenticationException {
 		Connection con = DBManager.getInstance().getConnection();
 		try {
 			String sql = "SELECT U.id,role,username,password,fName,mi,"
@@ -119,7 +122,7 @@ public class UserManager {
 					ps = con.prepareStatement(sql);
 					ps.setString(1,username);
 					ps.execute();
-					throw new Exception("Expired Account");
+					throw new ExpiredAccountException();
 				} else if(rs.getBoolean("unlocked")) {
 					if(BCrypt.checkpw(password, rs.getString("password"))) {
 						if( rs.getBoolean("passChanged")) {
@@ -155,6 +158,8 @@ public class UserManager {
 						ps.execute();
 						if( loginAttempts >= LOGIN_MAX_ATTEMPTS) {
 							throw new LockoutException("Account locked out for " + LOCKOUT_MINUTES + " minutes", LOCKOUT_MINUTES);
+						} else {
+							throw new AuthenticationException();
 						}
 					}
 				} else {
@@ -163,10 +168,13 @@ public class UserManager {
 				}
 			}
 			return null;
-		} catch(Exception e) {
-			throw e;
 		} finally {
-			con.close();
+			try {
+				con.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	
