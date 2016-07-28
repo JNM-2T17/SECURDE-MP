@@ -323,7 +323,7 @@ public class TheController {
 		request.getSession().invalidate();
 		Cookie[] cookies = request.getCookies();
 		for(Cookie c : cookies) {
-			if( c.getName().equals("sessionUser") ) {
+			if( c.getName().equals("sessionToken") ) {
 				c.setMaxAge(0);
 				response.addCookie(c);
 			}
@@ -563,7 +563,7 @@ public class TheController {
 				if( u == null ) {
 					request.setAttribute("error", "Authentication Failed.");
 				} else {
-					if( UserManager.checkPass(password) && password == confirmPassword ) {
+					if( UserManager.checkPass(password) && password.equals(confirmPassword)) {
 						UserManager.addUser(role, username, password, fname, mi, lname, email);
 						ActivityManager.addActivity("created user " + username + ".");
 						home(request,response);

@@ -27,16 +27,17 @@ public class UserManager {
 		boolean spec = false;
 		
 		for(int i = 0; i < password.length(); i++) {
-			if( password.substring(i,i + 1).matches("/[A-Z]/")) {
+			if( password.substring(i,i + 1).matches("[A-Z]")) {
 				cap = true;
-			} else if(password.substring(i,i + 1).matches("/[a-z]/")) {
+			} else if(password.substring(i,i + 1).matches("[a-z]")) {
 				low = true;
-			} else if(password.substring(i,i + 1).matches("/[0-9]/")) {
+			} else if(password.substring(i,i + 1).matches("[0-9]")) {
 				num = true;
 			} else {
 				spec = true;
 			}
 		}
+		
 		
 		return (cap && low && num && spec);
 	}
