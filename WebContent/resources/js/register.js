@@ -31,12 +31,76 @@ var register = (function(){
 			
 			var message = "";
 			
+			if(!/^[A-Za-z0-9_\-]+$/.test(username)) {
+				message = appendMessage(message,"Username is not valid.");
+			}
+			
 			var passCheck = checkPass(password);
 			if( passCheck !== true ) {
 				message = appendMessage(message,passCheck);
 			} else if(password != confirmPassword) {
 				message = appendMessage(message,"Passwords don't match.");
 			}
+			
+			if(!/^[a-z ,.'-]+$/i.test(fname)) {
+				message = appendMessage(message,"First Name is invalid.");	
+			}
+			
+			if(!/^[A-Za-z]{0,2}.?$/.test(mi)) {
+				message = appendMessage(message,"Middle Initial is invalid.");	
+			}
+						
+			if(!/^[a-z ,.'-]+$/i.test(lname)) {
+				message = appendMessage(message,"Last Name is invalid.");	
+			}
+			
+			if(!/^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/.test(email)) {
+				message = appendMessage(message,"Email Address is invalid.");
+			}
+			
+			if(!/^[#]?[0-9]+[A-Za-z]*$/.test(billHouseNo) ) {
+				message = appendMessage(message,"Billing house number is invalid.");
+			} 
+			
+			if(!/^[a-z ,.'-]+$/i.test(billStreet) ) {
+				message = appendMessage(message,"Billing street is invalid.");
+			} 
+			if(!/^[a-z ,.'-]+$/i.test(billSubd) ) {
+				message = appendMessage(message,"Billing subdivision is invalid.");
+			} 
+			if(!/^[a-z ,.'-]+$/i.test(billCity) ) {
+				message = appendMessage(message,"Billing city is invalid.");
+			} 
+			
+			if(!/^[a-z0-9]+$/i.test(billPostCode)) {
+				message = appendMessage(message,"Billing post code is invalid.");
+			}
+			
+			if(!/^[a-z ]+$/i.test(billCountry) ) {
+				message = appendMessage(message,"Billing country is invalid.");
+			} 
+			
+			if(!/^[#]?[0-9]+[A-Za-z]*$/.test(shipHouseNo) ) {
+				message = appendMessage(message,"Shipping house number is invalid.");
+			} 
+			
+			if(!/^[a-z ,.'-]+$/i.test(shipStreet) ) {
+				message = appendMessage(message,"Shipping street is invalid.");
+			} 
+			if(!/^[a-z ,.'-]+$/i.test(shipSubd) ) {
+				message = appendMessage(message,"Shipping subdivision is invalid.");
+			} 
+			if(!/^[a-z ,.'-]+$/i.test(shipCity) ) {
+				message = appendMessage(message,"Shipping city is invalid.");
+			} 
+			
+			if(!/^[a-z0-9]+$/i.test(shipPostCode)) {
+				message = appendMessage(message,"Shipping post code is invalid.");
+			}
+			
+			if(!/^[a-z ]+$/i.test(shipCountry) ) {
+				message = appendMessage(message,"Shipping country is invalid.");
+			} 
 			
 			if( message.length > 0 ) {
 				showError(message);

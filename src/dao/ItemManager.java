@@ -155,7 +155,7 @@ public class ItemManager {
 	public static void purchaseCart(int userId, Cart c, String cardtype,
 									int expmm,int expyy,String cvc) throws SQLException {
 		Connection con = DBManager.getInstance().getConnection();
-		String sql = "INSERT INTO tl_purchase(userId,itemId,quantity,ccno,cardtype,expmm,expyy,cvc) VALUES ";
+		String sql = "INSERT INTO tl_purchase(userId,itemId,quantity,cardtype,expmm,expyy,cvc) VALUES ";
 		if( c.size() > 0 ) {
 			Purchase[] purcs = c.getPurchases();
 			for(int i = 0; i < purcs.length; i++) {
