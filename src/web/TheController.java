@@ -287,7 +287,16 @@ public class TheController {
 		} else {
 			try {
 				checkToken(token,request,response);
-				if( UserManager.checkPass(password) && password.equals(confirmPassword)) {
+				if( username.matches("^[A-Za-z0-9_-]+$") && fname.matches("^[A-Za-z ,.'-]+$") && 
+						mi.matches("^[A-Za-z]{0,2}.?$") && lname.matches("^[A-Za-z ,.'-]+$") && 
+						email.matches("^([-.a-zA-Z0-9_]+)@([-.a-zA-Z0-9_]+)[.]([a-zA-Z]{2,5})$") && 
+						billHouseNo.matches("^[#]?[0-9]+[A-Za-z]*$") &&	billStreet.matches("^[A-Za-z ,.'-]+$") && 
+						billSubd.matches("^[A-Za-z ,.'-]+$") && billCity.matches("^[A-Za-z ,.'-]+$") && 
+						billPostCode.matches("^[A-Za-z0-9]+$") && billCountry.matches("^[A-Za-z ]+$") && 
+						shipHouseNo.matches("^[#]?[0-9]+[A-Za-z]*$") && shipStreet.matches("^[A-Za-z ,.'-]+$") && 
+						shipSubd.matches("^[A-Za-z ,.'-]+$") && shipCity.matches("^[A-Za-z ,.'-]+$") && 
+						shipPostCode.matches("^[A-Za-z0-9]+$") && shipCountry.matches("^[A-Za-z ]+$") && 
+						UserManager.checkPass(password) && password.equals(confirmPassword)) {
 					UserManager.addUser(username, password, fname, mi, lname, email, billHouseNo, billStreet, billSubd, billCity, billPostCode, billCountry, shipHouseNo, shipStreet, shipSubd, shipCity, shipPostCode, shipCountry);
 					login(token,username,password,request,response);
 					ActivityManager.addActivity("registered their account.");
@@ -414,7 +423,7 @@ public class TheController {
 			try {
 				checkToken(token,request,response);
 				c.addPurchase(ItemManager.getItem(productId), quantity);
-				ActivityManager.addActivity("added item " + productId + " to their cart.");
+				ActivityManager.addActivity("added " + quantity + " instances of item " + productId + " to their cart.");
 				shoppingCart(request,response);
 			} catch (SQLException | MissingTokenException e) {
 				// TODO Auto-generated catch block
@@ -469,8 +478,8 @@ public class TheController {
 							cvc.matches("^[0-9]{3}$") ){
 						ItemManager.purchaseCart(u.getId(), c, cardtype, expmm, expyy, cvc);
 						request.setAttribute("message", "Transaction Successful");
+						ActivityManager.addActivity("checked out their cart with a total of " + c.getTotal() + ".");
 						c.clear();
-						ActivityManager.addActivity("checked out their cart.");
 						home(request,response);
 					} else {
 						logError(new Exception("Data validation failed on checkout."));
@@ -659,13 +668,16 @@ public class TheController {
 				if( u == null ) {
 					request.setAttribute("error", "Authentication Failed.");
 				} else {
-					if( UserManager.checkPass(password) && password.equals(confirmPassword)) {
+					if(username.matches("^[A-Za-z0-9_-]+$") && fname.matches("^[A-Za-z ,.'-]+$") && 
+							mi.matches("^[A-Za-z]{0,2}.?$") && lname.matches("^[A-Za-z ,.'-]+$") && 
+							email.matches("^([-.a-zA-Z0-9_]+)@([-.a-zA-Z0-9_]+)[.]([a-zA-Z]{2,5})$") && 
+							UserManager.checkPass(password) && password.equals(confirmPassword)) {
 						UserManager.addUser(role, username, password, fname, mi, lname, email);
 						ActivityManager.addActivity("created user " + username + ".");
 						home(request,response);
 					} else {
 						logError(new Exception("Data validation failed on create account."));
-						request.setAttribute("error","Failed to register account.");
+						request.setAttribute("error","Failed to create account.");
 						createAccount(request,response);
 					}
 					return;
