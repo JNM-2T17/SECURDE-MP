@@ -95,7 +95,7 @@ public class TheController {
 								String genHash = genHash(u,request.getRemoteAddr());
 								if( genHash.equals(c.getValue())) {			
 									request.getSession().setAttribute("sessionUser",u);
-									ActivityManager.setUser(u);
+									ActivityManager.setUser(u,request);
 									ActivityManager.addActivity("refreshed their session.");
 								} 
 							} else {
@@ -214,7 +214,7 @@ public class TheController {
 					Cookie c = new Cookie("sessionToken",genHash);
 					c.setMaxAge(1800);
 					response.addCookie(c);
-					ActivityManager.setUser(u);
+					ActivityManager.setUser(u,request);
 					ActivityManager.addActivity("logged in.");
 				} else {
 					request.setAttribute("error","Invalid username/password combination");
@@ -290,10 +290,10 @@ public class TheController {
 				if( username.matches("^[A-Za-z0-9_-]+$") && fname.matches("^[A-Za-z ,.'-]+$") && 
 						mi.matches("^[A-Za-z]{0,2}.?$") && lname.matches("^[A-Za-z ,.'-]+$") && 
 						email.matches("^([-.a-zA-Z0-9_]+)@([-.a-zA-Z0-9_]+)[.]([a-zA-Z]{2,5})$") && 
-						billHouseNo.matches("^[#]?[0-9]+[A-Za-z]*$") &&	billStreet.matches("^[A-Za-z ,.'-]+$") && 
+						billHouseNo.matches("^[#]?[0-9]+-?[A-Za-z]*$") &&	billStreet.matches("^[A-Za-z ,.'-]+$") && 
 						billSubd.matches("^[A-Za-z ,.'-]+$") && billCity.matches("^[A-Za-z ,.'-]+$") && 
 						billPostCode.matches("^[A-Za-z0-9]+$") && billCountry.matches("^[A-Za-z ]+$") && 
-						shipHouseNo.matches("^[#]?[0-9]+[A-Za-z]*$") && shipStreet.matches("^[A-Za-z ,.'-]+$") && 
+						shipHouseNo.matches("^[#]?[0-9]+-?[A-Za-z]*$") && shipStreet.matches("^[A-Za-z ,.'-]+$") && 
 						shipSubd.matches("^[A-Za-z ,.'-]+$") && shipCity.matches("^[A-Za-z ,.'-]+$") && 
 						shipPostCode.matches("^[A-Za-z0-9]+$") && shipCountry.matches("^[A-Za-z ]+$") && 
 						UserManager.checkPass(password) && password.equals(confirmPassword)) {

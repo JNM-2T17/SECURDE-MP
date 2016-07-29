@@ -58,7 +58,7 @@ var register = (function(){
 				message = appendMessage(message,"Email Address is invalid.");
 			}
 			
-			if(!/^[#]?[0-9]+[A-Za-z]*$/.test(billHouseNo) ) {
+			if(!/^[#]?[0-9]+-?[A-Za-z]*$/.test(billHouseNo) ) {
 				message = appendMessage(message,"Billing house number is invalid.");
 			} 
 			
@@ -80,7 +80,7 @@ var register = (function(){
 				message = appendMessage(message,"Billing country is invalid.");
 			} 
 			
-			if(!/^[#]?[0-9]+[A-Za-z]*$/.test(shipHouseNo) ) {
+			if(!/^[#]?[0-9]+-?[A-Za-z]*$/.test(shipHouseNo) ) {
 				message = appendMessage(message,"Shipping house number is invalid.");
 			} 
 			

@@ -11,8 +11,8 @@ import model.User;
 public class ActivityManager {
 	private static String start = "Anonymous user "; 
 	
-	public static void setUser(User u) {
-		start = u == null ? "Anonymous user " : "User with id#" + u.getId() + " - " + u.getUsername() + " ";
+	public static void setUser(User u,HttpServletRequest request) {
+		start = u == null ? "Anonymous user " : "User with id#" + u.getId() + " - " + u.getUsername() + " and ip address " + request.getRemoteAddr() + " ";
 	}
 	
 	public static void setUser(HttpServletRequest request) {
