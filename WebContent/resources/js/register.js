@@ -58,11 +58,11 @@ var register = (function(){
 				message = appendMessage(message,"Email Address is invalid.");
 			}
 			
-			if(!/^[#]?[0-9]+-?[A-Za-z]*$/.test(billHouseNo) ) {
+			if(!/^[#]?[0-9]+[A-Za-z -]*$/.test(billHouseNo) ) {
 				message = appendMessage(message,"Billing house number is invalid.");
 			} 
 			
-			if(!/^[a-z ,.'-]+$/i.test(billStreet) ) {
+			if(!/^[0-9]*[a-z ,.'-]+$/i.test(billStreet) ) {
 				message = appendMessage(message,"Billing street is invalid.");
 			} 
 			if(!/^[a-z ,.'-]+$/i.test(billSubd) ) {
@@ -80,11 +80,11 @@ var register = (function(){
 				message = appendMessage(message,"Billing country is invalid.");
 			} 
 			
-			if(!/^[#]?[0-9]+-?[A-Za-z]*$/.test(shipHouseNo) ) {
+			if(!/^[#]?[0-9]+[A-Za-z -]*$/.test(shipHouseNo) ) {
 				message = appendMessage(message,"Shipping house number is invalid.");
 			} 
 			
-			if(!/^[a-z ,.'-]+$/i.test(shipStreet) ) {
+			if(!/^[0-9]*[a-z ,.'-]+$/i.test(shipStreet) ) {
 				message = appendMessage(message,"Shipping street is invalid.");
 			} 
 			if(!/^[a-z ,.'-]+$/i.test(shipSubd) ) {
