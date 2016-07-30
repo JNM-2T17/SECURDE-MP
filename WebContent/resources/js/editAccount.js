@@ -5,11 +5,11 @@ var editAccount = (function(){
 			var confirmPassword = $("#confirmPassword").val();
 			
 			var message = "";
-                        
+			
 			var passCheck = checkPass(password);
 			if( passCheck !== true ) {
 				message = appendMessage(message,passCheck);
-			} else if(password != confirmPassword && password != passCheck) {
+			} else if(password != confirmPassword) {
 				message = appendMessage(message,"Passwords don't match.");
 			}
 			
