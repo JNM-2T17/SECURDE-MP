@@ -29,7 +29,6 @@ import security.LockoutException;
 import security.MissingTokenException;
 import security.Randomizer;
 
-import com.google.gson.Gson;
 
 import dao.ActivityManager;
 import dao.ItemManager;
@@ -290,10 +289,10 @@ public class TheController {
 				if( username.matches("^[A-Za-z0-9_-]+$") && fname.matches("^[A-Za-z ,.'-]+$") && 
 						mi.matches("^[A-Za-z]{0,2}.?$") && lname.matches("^[A-Za-z ,.'-]+$") && 
 						email.matches("^([-.a-zA-Z0-9_]+)@([-.a-zA-Z0-9_]+)[.]([a-zA-Z]{2,5})$") && 
-						billHouseNo.matches("^[#]?[0-9]+[A-Za-z]*$") &&	billStreet.matches("^[A-Za-z ,.'-]+$") && 
+						billHouseNo.matches("^[#]?[0-9]+[A-Za-z-]*$") &&	billStreet.matches("^[0-9A-Za-z ,.'-]+$") && 
 						billSubd.matches("^[A-Za-z ,.'-]+$") && billCity.matches("^[A-Za-z ,.'-]+$") && 
 						billPostCode.matches("^[A-Za-z0-9]+$") && billCountry.matches("^[A-Za-z ]+$") && 
-						shipHouseNo.matches("^[#]?[0-9]+[A-Za-z]*$") && shipStreet.matches("^[A-Za-z ,.'-]+$") && 
+						shipHouseNo.matches("^[#]?[0-9]+[A-Za-z-]*$") && shipStreet.matches("^[0-9A-Za-z ,.'-]+$") && 
 						shipSubd.matches("^[A-Za-z ,.'-]+$") && shipCity.matches("^[A-Za-z ,.'-]+$") && 
 						shipPostCode.matches("^[A-Za-z0-9]+$") && shipCountry.matches("^[A-Za-z ]+$") && 
 						UserManager.checkPass(password) && password.equals(confirmPassword)) {
