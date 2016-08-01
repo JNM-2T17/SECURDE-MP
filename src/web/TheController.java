@@ -2,8 +2,9 @@ package web;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -12,8 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import model.Cart;
 import model.Item;
-import model.Purchase;
 import model.Review;
+import model.SaleMapping;
 import model.User;
 
 import org.springframework.stereotype.Controller;
@@ -22,7 +23,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.google.gson.Gson;
+import security.AuthenticationException;
+import security.ExpiredAccountException;
+import security.Hasher;
+import security.LockoutException;
+import security.MissingTokenException;
+import security.Randomizer;
+
 
 import dao.ActivityManager;
 import dao.ItemManager;
@@ -30,20 +37,67 @@ import dao.UserManager;
 
 @Controller
 public class TheController {
+	private void restoreToken(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String token = (String)request.getSession().getAttribute("sessionToken");
+		if(token == null || token.length() == 0 ) {
+			try {
+				Hasher hash = new Hasher(Hasher.SHA256);
+				Randomizer random = new Randomizer(1234);
+				hash.updateHash(random.getRandomLong() + "","UTF-8");
+				hash.updateHash(request.getRemoteAddr(),"UTF-8");
+				token = hash.getHashBASE64();
+				request.getSession().setAttribute("sessionToken",token);
+			} catch (NoSuchAlgorithmException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private String genHash(User u,String ip) {
+		Hasher hash;
+		try {
+			hash = new Hasher(Hasher.SHA256);
+			hash.updateHash(u.getId() + u.getUsername(),"UTF-8");
+			hash.updateHash(ip,"UTF-8");
+			String token = u.getId() + "$" + hash.getHashBASE64();
+			return token;
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "";
+	}
+	
+	private void genToken(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		User u = restoreSession(request,response);
+		if( u != null ) {
+			request.getSession().setAttribute("sessionToken",genHash(u,request.getRemoteAddr())); 
+		}
+	}
+	
 	private User restoreSession(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		User u = (User)request.getSession().getAttribute("sessionUser");
+		restoreToken(request,response);
 		System.out.println(u);
 		if( u == null ) {
 			Cookie[] cookies = request.getCookies();
 			if( cookies != null ) {
 				for(Cookie c : cookies) {
-					if( c.getName().equals("sessionUser") ) {
+					if( c.getName().equals("sessionToken") ) {
 						try {
-							u = UserManager.getUser(Integer.parseInt(c.getValue()));
-							request.getSession().setAttribute("sessionUser",u);
+							int dollar = c.getValue().indexOf('$');
+							u = UserManager.getUser(Integer.parseInt(c.getValue().substring(0,dollar)));
 							if( u != null ) {
-								ActivityManager.setUser(u);
-								ActivityManager.addActivity("refreshed their session.");
+								String genHash = genHash(u,request.getRemoteAddr());
+								if( genHash.equals(c.getValue())) {			
+									request.getSession().setAttribute("sessionUser",u);
+									ActivityManager.setUser(u,request);
+									ActivityManager.addActivity("refreshed their session.");
+								} 
 							} else {
 								ActivityManager.setUser(request);
 							}
@@ -51,17 +105,13 @@ public class TheController {
 							logError(se);
 							se.printStackTrace();
 						}
+						break;
 					}
 				}
 			}
 		} else {
 			if( u.isExpired() ) {
-				try {
-					ActivityManager.addActivity("'s session expired.");
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				ActivityManager.addActivity("'s session expired.");
 				logoutUser(request,response);
 				return null;
 			}
@@ -70,33 +120,33 @@ public class TheController {
 		return u;
 	}
 	
-	private void logError(Exception e) {
-		try {
-			ActivityManager.addActivity("ran into the error " + e.getMessage() + ".");
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+	private void checkToken(String token,HttpServletRequest request,HttpServletResponse response) throws MissingTokenException, ServletException, IOException {
+		String sessionToken = (String)request.getSession().getAttribute("sessionToken");
+		if( sessionToken == null ) {
+			restoreSession(request,response);
+			sessionToken = (String)request.getSession().getAttribute("sessionToken");
+		}
+		if(!sessionToken.equals(token)) {
+			throw new MissingTokenException();
 		}
 	}
 	
+	private void logError(Exception e) {
+		ActivityManager.addActivity("ran into the error " + e.getMessage() + ".");
+	}
+	
 	private boolean isAuth(HttpServletRequest request, HttpServletResponse response, String privilege) throws ServletException, IOException {
-		try {
-			User u = restoreSession(request,response);
-			if( u == null ) {
-				ActivityManager.addActivity("tried to access " + privilege + " and failed.");
-				request.getRequestDispatcher("WEB-INF/view/index.jsp").forward(request, response);
+		User u = restoreSession(request,response);
+		if( u == null ) {
+			ActivityManager.addActivity("tried to access " + privilege + " and failed.");
+			request.getRequestDispatcher("WEB-INF/view/index.jsp").forward(request, response);
+		} else {
+			if( u.isAuth(privilege) ) {
+				return true;
 			} else {
-				if( u.isAuth(privilege) ) {
-					return true;
-				} else {
-					ActivityManager.addActivity("tried to access " + privilege + " and failed.");
-					home(request,response);
-				}
+				ActivityManager.addActivity("tried to access " + privilege + " and failed.");
+				home(request,response);
 			}
-		} catch (SQLException e) {
-			logError(e);
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		return false;
 	}
@@ -122,9 +172,6 @@ public class TheController {
 				}
 				request.getRequestDispatcher("WEB-INF/view/admin-home.jsp").forward(request, response);
 				break;
-			case 3:
-				request.getRequestDispatcher("WEB-INF/view/am-home.jsp").forward(request, response);
-				break;
 			case 2:
 				Item[] items;
 				try {
@@ -140,6 +187,20 @@ public class TheController {
 				}
 				request.getRequestDispatcher("WEB-INF/view/pm-home.jsp").forward(request, response);
 				break;
+			case 3:
+				try {
+					double total = ItemManager.getTotalSales();
+					SaleMapping[] byType = ItemManager.getTotalSalesByType();
+					SaleMapping[] byItem = ItemManager.getTotalSalesPerItem();
+					request.setAttribute("total", total);
+					request.setAttribute("byType", byType);
+					request.setAttribute("byItem", byItem);
+					request.getRequestDispatcher("WEB-INF/view/am-home.jsp").forward(request, response);
+					break;
+				} catch(SQLException se) {
+					logError(se);
+					
+				}
 			case 1:
 			default:
 				request.getRequestDispatcher("WEB-INF/view/index.jsp").forward(request, response);
@@ -149,18 +210,22 @@ public class TheController {
 	
 	@ResponseBody
 	@RequestMapping("/login")
-	public void login(@RequestParam("username") String username,
+	public void login(@RequestParam("token") String token,
+			@RequestParam("username") String username,
 			@RequestParam("password") String password,
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if(request.getSession().getAttribute("sessionUser") == null) {
+		User u = restoreSession(request,response);
+		if( u == null) {
 			try {
-				User u = UserManager.login(username, password);
+				checkToken(token,request,response);
+				u = UserManager.login(username, password);
 				if( u != null ) {
+					String genHash = genHash(u,request.getRemoteAddr());
 					request.getSession().setAttribute("sessionUser", u);
-					Cookie c = new Cookie("sessionUser","" + u.getId());
+					Cookie c = new Cookie("sessionToken",genHash);
 					c.setMaxAge(1800);
 					response.addCookie(c);
-					ActivityManager.setUser(u);
+					ActivityManager.setUser(u,request);
 					ActivityManager.addActivity("logged in.");
 				} else {
 					request.setAttribute("error","Invalid username/password combination");
@@ -168,11 +233,28 @@ public class TheController {
 			} catch(SQLException se) {
 				logError(se);
 				se.printStackTrace();
-			} catch(Exception e) {
-				logError(e);
+			} catch (LockoutException e) {
+				// TODO Auto-generated catch block
+				if(e.getMinutes() == UserManager.LOCKOUT_MINUTES) {
+					ActivityManager.addActivity("locked out " + username + "'s account." );
+					request.setAttribute("error", e.getMessage());
+				} else {
+					ActivityManager.addActivity("tried to login to " + username + "'s locked account." );
+					request.setAttribute("error", e.getMessage());
+				}
+			} catch (ExpiredAccountException e) {
+				// TODO Auto-generated catch block
+				ActivityManager.addActivity("tried to login to " + username + "'s expired account.");
+				request.setAttribute("error", "Invalid username/password combination");
+			} catch (AuthenticationException e) {
+				// TODO Auto-generated catch block
+				ActivityManager.addActivity("failed to login to " + username + "'s account.");
+				request.setAttribute("error", "Invalid username/password combination");
+			} catch (MissingTokenException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
-				request.setAttribute("error","Invalid username/password combination");
-			}
+				request.setAttribute("error", "An unexpected error occured.");
+			} 
 		}
 		home(request,response);
 	}
@@ -189,7 +271,8 @@ public class TheController {
 	
 	@ResponseBody
 	@RequestMapping(value="register",method = RequestMethod.POST)
-	public void register(@RequestParam("username") String username,
+	public void register(@RequestParam("token") String token,
+						@RequestParam("username") String username,
 						@RequestParam("password") String password,
 						@RequestParam("confirmPassword") String confirmPassword,
 						@RequestParam("fname") String fname,
@@ -214,17 +297,35 @@ public class TheController {
 			home(request,response);
 		} else {
 			try {
-				UserManager.addUser(username, password, fname, mi, lname, email, billHouseNo, billStreet, billSubd, billCity, billPostCode, billCountry, shipHouseNo, shipStreet, shipSubd, shipCity, shipPostCode, shipCountry);
-				login(username,password,request,response);
-				ActivityManager.addActivity("registered their account.");
+				checkToken(token,request,response);
+				if( username.matches("^[A-Za-z0-9_-]+$") && fname.matches("^[A-Za-z ,.'-]+$") && 
+						mi.matches("^[A-Za-z]{0,2}.?$") && lname.matches("^[A-Za-z ,.'-]+$") && 
+						email.matches("^([-.a-zA-Z0-9_]+)@([-.a-zA-Z0-9_]+)[.]([a-zA-Z]{2,5})$") && 
+						billHouseNo.matches("^[#]?[0-9]+[A-Za-z -]*$") &&	billStreet.matches("^[0-9]*[A-Za-z ,.'-]+$") && 
+						billSubd.matches("^[A-Za-z ,.'-]+$") && billCity.matches("^[A-Za-z ,.'-]+$") && 
+						billPostCode.matches("^[A-Za-z0-9]+$") && billCountry.matches("^[A-Za-z ]+$") && 
+						shipHouseNo.matches("^[#]?[0-9]+[A-Za-z -]*$") && shipStreet.matches("^[0-9]*[A-Za-z ,.'-]+$") && 
+						shipSubd.matches("^[A-Za-z ,.'-]+$") && shipCity.matches("^[A-Za-z ,.'-]+$") && 
+						shipPostCode.matches("^[A-Za-z0-9]+$") && shipCountry.matches("^[A-Za-z ]+$") && 
+						UserManager.checkPass(password) && password.equals(confirmPassword)) {
+					UserManager.addUser(username, password, fname, mi, lname, email, billHouseNo, billStreet, billSubd, billCity, billPostCode, billCountry, shipHouseNo, shipStreet, shipSubd, shipCity, shipPostCode, shipCountry);
+					login(token,username,password,request,response);
+					ActivityManager.addActivity("registered their account.");
+				} else {
+					logError(new Exception("Data validation failed on register."));
+					request.setAttribute("error","Failed to register account.");
+					register(request,response);
+				}
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				logError(e);
 				request.setAttribute("error","An unexpected error occured.");
 				register(request,response);
-				return;
-			}
+			} catch (MissingTokenException e) {
+				// TODO Auto-generated catch block
+				logError(e);
+			} 
 		}
 	}
 	
@@ -233,6 +334,7 @@ public class TheController {
 		User u = restoreSession(request,response);
 		if( u != null) {
 			logoutUser(request,response);
+			restoreToken(request,response);
 		}
 		homePage(null,request,response);
 	}
@@ -241,18 +343,12 @@ public class TheController {
 		request.getSession().invalidate();
 		Cookie[] cookies = request.getCookies();
 		for(Cookie c : cookies) {
-			if( c.getName().equals("sessionUser") ) {
+			if( c.getName().equals("sessionToken") ) {
 				c.setMaxAge(0);
 				response.addCookie(c);
 			}
 		}
-		try {
-			ActivityManager.addActivity("logged out.");
-		} catch (SQLException e) {
-			logError(e);
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		ActivityManager.addActivity("logged out.");
 		ActivityManager.setUser(request);
 	}
 	
@@ -329,22 +425,24 @@ public class TheController {
 	
 	@RequestMapping("addToCart")
 	@ResponseBody
-	public void addToCart(@RequestParam("productId") int productId,
+	public void addToCart(@RequestParam("token") String token,
+			@RequestParam("productId") int productId,
 			@RequestParam("quantity") int quantity,
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if( isAuth(request,response,User.PURCHASE_PRODUCT)) {
 			Cart c = refreshCart(request);
 			try {
+				checkToken(token,request,response);
 				c.addPurchase(ItemManager.getItem(productId), quantity);
-				ActivityManager.addActivity("added item " + productId + " to their cart.");
+				ActivityManager.addActivity("added " + quantity + " instances of item " + productId + " to their cart.");
 				shoppingCart(request,response);
-			} catch (SQLException e) {
+			} catch (SQLException | MissingTokenException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				logError(e);
 				request.setAttribute("error","Failed to add item to cart");
 				viewProduct(productId,request,response);
-			}
+			} 
 		}
 	}
 	
@@ -353,6 +451,102 @@ public class TheController {
 		if(isAuth(request,response,User.PURCHASE_PRODUCT)) {
 			refreshCart(request);
 			request.getRequestDispatcher("WEB-INF/view/shoppingCart.jsp").forward(request,response);
+		}
+	}
+	
+	@RequestMapping(value="checkout",method=RequestMethod.GET)
+	public void checkout(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		if(isAuth(request,response,User.PURCHASE_PRODUCT)) {
+			Cart c = refreshCart(request);
+			if( c.size() > 0 ) {
+				request.getRequestDispatcher("WEB-INF/view/checkout.jsp").forward(request,response);
+			} else {
+				request.setAttribute("error", "Cart is empty.");
+				request.getRequestDispatcher("WEB-INF/view/shoppingCart.jsp").forward(request,response);
+			}
+		}
+	}
+	
+	@ResponseBody
+	@RequestMapping(value="checkout",method=RequestMethod.POST)
+	public void checkout(@RequestParam("token") String token,
+			@RequestParam("ccno") String ccno,
+			@RequestParam("cardtype") String cardtype,
+			@RequestParam("expmm") int expmm,
+			@RequestParam("expyy") int expyy,
+			@RequestParam("cvc") String cvc,
+			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		if(isAuth(request,response,User.PURCHASE_PRODUCT)) {
+			try {
+				checkToken(token,request,response);
+				User u = restoreSession(request,response);
+				Cart c = refreshCart(request);
+				if( c.size() > 0 ) {
+					if( ccno.matches("^([0-9]{16}|([0-9]{4}-){3}[0-9]{4})$") && 
+							cardtype.matches("^(visa|mastercard)$") && 
+							("" + expmm).matches("^((0|)[1-9]|1[0-2])$") && 
+							("" + expyy).matches("^2[0-9]{3}$") && 
+							cvc.matches("^[0-9]{3}$") ){
+						ItemManager.purchaseCart(u.getId(), c, cardtype, expmm, expyy, cvc);
+						request.setAttribute("message", "Transaction Successful");
+						ActivityManager.addActivity("checked out their cart with a total of " + c.getTotal() + ".");
+						c.clear();
+						home(request,response);
+					} else {
+						logError(new Exception("Data validation failed on checkout."));
+						request.setAttribute("error","Failed to checkout.");
+						checkout(request,response);
+					}
+				} else {
+					request.setAttribute("error", "Cart is empty.");
+					request.getRequestDispatcher("WEB-INF/view/shoppingCart.jsp").forward(request,response);
+				}
+			} catch (MissingTokenException | SQLException e) {
+				logError(e);
+				e.printStackTrace();
+				request.setAttribute("error", "An unexpected error occured.");
+				checkout(request,response);
+			}
+		}
+	}
+	
+	@ResponseBody
+	@RequestMapping("review")
+	public void review(@RequestParam("token") String token,
+			@RequestParam("prodId") int prodId,
+			@RequestParam("review") String review,
+			@RequestParam("rating") int rating,
+			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		if(isAuth(request,response,User.REVIEW_PRODUCT)) {
+			try {
+				checkToken(token,request,response);
+				User u = restoreSession(request,response);
+				Review r = ItemManager.getReview(u.getId(), prodId);
+				if( r == null ) {
+					boolean canReview = ItemManager.canReview(u.getId(), prodId);
+					if( canReview ) {
+						if( review.length() > 0 && rating >= 1 && rating <= 5 ) {
+							ItemManager.reviewItem(u.getId(), prodId, rating, review);
+							request.setAttribute("message", "Review Submitted");
+							response.getWriter().print("true");
+							ActivityManager.addActivity("reviewed item " + prodId + ".");
+						} else {
+							logError(new Exception("Data validation failed on review product."));
+							response.getWriter().print("Failed to review product.");
+						}
+					} else {
+						response.getWriter().print("Please purchase this item before reviewing.");
+						ActivityManager.addActivity("tried to review item " + prodId + " but hasn't purchased it yet.");
+					}
+				} else {
+					ItemManager.updateReview(u.getId(), prodId, rating, review);
+					response.getWriter().print("true");
+				}
+			} catch (MissingTokenException | SQLException e) {
+				logError(e);
+				e.printStackTrace();
+				response.getWriter().print("An unexpected error occured.");
+			}
 		}
 	}
 	
@@ -365,7 +559,8 @@ public class TheController {
 	
 	@ResponseBody
 	@RequestMapping(value="/addProduct",method=RequestMethod.POST)
-	public void addProductPost(
+	public void addProduct(
+			@RequestParam("token") String token,
 			@RequestParam("name") String name,
 			@RequestParam("itemtype") int itemtype,
 			@RequestParam("description") String description,
@@ -373,13 +568,22 @@ public class TheController {
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if(isAuth(request,response,User.ADD_PRODUCT)) {
 			try {
-				ItemManager.addItem(itemtype,name,description,price);
-				ActivityManager.addActivity("added product " + name + ".");
-				home(request,response);
+				checkToken(token,request,response);
+				if(name.matches( "^[A-Za-z0-9.,! \\-'&]+$") && ("" + itemtype).matches("^[1-4]$") &&  description.length() > 0 && 
+						("" + price).matches( "^[0-9]+([.][0-9]+)?|[0-9]*[.][0-9]+$")) {
+						ItemManager.addItem(itemtype,name,description,price);
+						ActivityManager.addActivity("added product " + name + ".");
+						home(request,response);						
+				} else {
+					request.setAttribute("error", "Failed to add product.");
+					logError(new Exception("Data validation failed on add product."));
+					addProduct(request,response);
+				}
 				return;
-			} catch(SQLException se) {
+			} catch(SQLException | MissingTokenException se) {
 				logError(se);
 				se.printStackTrace();
+				request.setAttribute("error", "An unexpected error occured");
 			}
 		}
 		request.getRequestDispatcher("WEB-INF/view/addProduct.jsp").forward(request, response);
@@ -410,7 +614,8 @@ public class TheController {
 	
 	@ResponseBody
 	@RequestMapping(value="editProduct",method = RequestMethod.POST)
-	public void editProduct(@RequestParam("id") int id,
+	public void editProduct(@RequestParam("token") String token,
+			@RequestParam("id") int id,
 			@RequestParam("name") String name,
 			@RequestParam("itemtype") int itemtype,
 			@RequestParam("description") String description,
@@ -418,13 +623,22 @@ public class TheController {
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if(isAuth(request,response,User.EDIT_PRODUCT)) {
 			try {
-				ItemManager.editItem(id, itemtype, name, description, price);
-				ActivityManager.addActivity("edited item " + id + ".");
-				home(request,response);
+				checkToken(token,request,response);
+				if(name.matches( "^[A-Za-z0-9.,! \\-'&]+$") && ("" + itemtype).matches("^[1-4]$") &&  description.length() > 0 && 
+						("" + price).matches( "^[0-9]+([.][0-9]+)?|[0-9]*[.][0-9]+$")) {
+					ItemManager.editItem(id, itemtype, name, description, price);
+					ActivityManager.addActivity("edited item " + id + ".");
+					home(request,response);
+				} else {
+					request.setAttribute("error", "Failed to edit product.");
+					logError(new Exception("Data validation failed on edit product."));
+					editProduct(id,request,response);
+				}
 				return;
-			} catch(SQLException se) {
+			} catch(SQLException | MissingTokenException se) {
 				logError(se);
 				se.printStackTrace();
+				request.setAttribute("error", "An unexpected error occured.");
 				editProduct(id,request,response);
 			}
 		}
@@ -432,7 +646,8 @@ public class TheController {
 	
 	@ResponseBody
 	@RequestMapping("/deleteProduct")
-	public void deleteProduct(@RequestParam("id") int id,
+	public void deleteProduct(@RequestParam("token") String token,
+			@RequestParam("id") int id,
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		PrintWriter pw = response.getWriter();
 		if(isAuth(request,response,User.DELETE_PRODUCT)) {
@@ -459,6 +674,7 @@ public class TheController {
 	@ResponseBody
 	@RequestMapping(value="/createAccount",method=RequestMethod.POST)
 	public void createAccount(
+			@RequestParam("token") String token,
 			@RequestParam("authPassword") String authPassword,
 			@RequestParam("role") int role,
 			@RequestParam("username") String username,
@@ -471,17 +687,22 @@ public class TheController {
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if(isAuth(request,response,User.CREATE_ACCOUNT)) {
 			try {
+				checkToken(token,request,response);
 				User u = (User)request.getSession().getAttribute("sessionUser");
 				u = UserManager.login(u.getUsername(), authPassword);
 				if( u == null ) {
 					request.setAttribute("error", "Authentication Failed.");
 				} else {
-					if( password == confirmPassword ) {
+					if(username.matches("^[A-Za-z0-9_-]+$") && fname.matches("^[A-Za-z ,.'-]+$") && 
+							mi.matches("^[A-Za-z]{0,2}.?$") && lname.matches("^[A-Za-z ,.'-]+$") && 
+							email.matches("^([-.a-zA-Z0-9_]+)@([-.a-zA-Z0-9_]+)[.]([a-zA-Z]{2,5})$") && 
+							UserManager.checkPass(password) && password.equals(confirmPassword)) {
 						UserManager.addUser(role, username, password, fname, mi, lname, email);
 						ActivityManager.addActivity("created user " + username + ".");
 						home(request,response);
 					} else {
-						request.setAttribute("error","Passwords don't match");
+						logError(new Exception("Data validation failed on create account."));
+						request.setAttribute("error","Failed to create account.");
 						createAccount(request,response);
 					}
 					return;
@@ -490,7 +711,12 @@ public class TheController {
 				logError(se);
 				se.printStackTrace();
 				request.setAttribute("error", "An unexpected error occured.");
+			} catch (MissingTokenException e) {
+				// TODO Auto-generated catch block
+				logError(e);
+				createAccount(request,response);
 			} catch (Exception e) {
+				// TODO Auto-generated catch block
 				logError(e);
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -510,6 +736,7 @@ public class TheController {
 	@ResponseBody
 	@RequestMapping(value="/editAccount",method=RequestMethod.POST)
 	public void editAccount(
+			@RequestParam("token") String token,
 			@RequestParam("oldPassword") String oldPassword,
 			@RequestParam("newPassword") String newPassword,
 			@RequestParam("confirmPassword") String confirmPassword,
@@ -517,6 +744,7 @@ public class TheController {
 		if(isAuth(request, response, User.EDIT_ACCOUNT)) {
 			User u = (User)request.getSession().getAttribute("sessionUser");
 			try {
+				checkToken(token,request,response);
 				if( UserManager.login(u.getUsername(),oldPassword) != null ) {
 					if( newPassword.equals(confirmPassword) ) {
 						UserManager.changePass(u.getId(), newPassword);
@@ -533,12 +761,29 @@ public class TheController {
 				logError(se);
 				se.printStackTrace();
 				request.setAttribute("error", "An unexpected error occured.");
-			} catch(Exception e) {
-				logError(e);
+			} catch (LockoutException e) {
+				// TODO Auto-generated catch block
+				if(e.getMinutes() == UserManager.LOCKOUT_MINUTES) {
+					ActivityManager.addActivity("locked out " + u.getUsername() + "'s account." );
+				} else {
+					ActivityManager.addActivity("tried to login to " + u.getUsername() + "'s locked account." );
+				}
+				logout(request,response);
+				return;
+			} catch (ExpiredAccountException e) {
+				// TODO Auto-generated catch block
+				ActivityManager.addActivity("tried to login to " + u.getUsername() + "'s expired account.");
+				logout(request,response);
+				return;
+			} catch (AuthenticationException e) {
+				// TODO Auto-generated catch block
+				ActivityManager.addActivity("failed to login to " + u.getUsername() + "'s account.");
+				request.setAttribute("error", "Authentication Failed");
+			} catch (MissingTokenException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				request.setAttribute("error", "Authentication Failed.");
-			}
+				request.setAttribute("error", "An unexpected error occured.");
+			} 
 			request.getRequestDispatcher("WEB-INF/view/editAccount.jsp").forward(request, response);
 		}
 	}

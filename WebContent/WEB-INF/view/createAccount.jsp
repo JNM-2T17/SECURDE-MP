@@ -2,7 +2,9 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
 
 <jsp:include page="header.jsp"/>
-			<form action="createAccount" method="POST">
+			<script src="<c:url value="resources/js/createAccount.js"/>"></script>
+			<form action="createAccount" method="POST" onsubmit="return createAccount.checkSubmit();">
+				<input type="hidden" value="${sessionToken }" name="token"/>
 				<input type="password" name="authPassword" placeholder="Reenter your password" id="authPassword"/><br/>
 				<input name="role" type="radio" id="pm" value="2" checked />
 				<label for="pm">Product Manager</label>

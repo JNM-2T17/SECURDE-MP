@@ -6,10 +6,42 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import security.AuthenticationException;
+import security.ExpiredAccountException;
+import security.LockoutException;
 import model.BCrypt;
 import model.User;
 
 public class UserManager {
+	public static final int LOGIN_MAX_ATTEMPTS = 5;
+	public static final int LOCKOUT_MINUTES = 15;
+	
+	public static boolean checkPass(String password) {
+		if( password.length() < 8 ) {
+			return false;
+		}
+		
+		boolean cap = false;
+		boolean low = false;
+		boolean num = false;
+		boolean spec = false;
+		
+		for(int i = 0; i < password.length(); i++) {
+			if( password.substring(i,i + 1).matches("[A-Z]")) {
+				cap = true;
+			} else if(password.substring(i,i + 1).matches("[a-z]")) {
+				low = true;
+			} else if(password.substring(i,i + 1).matches("[0-9]")) {
+				num = true;
+			} else {
+				spec = true;
+			}
+		}
+		
+		
+		return (cap && low && num && spec);
+	}
+	
 	public static boolean addUser(int role, String username, 
 								String password, String fname, String mi, 
 								String lname,String email) throws SQLException {
@@ -93,7 +125,7 @@ public class UserManager {
 	}
 	
 	@SuppressWarnings("resource")
-	public static User login(String username, String password) throws Exception {
+	public static User login(String username, String password) throws LockoutException, SQLException, ExpiredAccountException, AuthenticationException {
 		Connection con = DBManager.getInstance().getConnection();
 		try {
 			String sql = "SELECT U.id,role,username,password,fName,mi,"
@@ -101,7 +133,9 @@ public class UserManager {
 					+ "billCity,billPostCode,billCountry,shipHouseNo,shipStreet,"
 					+ "shipSubd,shipCity,shipPostCode,shipCountry,searchProduct,"
 					+ "purchaseProduct,reviewProduct,addProduct,editProduct,"
-					+ "deleteProduct,viewRecords,createAccount,U.dateEdited > '0000-00-00 00:00:00' AS passChanged, expiresOn IS NOT NULL AND expiresOn < NOW() AS expired "
+					+ "deleteProduct,viewRecords,createAccount,U.dateEdited > '0000-00-00 00:00:00' AS passChanged, expiresOn IS NOT NULL AND expiresOn < NOW() AS expired, "
+					+ "loginAttempts,IFNULL(NOW() > lockedUntil,TRUE) AS unlocked, lockedUntil, "
+					+ "TIMESTAMPDIFF(MINUTE,NOW(),lockedUntil) AS unlockTime "
 					+ "FROM tl_user U INNER JOIN tl_role R ON U.role = R.id AND U.status = 1 AND R.status = 1 "
 					+ "WHERE username = BINARY ?";
 			PreparedStatement ps = con.prepareStatement(sql);
@@ -114,35 +148,59 @@ public class UserManager {
 					ps = con.prepareStatement(sql);
 					ps.setString(1,username);
 					ps.execute();
-					throw new Exception("Expired Account");
-				} else if(BCrypt.checkpw(password, rs.getString("password"))) {
-					if( rs.getBoolean("passChanged")) {
-						sql = "UPDATE tl_user SET expiresOn = DATE_ADD(NOW(),INTERVAL 3 MONTH) WHERE username = ?";
+					throw new ExpiredAccountException();
+				} else if(rs.getBoolean("unlocked")) {
+					if(BCrypt.checkpw(password, rs.getString("password"))) {
+						if( rs.getBoolean("passChanged")) {
+							sql = "UPDATE tl_user SET expiresOn = DATE_ADD(NOW(),INTERVAL 3 MONTH) WHERE username = ?";
+							ps = con.prepareStatement(sql);
+							ps.setString(1,username);
+							ps.execute();
+						}
+						sql = "UPDATE tl_user SET lockedUntil = NULL WHERE username = ?";
 						ps = con.prepareStatement(sql);
 						ps.setString(1,username);
 						ps.execute();
+						return new User(rs.getInt("id"),rs.getInt("role"),
+								rs.getString("username"),rs.getString("fName"),
+								rs.getString("mi"),rs.getString("lName"),
+								rs.getString("emailAddress"),rs.getString("billHouseNo"),
+								rs.getString("billStreet"),rs.getString("billSubd"),
+								rs.getString("billCity"),rs.getString("billPostCode"),
+								rs.getString("billCountry"),rs.getString("shipHouseNo"),
+								rs.getString("shipStreet"),rs.getString("shipSubd"),
+								rs.getString("shipCity"),rs.getString("shipPostCode"),
+								rs.getString("shipCountry"),rs.getBoolean("searchProduct"),
+								rs.getBoolean("purchaseProduct"),rs.getBoolean("reviewProduct"),
+								rs.getBoolean("addProduct"),rs.getBoolean("editProduct"),
+								rs.getBoolean("deleteProduct"),rs.getBoolean("viewRecords"),
+								rs.getBoolean("createAccount"));
+					} else {
+						int loginAttempts = rs.getInt("loginAttempts") + 1;
+						sql = "UPDATE tl_user SET loginAttempts = " + (loginAttempts >= LOGIN_MAX_ATTEMPTS ? "0, lockedUntil = DATE_ADD(NOW(),INTERVAL " + LOCKOUT_MINUTES + " MINUTE)" : 
+							"loginAttempts + 1") + " WHERE username = ?";
+						ps = con.prepareStatement(sql);
+						ps.setString(1,username);
+						ps.execute();
+						if( loginAttempts >= LOGIN_MAX_ATTEMPTS) {
+							throw new LockoutException("Account locked out for " + LOCKOUT_MINUTES + " minutes", LOCKOUT_MINUTES);
+						} else {
+							throw new AuthenticationException();
+						}
 					}
-					return new User(rs.getInt("id"),rs.getInt("role"),
-							rs.getString("username"),rs.getString("fName"),
-							rs.getString("mi"),rs.getString("lName"),
-							rs.getString("emailAddress"),rs.getString("billHouseNo"),
-							rs.getString("billStreet"),rs.getString("billSubd"),
-							rs.getString("billCity"),rs.getString("billPostCode"),
-							rs.getString("billCountry"),rs.getString("shipHouseNo"),
-							rs.getString("shipStreet"),rs.getString("shipSubd"),
-							rs.getString("shipCity"),rs.getString("shipPostCode"),
-							rs.getString("shipCountry"),rs.getBoolean("searchProduct"),
-							rs.getBoolean("purchaseProduct"),rs.getBoolean("reviewProduct"),
-							rs.getBoolean("addProduct"),rs.getBoolean("editProduct"),
-							rs.getBoolean("deleteProduct"),rs.getBoolean("viewRecords"),
-							rs.getBoolean("createAccount"));
+				} else {
+					int minute = rs.getInt("unlockTime");
+					throw new LockoutException("Account locked out for " + minute + " minutes", minute);
 				}
 			}
 			return null;
-		} catch(Exception e) {
-			throw e;
 		} finally {
-			con.close();
+			try {
+				con.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	

@@ -6,7 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import model.Cart;
 import model.Item;
+import model.Purchase;
 import model.Review;
 import model.SaleMapping;
 
@@ -150,14 +152,30 @@ public class ItemManager {
 		}
 	}
 	
-	public static void purchaseItem(int userId, int itemId, int quantity) throws SQLException {
+	public static void purchaseCart(int userId, Cart c, String cardtype,
+									int expmm,int expyy,String cvc) throws SQLException {
 		Connection con = DBManager.getInstance().getConnection();
-		String sql = "INSERT INTO tl_purchase(userId,itemId,quantity) VALUES (?,?,?)";
-		PreparedStatement ps = con.prepareStatement(sql);
-		ps.setInt(1,userId);
-		ps.setInt(2,itemId);
-		ps.setInt(3, quantity);
-		ps.execute();
+		String sql = "INSERT INTO tl_purchase(userId,itemId,quantity,cardtype,expmm,expyy,cvc) VALUES ";
+		if( c.size() > 0 ) {
+			Purchase[] purcs = c.getPurchases();
+			for(int i = 0; i < purcs.length; i++) {
+				if( i > 0 ) {
+					sql += ",";
+				}
+				sql += "(?,?,?,?,?,?,?)";
+			}		
+			PreparedStatement ps = con.prepareStatement(sql);
+			for(int i = 0; i < purcs.length; i++) {
+				ps.setInt(7 * i + 1,userId);
+				ps.setInt(7 * i + 2,purcs[i].getItem().getId());
+				ps.setInt(7 * i + 3, purcs[i].getQuantity());
+				ps.setString(7 * i + 4, cardtype);
+				ps.setInt(7 * i + 5, expmm);
+				ps.setInt(7 * i + 6, expyy);
+				ps.setString(7 * i + 7, cvc);
+			}
+			ps.execute();
+		}
 		con.close();
 	}
 	
@@ -169,6 +187,18 @@ public class ItemManager {
 		ps.setInt(2,itemId);
 		ps.setInt(3, rating);
 		ps.setString(4,review);
+		ps.execute();
+		con.close();
+	}
+	
+	public static void updateReview(int userId, int itemId, int rating, String review) throws SQLException {
+		Connection con = DBManager.getInstance().getConnection();
+		String sql = "UPDATE tl_review SET rating = ?,review = ? WHERE userId = ? AND itemId = ? AND status = 1";
+		PreparedStatement ps = con.prepareStatement(sql);
+		ps.setInt(3,userId);
+		ps.setInt(4,itemId);
+		ps.setInt(1, rating);
+		ps.setString(2,review);
 		ps.execute();
 		con.close();
 	}
@@ -192,14 +222,14 @@ public class ItemManager {
 		}
 	}
 	
-	public static SaleMapping[] getTotalSales(int itemtype) throws SQLException {
+	public static SaleMapping[] getTotalSalesByType() throws SQLException {
 		Connection con = DBManager.getInstance().getConnection();
 		try {
 			String sql = "SELECT T.name AS ItemType, SUM(quantity * price) AS TotalSales "
 					+ "FROM tl_purchase P INNER JOIN tl_item I ON P.itemId = I.id AND "
 					+ "P.status = 1 AND I.status = 1 "
-					+ "INNER JOIN tl_item_type T ON I.itemtype = T.id AND T.status = 1 "
-					+ "GROUP BY T.id "
+					+ "RIGHT JOIN tl_item_type T ON I.itemtype = T.id AND T.status = 1 "
+					+ "GROUP BY T.name "
 					+ "ORDER BY TotalSales DESC";
 			PreparedStatement ps = con.prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
@@ -219,7 +249,7 @@ public class ItemManager {
 		Connection con = DBManager.getInstance().getConnection();
 		try {
 			String sql = "SELECT I.name, SUM(quantity * price) AS TotalSales "
-					+ "FROM tl_purchase P INNER JOIN tl_item I ON P.itemId = I.id AND "
+					+ "FROM tl_purchase P RIGHT JOIN tl_item I ON P.itemId = I.id AND "
 					+ "P.status = 1 AND I.status = 1 "
 					+ "GROUP BY I.id "
 					+ "ORDER BY TotalSales DESC";

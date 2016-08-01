@@ -11,7 +11,8 @@
 		<script src="<c:url value="resources/js/jquery-migrate-1.2.1.min.js"/>"></script>
 	</head>
 	<body>
-		<input type="hidden" value="${error }" id="error" />
+		<input type="hidden" value="<c:out value="${error }"/>" id="error" />
+		<input type="hidden" value="<c:out value="${message }"/>" id="message" />
 		
 		<div id="container">
 			<div id="header">
@@ -50,6 +51,7 @@
 			<script src="<c:url value="resources/js/login.js"/>"></script>
 			<div id="loginForm">
 				<form action="login" method="POST">
+					<input type="hidden" value="<c:out value="${sessionToken }"/>" name="token"/>
 					<div class="form-group">
 						<div class="form-label">Username</div>
 						<input class="form-input" name="username"/>
