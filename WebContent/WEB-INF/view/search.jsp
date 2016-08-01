@@ -25,19 +25,9 @@
 				<h3>Filter By</h3>
 				
 				<ul id="filterList">
-					<li><div class="filterCat">Special Offers</div>
+					<li><div class="filterCat">Price Range</div>
 						<ul>
-							<li><input type="checkbox"/> Items on sale</li>
-							<li><input type="checkbox"/> Items NOT on sale</li>
-						</ul>
-					</li>
-					<li><div class="filterCat">Price</div>
-						<ul>
-							<li><input type="checkbox"/> &#8369;2000 and below</li>
-							<li><input type="checkbox"/> &#8369;2000 - &#8369;5000</li>
-							<li><input type="checkbox"/> &#8369;5000 - &#8369;10000</li>
-							<li><input type="checkbox"/> &#8369;10000 - &#8369;20000</li>
-							<li><input type="checkbox"/> &#8369;20000 and above</li>
+							<li><input type="number" min="0" step="0.01"/> - <input type="number" min="0" step="0.01"/></li>
 						</ul>
 					</li>
 					<li><div class="filterCat">Customer Ratings</div>
@@ -54,13 +44,20 @@
 			</div>
 
 			<div id="wideContent" class="wider">
+				<c:if test="${empty products}" >
+					<span class="noResults">No results</span>
+				</c:if>
 				<c:forEach var="p" items="${products }" begin="0" end="24">
 				<div id="product-<c:out value="${p.id }"/>" class="product">
-					<c:out value="${p.name }"/><br/>
-					<c:out value="${p.itemtype }"/><br/>
-					<c:out value="${p.description }"/><br/>
-					Price: <fmt:formatNumber pattern="#.00" value="${p.price }"/> Php<br/>
-					<a href="viewProduct?id=<c:out value="${p.id }"/>">View Product</a>
+					<div class="product-name">
+						<a href="viewProduct?id=<c:out value="${p.id }"/>"><c:out value="${p.name }"/></a>
+					</div>
+					<div class="product-description">
+						<c:out value="${p.description }"/>
+					</div>
+					<div class="product-price">
+						&#8369;<fmt:formatNumber pattern="#.00" value="${p.price }"/>
+					</div>
 				</div>
 				</c:forEach>
 				<c:if test="${more }">
