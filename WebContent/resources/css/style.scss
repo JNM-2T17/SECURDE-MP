@@ -413,10 +413,14 @@ div#loginForm{
 
 // Product List
 
+span.noResults{
+	font-size: 2em;
+}
+
 div.product{
 
 	border: 1px rgb(108,108,108) solid;
-	padding: 15px;
+	padding: 15px 0;
 
 	&:nth-of-type(odd){
 		background-color: rgb(211,211,211);
@@ -432,8 +436,7 @@ div.product{
 
 	div.product-name,
 	div.product-description,
-	div.product-price,
-	div.product-add{
+	div.product-price{
 		display: inline-block;
 		vertical-align: middle;
 	}
@@ -442,6 +445,8 @@ div.product{
 		font-weight: bold;
 		font-size: 1.5em;
 		width: 30%;
+		word-wrap: break-word;
+		margin-left: 15px;
 
 		a{
 			text-decoration: none;
@@ -450,21 +455,14 @@ div.product{
 	}
 
 	div.product-description{
-		width: calc(50% - 35px);
+		width: calc(50% - 30px);
+		margin-left: 15px;
 	}
 
 	div.product-price{
 		text-align: right;
-		width: calc(20% - 45px);
-		margin-right: 10px;
-	}
-
-	div.product-add{
-		width: 40px;
-		height: 40px;
-		background-image: url("../images/cart.png");
-		background-size: 40px 40px;
-		background-repeat: no-repeat;
+		width: calc(20% - 30px);
+		margin-right: 15px;
 	}
 
 }

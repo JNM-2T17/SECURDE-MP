@@ -44,6 +44,9 @@
 			</div>
 
 			<div id="wideContent" class="wider">
+				<c:if test="${empty products}" >
+					<span class="noResults">No results</span>
+				</c:if>
 				<c:forEach var="p" items="${products }" begin="0" end="24">
 				<div id="product-<c:out value="${p.id }"/>" class="product">
 					<div class="product-name">
@@ -55,7 +58,6 @@
 					<div class="product-price">
 						&#8369;<fmt:formatNumber pattern="#.00" value="${p.price }"/>
 					</div>
-					<div class="product-add"></div>
 				</div>
 				</c:forEach>
 				<c:if test="${more }">

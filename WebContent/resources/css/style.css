@@ -279,9 +279,12 @@ div#loginForm {
     div#loginForm .loginButton:hover {
       color: #6c6c6c; }
 
+span.noResults {
+  font-size: 2em; }
+
 div.product {
   border: 1px #6c6c6c solid;
-  padding: 15px; }
+  padding: 15px 0; }
   div.product:nth-of-type(odd) {
     background-color: lightgray; }
   div.product:nth-of-type(even) {
@@ -290,29 +293,25 @@ div.product {
     border-top-width: 0; }
   div.product div.product-name,
   div.product div.product-description,
-  div.product div.product-price,
-  div.product div.product-add {
+  div.product div.product-price {
     display: inline-block;
     vertical-align: middle; }
   div.product div.product-name {
     font-weight: bold;
     font-size: 1.5em;
-    width: 30%; }
+    width: 30%;
+    word-wrap: break-word;
+    margin-left: 15px; }
     div.product div.product-name a {
       text-decoration: none;
       color: #b30000; }
   div.product div.product-description {
-    width: calc(50% - 35px); }
+    width: calc(50% - 30px);
+    margin-left: 15px; }
   div.product div.product-price {
     text-align: right;
-    width: calc(20% - 45px);
-    margin-right: 10px; }
-  div.product div.product-add {
-    width: 40px;
-    height: 40px;
-    background-image: url("../images/cart.png");
-    background-size: 40px 40px;
-    background-repeat: no-repeat; }
+    width: calc(20% - 30px);
+    margin-right: 15px; }
 
 input {
   height: 40px;
