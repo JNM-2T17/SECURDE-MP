@@ -222,14 +222,14 @@ public class ItemManager {
 		}
 	}
 	
-	public static SaleMapping[] getTotalSales(int itemtype) throws SQLException {
+	public static SaleMapping[] getTotalSalesByType() throws SQLException {
 		Connection con = DBManager.getInstance().getConnection();
 		try {
 			String sql = "SELECT T.name AS ItemType, SUM(quantity * price) AS TotalSales "
 					+ "FROM tl_purchase P INNER JOIN tl_item I ON P.itemId = I.id AND "
 					+ "P.status = 1 AND I.status = 1 "
-					+ "INNER JOIN tl_item_type T ON I.itemtype = T.id AND T.status = 1 "
-					+ "GROUP BY T.id "
+					+ "RIGHT JOIN tl_item_type T ON I.itemtype = T.id AND T.status = 1 "
+					+ "GROUP BY T.name "
 					+ "ORDER BY TotalSales DESC";
 			PreparedStatement ps = con.prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
@@ -249,7 +249,7 @@ public class ItemManager {
 		Connection con = DBManager.getInstance().getConnection();
 		try {
 			String sql = "SELECT I.name, SUM(quantity * price) AS TotalSales "
-					+ "FROM tl_purchase P INNER JOIN tl_item I ON P.itemId = I.id AND "
+					+ "FROM tl_purchase P RIGHT JOIN tl_item I ON P.itemId = I.id AND "
 					+ "P.status = 1 AND I.status = 1 "
 					+ "GROUP BY I.id "
 					+ "ORDER BY TotalSales DESC";

@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import model.Cart;
 import model.Item;
 import model.Review;
+import model.SaleMapping;
 import model.User;
 
 import org.springframework.stereotype.Controller;
@@ -171,9 +172,6 @@ public class TheController {
 				}
 				request.getRequestDispatcher("WEB-INF/view/admin-home.jsp").forward(request, response);
 				break;
-			case 3:
-				request.getRequestDispatcher("WEB-INF/view/am-home.jsp").forward(request, response);
-				break;
 			case 2:
 				Item[] items;
 				try {
@@ -189,6 +187,20 @@ public class TheController {
 				}
 				request.getRequestDispatcher("WEB-INF/view/pm-home.jsp").forward(request, response);
 				break;
+			case 3:
+				try {
+					double total = ItemManager.getTotalSales();
+					SaleMapping[] byType = ItemManager.getTotalSalesByType();
+					SaleMapping[] byItem = ItemManager.getTotalSalesPerItem();
+					request.setAttribute("total", total);
+					request.setAttribute("byType", byType);
+					request.setAttribute("byItem", byItem);
+					request.getRequestDispatcher("WEB-INF/view/am-home.jsp").forward(request, response);
+					break;
+				} catch(SQLException se) {
+					logError(se);
+					
+				}
 			case 1:
 			default:
 				request.getRequestDispatcher("WEB-INF/view/index.jsp").forward(request, response);
@@ -557,9 +569,16 @@ public class TheController {
 		if(isAuth(request,response,User.ADD_PRODUCT)) {
 			try {
 				checkToken(token,request,response);
-				ItemManager.addItem(itemtype,name,description,price);
-				ActivityManager.addActivity("added product " + name + ".");
-				home(request,response);
+				if(name.matches( "^[A-Za-z0-9.,! \\-'&]+$") && ("" + itemtype).matches("^[1-4]$") &&  description.length() > 0 && 
+						("" + price).matches( "^[0-9]+([.][0-9]+)?|[0-9]*[.][0-9]+$")) {
+						ItemManager.addItem(itemtype,name,description,price);
+						ActivityManager.addActivity("added product " + name + ".");
+						home(request,response);						
+				} else {
+					request.setAttribute("error", "Failed to add product.");
+					logError(new Exception("Data validation failed on add product."));
+					addProduct(request,response);
+				}
 				return;
 			} catch(SQLException | MissingTokenException se) {
 				logError(se);
@@ -605,9 +624,16 @@ public class TheController {
 		if(isAuth(request,response,User.EDIT_PRODUCT)) {
 			try {
 				checkToken(token,request,response);
-				ItemManager.editItem(id, itemtype, name, description, price);
-				ActivityManager.addActivity("edited item " + id + ".");
-				home(request,response);
+				if(name.matches( "^[A-Za-z0-9.,! \\-'&]+$") && ("" + itemtype).matches("^[1-4]$") &&  description.length() > 0 && 
+						("" + price).matches( "^[0-9]+([.][0-9]+)?|[0-9]*[.][0-9]+$")) {
+					ItemManager.editItem(id, itemtype, name, description, price);
+					ActivityManager.addActivity("edited item " + id + ".");
+					home(request,response);
+				} else {
+					request.setAttribute("error", "Failed to edit product.");
+					logError(new Exception("Data validation failed on edit product."));
+					editProduct(id,request,response);
+				}
 				return;
 			} catch(SQLException | MissingTokenException se) {
 				logError(se);
