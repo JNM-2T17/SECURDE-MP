@@ -246,6 +246,12 @@ div#content{
 	    					vertical-align: middle;
 	    				}
 
+	    				input[type=number]{
+	    					width: 80px;
+	    					height: 25px;
+	    					border-color: rgb(211,211,211);
+	    				}
+
 	    				& + li{
 							margin-top: -10px;
 						}
@@ -404,6 +410,66 @@ div#loginForm{
 		}
 	}
 }
+
+// Product List
+
+div.product{
+
+	border: 1px rgb(108,108,108) solid;
+	padding: 15px;
+
+	&:nth-of-type(odd){
+		background-color: rgb(211,211,211);
+	}
+
+	&:nth-of-type(even){
+		background-color: rgb(255,255,255);
+	}
+
+	& + div.product{
+		border-top-width: 0;
+	}
+
+	div.product-name,
+	div.product-description,
+	div.product-price,
+	div.product-add{
+		display: inline-block;
+		vertical-align: middle;
+	}
+
+	div.product-name{
+		font-weight: bold;
+		font-size: 1.5em;
+		width: 30%;
+
+		a{
+			text-decoration: none;
+			color: $accentColor;
+		}
+	}
+
+	div.product-description{
+		width: calc(50% - 35px);
+	}
+
+	div.product-price{
+		text-align: right;
+		width: calc(20% - 45px);
+		margin-right: 10px;
+	}
+
+	div.product-add{
+		width: 40px;
+		height: 40px;
+		background-image: url("../images/cart.png");
+		background-size: 40px 40px;
+		background-repeat: no-repeat;
+	}
+
+}
+
+// General
 
 input{
 	height: 40px;
