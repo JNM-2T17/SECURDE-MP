@@ -1,4 +1,4 @@
-var editProduct = (function() {
+var addProduct = (function() {
 	return {
 		checkSubmit : function() {
 			var name = $("#name").val();
@@ -34,9 +34,3 @@ var editProduct = (function() {
 		}
 	};
 })();
-
-$(document).ready(function() {
-	var typeId = $("#typeId").val();
-	console.log(typeId);
-	$("#itemtype").val(typeId + "");
-});
