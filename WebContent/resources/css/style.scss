@@ -190,9 +190,16 @@ div#content{
 		margin: 10px 30px 20px;
 		width: 280px;
 		font-size: 1.5em;
+		min-height: 250px;
+		position: relative;
+		padding-bottom: 70px;
 
 		&.narrower{
 			width: 220px;
+
+			img{
+				max-width: 220px;
+			}
 		}
 
 		p{
@@ -203,7 +210,11 @@ div#content{
 			text-transform: uppercase;
 			color: $fgColor2;
 			font-size: 1.2em;
-			margin: 0 0 10px;
+			margin: 10px 0;
+		}
+
+		img{
+			max-width: 280px;
 		}
 
 		ul#filterList{
@@ -277,6 +288,11 @@ div#footer{
 	text-align: center;
 	padding-top: 10px;
 	font-size: 0.8em;
+	height: 50px;
+	width: inherit;
+	position: absolute;
+		bottom: 0;
+		left: 0;
 
 	a{
 		color: $accentColor;
@@ -451,6 +467,7 @@ div.product{
 		a{
 			text-decoration: none;
 			color: $accentColor;
+			display: block;
 		}
 	}
 
@@ -465,6 +482,115 @@ div.product{
 		margin-right: 15px;
 	}
 
+}
+
+// View Product
+
+div#viewProduct{
+	font-size: 1.3em;
+
+	h3{
+		font-size: 2em;
+		text-transform: lowercase;
+		border-top: 2px $fgColor1-fade solid;
+		padding-top: 15px;
+	}
+}
+
+// Register
+
+h2#regTitle{
+	font-size: 2.5em;
+	text-transform: lowercase;
+	margin: 15px 0 10px;
+	text-shadow: 1px 1px $fgColor2;	
+}
+
+div#regDesc{
+	font-size: 1.2em;
+	margin-bottom: 30px;
+}
+
+table#regForm{
+	margin-top: 15px;
+
+	td{
+		padding-bottom: 5px;
+	}
+
+	tr td:first-child{
+		text-align: right;
+		text-transform: lowercase;
+		vertical-align: top;
+		padding: 7px 10px 0 0;
+		font-size: 1.2em;
+	}
+
+	.regRow{
+		display: block;
+		padding: 7px 10px 0 0;
+
+		&:first-of-type{
+			padding: 0;
+
+			input:nth-of-type(1){
+				width: 100px;
+				margin-right: 5px;
+			}
+
+			input:nth-of-type(2){
+				width: 195px;
+			}
+		}
+
+		&:last-of-type{
+			input:nth-of-type(1){
+				width: 195px;
+				margin-right: 5px;
+			}
+
+			input:nth-of-type(2){
+				width: 100px;
+			}
+		}
+	}
+
+	input{
+		padding: 4px 10px;
+		height: 30px;
+		width: 300px;
+		border-width: 2px;
+	}
+
+	#regName{
+		input:nth-of-type(1){
+			width: 125px;
+			margin-right: 5px;
+		}
+
+		input:nth-of-type(2){
+			width: 40px;
+			margin-right: 5px;
+		}
+
+		input:nth-of-type(3){
+			width: 125px;
+		}
+	}
+}
+
+input#regButton{
+	background-color: transparent;
+	border: none;
+	color: $accentColor;
+	font-size: 1.5em;
+	text-transform: lowercase;
+	text-shadow: 1px 1px $fgColor2;
+	margin-top: 30px;
+
+	&:hover{
+		color: $fgColor1;
+	}
 }
 
 // General

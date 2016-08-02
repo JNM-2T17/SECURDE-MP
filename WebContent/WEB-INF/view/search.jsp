@@ -27,7 +27,7 @@
 				<ul id="filterList">
 					<li><div class="filterCat">Price Range</div>
 						<ul>
-							<li><input type="number" min="0" step="0.01"/> - <input type="number" min="0" step="0.01"/></li>
+							<li>&#8369;<input type="number" min="0" step="0.01"/> - &#8369;<input type="number" min="0" step="0.01"/></li>
 						</ul>
 					</li>
 					<li><div class="filterCat">Customer Ratings</div>
