@@ -5,6 +5,7 @@
 		<script src="<c:url value="resources/js/viewProduct.js"/>"></script>
 		<div id="content">
 			<h2><c:out value="${p.name }"/></h2>
+			<h3><c:choose><c:when test="${p.rating > 0 }"><c:forEach begin="1" end="${p.rating }">&#9733;</c:forEach><c:forEach begin="${p.rating + 1 }" end="5">&#9734;</c:forEach></c:when><c:otherwise>Not Rated</c:otherwise></c:choose></h3>
 			<h3><c:out value="${p.price }"/> Php</h3>
 			<p><c:out value="${p.description }"/></p>
 			<c:if test="${not empty sessionUser }">
@@ -19,7 +20,7 @@
 				<c:when test="${not empty review || canReview}">
 					<c:if test="${not empty review }">
 						<div id="user-review">
-						Your review: <p id="review-rating"><c:forEach begin="1" end="${review.rating }">*</c:forEach><c:forEach begin="${review.rating + 1 }" end="5">_</c:forEach></p>
+						Your review: <p id="review-rating"><c:forEach begin="1" end="${review.rating }">&#9733;</c:forEach><c:forEach begin="${review.rating + 1 }" end="5">&#9734;</c:forEach></p>
 						<p id="review-content"><c:out value="${review.review }"/></p>
 						<button id="button-update">Update Review</button>
 						</div>
@@ -56,7 +57,7 @@
 				<div>
 					<c:out value="${r.username }"/>
 					Rating: 
-					<c:forEach begin="1" end="${r.rating }">*</c:forEach><c:forEach begin="${r.rating + 1 }" end="5">_</c:forEach>
+					<c:forEach begin="1" end="${r.rating }">&#9733;</c:forEach><c:forEach begin="${r.rating + 1 }" end="5">&#9734;</c:forEach>
 					<c:out value="${r.review }"/>
 				</div>
 				</c:forEach>

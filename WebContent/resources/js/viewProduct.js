@@ -77,7 +77,8 @@ $(document).ready(function() {
 	viewProduct.setProdId($("#productId").val());
 	$("#addForm").hide();
 	$("#addButton").click(viewProduct.addToCart);
-	if( $("#review-content") ) {
+	console.log($("#review-content").length);
+	if( $("#review-content").length > 0 ) {
 		$("#reviewForm").hide();
 		$("#button-update").click(function() {
 			$("#reviewForm").show();

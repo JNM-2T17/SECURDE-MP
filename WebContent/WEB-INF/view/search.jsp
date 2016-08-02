@@ -51,6 +51,7 @@
 				<div id="product-<c:out value="${p.id }"/>" class="product">
 					<div class="product-name">
 						<a href="viewProduct?id=<c:out value="${p.id }"/>"><c:out value="${p.name }"/></a>
+						<c:choose><c:when test="${p.rating > 0 }"><c:forEach begin="1" end="${p.rating }">&#9733;</c:forEach><c:forEach begin="${p.rating + 1 }" end="5">&#9734;</c:forEach></c:when><c:otherwise>Not Rated</c:otherwise></c:choose>
 					</div>
 					<div class="product-description">
 						<c:out value="${p.description }"/>
