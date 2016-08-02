@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import model.Cart;
 import model.Item;
@@ -72,11 +73,14 @@ public class TheController {
 		return "";
 	}
 	
-	private void genToken(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	private String genToken(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		User u = restoreSession(request,response);
+		String genHash = null;
 		if( u != null ) {
-			request.getSession().setAttribute("sessionToken",genHash(u,request.getRemoteAddr())); 
+			genHash = genHash(u,request.getRemoteAddr());
+			request.getSession().setAttribute("sessionToken",genHash); 
 		}
+		return genHash;
 	}
 	
 	private User restoreSession(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -220,8 +224,9 @@ public class TheController {
 				checkToken(token,request,response);
 				u = UserManager.login(username, password);
 				if( u != null ) {
-					String genHash = genHash(u,request.getRemoteAddr());
-					request.getSession().setAttribute("sessionUser", u);
+					request.getSession().invalidate();
+					request.getSession(true).setAttribute("sessionUser", u);
+					String genHash = genToken(request,response);
 					Cookie c = new Cookie("sessionToken",genHash);
 					c.setMaxAge(1800);
 					response.addCookie(c);
