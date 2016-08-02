@@ -4,13 +4,16 @@
 <jsp:include page="header.jsp"/>
 		<script src="<c:url value="resources/js/viewProduct.js"/>"></script>
 		<div id="content">
-			
 			<div id="sectionTitle">
 				<h2><c:out value="${p.name }"/></h2>
 			</div>
 			
 			<div id="wideContent" class="widest">
 			
+				<div id="productRating">
+					<c:choose><c:when test="${p.rating > 0 }"><c:forEach begin="1" end="${p.rating }">&#9733;</c:forEach><c:forEach begin="${p.rating + 1 }" end="5">&#9734;</c:forEach></c:when><c:otherwise>Not Rated</c:otherwise></c:choose>
+				</div>
+				
 				<div id="productPrice">
 					&#8369; <c:out value="${p.price }"/>
 				</div>
@@ -32,7 +35,7 @@
 							<c:if test="${not empty review }">
 								<div class="productOptions-option">
 									<div id="user-review">
-									Your review: <p id="review-rating"><c:forEach begin="1" end="${review.rating }">*</c:forEach><c:forEach begin="${review.rating + 1 }" end="5">_</c:forEach></p>
+									Your review: <p id="review-rating"><c:forEach begin="1" end="${review.rating }">&#9733;</c:forEach><c:forEach begin="${review.rating + 1 }" end="5">&#9734;</c:forEach></p>
 									<p id="review-content"><c:out value="${review.review }"/></p>
 									<button id="button-update">Update Review</button>
 									</div>
@@ -82,7 +85,7 @@
 							<div>
 								<c:out value="${r.username }"/>
 								Rating: 
-								<c:forEach begin="1" end="${r.rating }">*</c:forEach><c:forEach begin="${r.rating + 1 }" end="5">_</c:forEach>
+								<c:forEach begin="1" end="${r.rating }">&#9733;</c:forEach><c:forEach begin="${r.rating + 1 }" end="5">&#9734;</c:forEach>
 								<c:out value="${r.review }"/>
 							</div>
 							</c:forEach>

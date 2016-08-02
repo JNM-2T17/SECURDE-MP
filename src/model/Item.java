@@ -7,13 +7,14 @@ public class Item {
 	private String itemtype;
 	private String description;
 	private double price;
+	private int rating;
 	
 	public Item() {
 		super();
 	}
 	
 	public Item(int id, String name, int typeId, String itemtype,
-			String description, double price) {
+			String description, double price,int rating) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -21,16 +22,18 @@ public class Item {
 		this.itemtype = itemtype;
 		this.description = description;
 		this.price = price;
+		this.rating = rating;
 	}
 
 
-	public Item(int id, String name, String itemtype, String description, double price) {
+	public Item(int id, String name, String itemtype, String description, double price,int rating) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.itemtype = itemtype;
 		this.description = description;
 		this.price = price;
+		this.rating = rating;
 	}
 
 	public int getId() {
@@ -79,5 +82,13 @@ public class Item {
 
 	public void setPrice(double price) {
 		this.price = price;
+	}
+
+	public int getRating() {
+		return rating;
+	}
+
+	public void setRating(int rating) {
+		this.rating = rating;
 	}
 }

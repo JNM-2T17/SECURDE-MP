@@ -4,7 +4,7 @@ var viewProduct = (function() {
 	return {
 		addToCart : function() {
 			$("#addForm").show();
-			$("#addButton").hide();
+			$("#addToCartButton").hide();
 		},
 		setProdId : function(a) {
 			if( !setOnce ) {
@@ -76,8 +76,9 @@ var viewProduct = (function() {
 $(document).ready(function() {
 	viewProduct.setProdId($("#productId").val());
 	$("#addForm").hide();
-	$("#addButton").click(viewProduct.addToCart);
-	if( $("#review-content") ) {
+	$("#addToCartButton").click(viewProduct.addToCart);
+	console.log($("#review-content").length);
+	if( $("#review-content").length > 0 ) {
 		$("#reviewForm").hide();
 		$("#button-update").click(function() {
 			$("#reviewForm").show();

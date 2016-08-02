@@ -87,9 +87,10 @@ public class ItemManager {
 	
 	public static Item[] getAllItems(Integer type, String query, int start, int limit) throws SQLException {
 		Connection con = DBManager.getInstance().getConnection();
-		String sql = "SELECT I.id, I.name, T.name AS itemtype, description, price "
+		String sql = "SELECT I.id, I.name, T.name AS itemtype, description, price, ROUND(AVG(rating),0) AS rating "
 				+ "FROM tl_item I INNER JOIN tl_item_type T ON I.itemtype = T.id AND "
-				+ "I.status = 1 AND T.status = 1 ";
+				+ "I.status = 1 AND T.status = 1 "
+				+ "LEFT JOIN tl_review R ON R.status = 1 AND R.itemId = I.id ";
 		String whereClause = "WHERE ";
 		if( type != null ) {
 			whereClause += (whereClause.length() == 6 ? "" : "AND ") + "itemtype = ? ";
@@ -97,7 +98,7 @@ public class ItemManager {
 		if( query != null ) {
 			whereClause += (whereClause.length() == 6 ? "" : "AND ") + "I.name LIKE ? ";
 		}
-		sql += (whereClause.length() == 6 ? "" : whereClause) + "ORDER BY I.dateAdded DESC ";
+		sql += (whereClause.length() == 6 ? "" : whereClause) + "GROUP BY I.id ORDER BY I.dateAdded DESC ";
 		
 		if( start != 0 && limit != 0) {
 			sql += "LIMIT ?,?";
@@ -116,13 +117,14 @@ public class ItemManager {
 			ps.setInt(index, start);
 			ps.setInt(index + 1, limit);
 		}
+		
 		ResultSet rs = ps.executeQuery();
 		
 		ArrayList<Item> items = new ArrayList<Item>();
 		while(rs.next()) {
 			items.add(new Item(rs.getInt("id"),rs.getString("name"),
 						rs.getString("itemtype"),rs.getString("description"),
-						rs.getDouble("price")));
+						rs.getDouble("price"),rs.getInt("rating")));
 		}
 		con.close();
 		return items.toArray(new Item[0]);
@@ -131,9 +133,9 @@ public class ItemManager {
 	public static Item getItem(int id) throws SQLException {
 		Connection con = DBManager.getInstance().getConnection();
 		try {
-			String sql = "SELECT I.id, I.name, T.id as typeId, T.name AS itemtype, description, price "
+			String sql = "SELECT I.id, I.name, T.id as typeId, T.name AS itemtype, description, price, ROUND(AVG(rating),0) AS rating "
 					+ "FROM tl_item I INNER JOIN tl_item_type T ON I.itemtype = T.id AND "
-					+ "I.status = 1 AND T.status = 1 "
+					+ "I.status = 1 AND T.status = 1 LEFT JOIN tl_review R ON R.itemId = I.id AND R.status = 1 "
 					+ "WHERE I.id = ?";
 			PreparedStatement ps = con.prepareStatement(sql);
 			ps.setInt(1,id);
@@ -142,7 +144,7 @@ public class ItemManager {
 			if(rs.next()) {
 				return new Item(rs.getInt("id"),rs.getString("name"),
 							rs.getInt("typeId"),rs.getString("itemtype"),rs.getString("description"),
-							rs.getDouble("price"));
+							rs.getDouble("price"),rs.getInt("rating"));
 			}
 			return null;
 		} catch(Exception e) {
