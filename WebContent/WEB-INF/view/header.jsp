@@ -36,9 +36,8 @@
 					<button id="button-login">Login</button>
 					</c:when>
 					<c:otherwise>
-					<h2>Welcome, <c:out value="${sessionUser.username }"/></h2>
-					<a href="editAccount">Edit Account</a>
-					<a href="logout">Logout</a>
+					<a href="editAccount">Account</a>
+					<a href="logout">Logout <c:out value="${sessionUser.username }"/></a>
 					<c:if test="${sessionScope.sessionUser.purchaseProduct }">
 					<a id="button-shoppingCart" href="shoppingCart">Shopping Cart</a>
 					</c:if>

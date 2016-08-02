@@ -7,12 +7,12 @@
 			
 			<br /><br />
 			
-			<div id="narrowContent" class="narrower">
-				<img src="<c:url value="resources/images/registerbg.jpg"/>" />
+			<div id="narrowContent">
+				<img src="<c:url value="resources/images/registerbg.png"/>" />
 				<jsp:include page="sidefooter.jsp"/>
 			</div>
 
-			<div id="wideContent" class="wider">
+			<div id="wideContent">
 				<h2 id="regTitle">Register Now!</h2>
 				<div id="regDesc">
 					It's cool, hip, and trendy, not to mention quick, fun, and easy.
