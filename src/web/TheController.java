@@ -84,7 +84,6 @@ public class TheController {
 	}
 	
 	private User restoreSession(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		response.addHeader("X-FRAME-OPTIONS", "deny");
 		User u = (User)request.getSession().getAttribute("sessionUser");
 		restoreToken(request,response);
 		System.out.println(u);
