@@ -21,7 +21,7 @@
 							<form id="addForm" action="addToCart" method="post" onsubmit="return viewProduct.checkSubmit();">
 								<input type="hidden" value="${sessionToken }" name="token"/>
 								<input type="hidden" id="productId" name="productId" value="<c:out value="${p.id }"/>"/>
-								<input class="addToCart-quantity" type="number" name="quantity" id="quantity" placeholder="quantity"/>
+								<input class="addToCart-quantity" type="number" name="quantity" min="1" step="1" id="quantity" placeholder="quantity"/>
 								<input class="addToCartButton" type="submit" value="Confirm"/>
 							</form>
 							<button id="addButton" class="addToCartButton">Add to Cart</button>
