@@ -23,7 +23,7 @@ body{
 	color: $fgColor1;
 	text-align: center;
 	font-family: $mainFont;
-	line-height: 1.7em;
+	line-height: 170%;
 }
 
 div#container{
@@ -105,7 +105,6 @@ div#header{
 			margin: 25px 12px 0;
 			height: 50px;
 			padding: 10px 0;
-			text-transform: lowercase;
 			text-decoration: none;
 			cursor: pointer;
 			outline: none;
@@ -489,6 +488,14 @@ div.product{
 
 // View Product
 
+h2#viewProductTitle{
+	color: $accentColor;
+	text-shadow: 2px 2px $fgColor2;	
+	margin: 0 0 20px;
+	font-size: 2em;
+	word-wrap: break-word;
+}
+
 div#viewProduct{
 	font-size: 1.3em;
 
@@ -505,49 +512,62 @@ div#viewProduct{
 	}
 }
 
-#addToCartButton{
+.addToCart-quantity{
+	float: left;
+	width: 80px;
+}
+
+.addToCartButton{
 	@extend .cartButton;
 
 	border: none;
 	background-color: transparent;
 	color: $accentColor;
 	font-family: Zag;
-	font-size: 1em;
-	margin: -11px 12px;
 	height: 50px;
+	font-size: 1em;
 	text-transform: lowercase;
 	outline: none;
+	padding-left: 0;
+	float: right;
 
 	&:hover{
 		color: $fgColor1-fade;
 	}
 }
 
+div#productRating{
+	font-size: 1em;
+	margin-top: 15px;
+}
+
 div#productPrice{
-	margin: 30px 0;
-	float: left;
-	width: 150px;
-	font-size: 1.4em;
-	height: 50px;
+	font-size: 1em;
 	font-weight: bold;
 }
 
 div#productOptions{
-	margin: 30px 0;
-	font-size: 1.2em;
-	width: 790px;
-	float: right;
-	height: 50px;
+	margin-top: 30px;
+	color: $accentColor;
+	font-size: 0.8em;
 	text-align: right;
+}
 
-	div.productOptions-option{
-		display: inline-block;
-		margin-right: 15px;
-		vertical-align: top;
+div.productReview{
+	div.productReview-name{
+		color: $fgColor2;
+		float: left;
+	}
 
-		&:last-of-type{
-			margin-right: 0;
-		}
+	div.productReview-rating{
+		color: $fgColor2;
+		font-size: 0.9em;
+		float: right;
+	}
+
+	div.productReview-review{
+		white-space: pre;
+		clear: both;
 	}
 }
 
@@ -648,6 +668,10 @@ input#regButton{
 }
 
 // General
+
+h2, h3{
+	line-height: 120%;
+}
 
 .cartButton{
 	background-image: url("../images/cart.png");
