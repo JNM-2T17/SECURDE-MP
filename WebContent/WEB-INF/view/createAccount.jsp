@@ -3,8 +3,60 @@
 
 <jsp:include page="header.jsp"/>
 			<script src="<c:url value="resources/js/createAccount.js"/>"></script>
-			<form action="createAccount" method="POST" onsubmit="return createAccount.checkSubmit();">
-				<input type="hidden" value="${sessionToken }" name="token"/>
+			<div id="wideContent">
+				<form action="createAccount" method="POST" onsubmit="return createAccount.checkSubmit();">
+					<table id="regForm">
+						<tr>
+							<td>Re-enter your password</td>
+							<td>
+								<input type="password" name="authPassword" id="authPassword"/>
+							</td>
+						</tr>
+						<tr>
+							<td>Name</td>
+							<td id="regName">
+								<input type="text" name="fname" placeholder="First" id="fname"/><input type="text" name="mi" placeholder="M.I" id="mi"/><input type="text" name="lname" placeholder="Last Name" id="lname"/>
+							</td>
+						</tr>
+						<tr>
+							<td>Username</td>
+							<td>
+								<input type="text" name="username" id="username"/>
+							</td>
+						</tr>
+						<tr>
+							<td>Role</td>
+							<td>
+								<input name="role" type="radio" id="pm" value="2" checked />
+								<label for="pm">Product Manager</label>
+								<input name="role" type="radio" id="am" value="3"/>
+								<label for="am">Accounting Manager</label><br/>
+							</td>
+						</tr>
+						<tr>
+							<td>Email</td>
+							<td>
+								<input type="text" name="email" id="email"/>
+							</td>
+						</tr>
+						<tr>
+							<td>Password</td>
+							<td>
+								<input type="password" name="password" id="password"/>
+							</td>
+						</tr>
+						<tr>
+							<td>Confirm</td>
+							<td>
+								<input type="password" name="confirmPassword" placeholder="Confirm Password" id="confirmPassword"/>
+							</td>
+						</tr>
+					</table>
+					<input type="hidden" value="${sessionToken }" name="token"/>
+					<input type="submit" value="Register &gt;" id="regButton"/>
+				</form>
+			</div>
+			<!--  <form action="createAccount" method="POST" onsubmit="return createAccount.checkSubmit();">
 				<input type="password" name="authPassword" placeholder="Reenter your password" id="authPassword"/><br/>
 				<input name="role" type="radio" id="pm" value="2" checked />
 				<label for="pm">Product Manager</label>
@@ -18,5 +70,5 @@
 				<input type="text" name="lname" placeholder="Last Name" id="lname"/><br/>
 				<input type="text" name="email" placeholder="Email Address" id="email"/><br/>
 				<input type="submit" value="Create Account"/>
-			</form>
+			</form> -->
 <jsp:include page="footer.jsp"/>

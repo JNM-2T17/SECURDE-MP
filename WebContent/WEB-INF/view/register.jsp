@@ -96,7 +96,7 @@
 					
 					<input type="hidden" name="token" value="<c:out value="${sessionToken }"/>"/>
 
-					<input type="submit" value="Register >" id="regButton"/>
+					<input type="submit" value="Register &gt;" id="regButton"/>
 				</form>
 			</div>
 
