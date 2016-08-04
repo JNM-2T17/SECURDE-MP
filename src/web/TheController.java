@@ -229,6 +229,8 @@ public class TheController {
 					String genHash = genToken(request,response);
 					Cookie c = new Cookie("sessionToken",genHash);
 					c.setMaxAge(1800);
+					c.setSecure(true);
+					c.setHttpOnly(true);
 					response.addCookie(c);
 					ActivityManager.setUser(u,request);
 					ActivityManager.addActivity("logged in.");
