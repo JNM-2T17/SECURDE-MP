@@ -11,7 +11,7 @@
 				<div id="narrowContent" class="narrower">
 					<h2 id="viewProductTitle"><c:out value="${p.name }"/></h2>
 					<div id="productPrice">
-						&#8369; <c:out value="${p.price }"/>
+						&#8369; <fmt:formatNumber pattern="0.00" value="${p.price }"/>
 					</div>
 					<div id="productRating">
 						<c:choose><c:when test="${p.rating > 0 }"><c:forEach begin="1" end="${p.rating }">&#9733;</c:forEach><c:forEach begin="${p.rating + 1 }" end="5">&#9734;</c:forEach></c:when><c:otherwise>Not Rated</c:otherwise></c:choose>
