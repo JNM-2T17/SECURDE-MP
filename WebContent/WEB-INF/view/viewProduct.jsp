@@ -4,23 +4,8 @@
 <jsp:include page="header.jsp"/>
 		<script src="<c:url value="resources/js/viewProduct.js"/>"></script>
 		<div id="content">
-<<<<<<< HEAD
 				<div id="sectionTitle">
 					<h2></h2>
-=======
-			<div id="sectionTitle">
-				<h2><c:out value="${p.name }"/></h2>
-			</div>
-			
-			<div id="wideContent" class="widest">
-			
-				<div id="productRating">
-					<c:choose><c:when test="${p.rating > 0 }"><c:forEach begin="1" end="${p.rating }">&#9733;</c:forEach><c:forEach begin="${p.rating + 1 }" end="5">&#9734;</c:forEach></c:when><c:otherwise>Not Rated</c:otherwise></c:choose>
-				</div>
-				
-				<div id="productPrice">
-					&#8369; <c:out value="${p.price }"/>
->>>>>>> origin/UI
 				</div>
 				
 				<div id="narrowContent" class="narrower">
@@ -39,19 +24,11 @@
 								<input class="addToCart-quantity" type="number" name="quantity" id="quantity" placeholder="quantity"/>
 								<input class="addToCartButton" type="submit" value="Add to Cart"/>
 							</form>
-<<<<<<< HEAD
 							<button id="addButton" class="addToCartButton">Add to Cart</button>
 							<div class="clear"></div>
 							<c:choose>
 							<c:when test="${not empty review || canReview}">
 								<c:if test="${not empty review }">
-=======
-						</div>
-						<c:choose>
-						<c:when test="${not empty review || canReview}">
-							<c:if test="${not empty review }">
-								<div class="productOptions-option">
->>>>>>> origin/UI
 									<div id="user-review">
 									Your review: <p id="review-rating"><c:forEach begin="1" end="${review.rating }">&#9733;</c:forEach><c:forEach begin="${review.rating + 1 }" end="5">&#9734;</c:forEach></p>
 									<p id="review-content"><c:out value="${review.review }"/></p>
@@ -75,7 +52,6 @@
 									<textarea id="review" name='review'><c:if test="${not empty review }"><c:out value="${review.review }"/></c:if></textarea>
 									<input type="submit" value="Send Review"/>
 								</form>
-<<<<<<< HEAD
 							</c:when>
 							<c:otherwise>
 								Hi
@@ -146,40 +122,6 @@
 									<div class="productOptions-option">You must buy this product before reviewing.</div>
 								</c:otherwise>
 								</c:choose>
-=======
-							</div>
-						</c:when>
-						<c:otherwise>
-							<div class="productOptions-option">You must buy this product before reviewing.</div>
-						</c:otherwise>
-						</c:choose>
-					</c:if>
-				</div>
-				
-				<div class="clear"></div>
-					
-				<div id="viewProduct">
-					<h3>Details</h3>
-					<p><c:out value="${p.description }"/></p>
-					
-					<h3>Customer Ratings</h3>
-					<c:choose>
-						<c:when test="${empty reviews }">
-							No reviews yet
-						</c:when>
-						<c:otherwise>
-							<h2>Reviews</h2>
-							<c:forEach items="${reviews }" var="r">
-							<div>
-								<c:out value="${r.username }"/>
-								Rating: 
-								<c:forEach begin="1" end="${r.rating }">&#9733;</c:forEach><c:forEach begin="${r.rating + 1 }" end="5">&#9734;</c:forEach>
-								<c:out value="${r.review }"/>
-							</div>
-							</c:forEach>
-							<c:if test="${loadMore }">
-								<button id="button-load">Load More</button>
->>>>>>> origin/UI
 							</c:if>
 						</div> --%>
 						
