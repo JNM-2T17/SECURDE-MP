@@ -23,7 +23,7 @@ var createAccount = (function(){
 			}
 			
 			if( !/^(2|3)$/.test(role)) {
-				message = appendMessage(message,"Please select a role");
+				message = appendMessage(message,"Please select a valid role");
 			}
 			
 			if(!/^[a-z ,.'-]+$/i.test(fname)) {
