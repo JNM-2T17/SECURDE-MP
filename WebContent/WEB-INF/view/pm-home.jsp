@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <jsp:include page="header.jsp"/>
-		<input type="hidden" value="${sessionToken }" name="token"/>
+		<input type="hidden" value="${sessionToken }" id="token" name="token"/>
 		<script src="<c:url value="resources/js/pmhome.js"/>"></script>
 		<a href="addProduct">Add Product</a>
 		<c:choose>
