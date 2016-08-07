@@ -101,7 +101,10 @@ public class TheController {
 									request.getSession().setAttribute("sessionUser",u);
 									ActivityManager.setUser(u,request);
 									ActivityManager.addActivity("refreshed their session.");
-								} 
+								} else {
+									u = null;
+									logoutUser(request,response);
+								}
 							} else {
 								ActivityManager.setUser(request);
 							}
