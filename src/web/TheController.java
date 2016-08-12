@@ -97,13 +97,17 @@ public class TheController {
 							u = UserManager.getUser(Integer.parseInt(c.getValue().substring(0,dollar)));
 							if( u != null ) {
 								String genHash = genHash(u,request.getRemoteAddr());
-								if( genHash.equals(c.getValue())) {			
-									request.getSession().setAttribute("sessionUser",u);
+								if( genHash.equals(c.getValue())) {
+									request.getSession().invalidate();
+									request.getSession(true).setAttribute("sessionUser",u);
 									ActivityManager.setUser(u,request);
 									ActivityManager.addActivity("refreshed their session.");
 								} else {
 									u = null;
+									c.setMaxAge(0);
+									response.addCookie(c);
 									logoutUser(request,response);
+									ActivityManager.addActivity("had an invalid cookie and was logged out.");
 								}
 							} else {
 								ActivityManager.setUser(request);
@@ -344,12 +348,11 @@ public class TheController {
 		User u = restoreSession(request,response);
 		if( u != null) {
 			logoutUser(request,response);
-			restoreToken(request,response);
 		}
 		homePage(null,request,response);
 	}
 	
-	public void logoutUser(HttpServletRequest request,HttpServletResponse response) {
+	public void logoutUser(HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {
 		request.getSession().invalidate();
 		Cookie[] cookies = request.getCookies();
 		for(Cookie c : cookies) {
@@ -360,6 +363,8 @@ public class TheController {
 		}
 		ActivityManager.addActivity("logged out.");
 		ActivityManager.setUser(request);
+		request.getSession(true);
+		restoreToken(request,response);
 	}
 	
 	@RequestMapping("search")
