@@ -251,11 +251,10 @@ public class TheController {
 				// TODO Auto-generated catch block
 				if(e.getMinutes() == UserManager.LOCKOUT_MINUTES) {
 					ActivityManager.addActivity("locked out " + username + "'s account." );
-					request.setAttribute("error", e.getMessage());
 				} else {
 					ActivityManager.addActivity("tried to login to " + username + "'s locked account." );
-					request.setAttribute("error", e.getMessage());
 				}
+				request.setAttribute("error", "Account has been locked. Try again later.");
 			} catch (ExpiredAccountException e) {
 				// TODO Auto-generated catch block
 				ActivityManager.addActivity("tried to login to " + username + "'s expired account.");
