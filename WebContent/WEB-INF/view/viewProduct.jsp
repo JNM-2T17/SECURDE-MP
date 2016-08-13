@@ -28,30 +28,27 @@
 							<div class="clear"></div>
 							<c:choose>
 							<c:when test="${not empty review || canReview}">
+								<div id="userReview">
 								<c:if test="${not empty review }">
 									<div id="user-review">
-									Your review: <p id="review-rating"><c:forEach begin="1" end="${review.rating }">&#9733;</c:forEach><c:forEach begin="${review.rating + 1 }" end="5">&#9734;</c:forEach></p>
+									<b>Your Review</b> <span id="userReview-rating"><c:forEach begin="1" end="${review.rating }">&#9733;</c:forEach><c:forEach begin="${review.rating + 1 }" end="5">&#9734;</c:forEach></span>
 									<p id="review-content"><c:out value="${review.review }"/></p>
 									<button id="button-update">Update Review</button>
 									</div>
 								</c:if>
 								
 								<form id="reviewForm" onsubmit="return viewProduct.checkReview();">
-									Add Review:
+									<b>Add Review</b>
 									<input type="hidden" value="${sessionToken }" id="review-token" name="token"/>
-									Rating: <input type="radio" name="rating" id="rating-1" value="1" <c:if test="${review.rating == 1 }">checked</c:if>/>
-									<label for="rating-1">1</label>
-									<input type="radio" name="rating" id="rating-2" value="2" <c:if test="${review.rating == 2 }">checked</c:if>/>
-									<label for="rating-2">2</label>
-									<input type="radio" name="rating" id="rating-3" value="3" <c:if test="${review.rating == 3 }">checked</c:if>/>
-									<label for="rating-3">3</label>
-									<input type="radio" name="rating" id="rating-4" value="4" <c:if test="${review.rating == 4 }">checked</c:if>/>
-									<label for="rating-4">4</label>
-									<input type="radio" name="rating" id="rating-5" value="5" <c:if test="${review.rating == 5 }">checked</c:if>/>
-									<label for="rating-5">5</label>
+									<input class="reviewRating" type="radio" name="rating" id="rating-1" value="1" <c:if test="${review.rating == 1 }">checked</c:if>/>
+									<input class="reviewRating" type="radio" name="rating" id="rating-2" value="2" <c:if test="${review.rating == 2 }">checked</c:if>/>
+									<input class="reviewRating" type="radio" name="rating" id="rating-3" value="3" <c:if test="${review.rating == 3 }">checked</c:if>/>
+									<input class="reviewRating" type="radio" name="rating" id="rating-4" value="4" <c:if test="${review.rating == 4 }">checked</c:if>/>
+									<input class="reviewRating" type="radio" name="rating" id="rating-5" value="5" <c:if test="${review.rating == 5 }">checked</c:if>/>
 									<textarea id="review" name='review'><c:if test="${not empty review }"><c:out value="${review.review }"/></c:if></textarea>
 									<input type="submit" value="Send Review"/>
 								</form>
+								</div>
 							</c:when>
 							<c:otherwise>
 							</c:otherwise>
@@ -150,6 +147,7 @@
 						</c:choose>
 					</div>
 				</div>
+				<div class="clear"></div>
 			</div>
 		</div>
 <jsp:include page="footer.jsp"/>

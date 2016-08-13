@@ -554,6 +554,8 @@ div#productOptions{
 }
 
 div.productReview{
+	margin-bottom: 15px;
+
 	div.productReview-name{
 		color: $fgColor2;
 		float: left;
@@ -569,6 +571,57 @@ div.productReview{
 		white-space: pre-wrap;
 		clear: both;
 	}
+}
+
+#userReview{
+	color: $fgColor1;
+	text-align: left;
+	margin-top: 20px;
+
+	button{
+		@extend input;
+	}
+}
+
+#reviewForm{
+	textarea{
+		width: 100%;
+		margin: 10px 0;
+		resize: vertical;
+		min-height: 100px;
+	}
+}
+
+input.reviewRating{
+	-webkit-appearance:none;
+	width:15px;
+	height:20px;
+	outline: none;
+	border: none;
+
+	&:before {
+	    content: "\2606";
+	    display: block;
+	    position: relative;
+	    width: 15px;
+	    left: 0;
+	    color: $accentColor;
+	}
+
+	&.active:before{
+		content: "\2605";
+	}
+}
+
+#userReview-rating{
+	margin-left: 15px;
+	color: $accentColor;
+	letter-spacing: 3px;
+}
+
+#review-content{
+	font-size: 0.8em;
+	white-space: pre-wrap;
 }
 
 // Register

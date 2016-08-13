@@ -13,6 +13,21 @@ var viewProduct = (function() {
 				prodId = a;
 			}
 		},
+		setRatings : function(elem){
+			console.log("hi");
+			var rating = $(elem).attr("value");
+			
+			$(".reviewRating").each(function(){
+				if(parseInt($(this).attr("value")) <= parseInt(rating)){
+					console.log("active: " + $(elem).attr("value") + " <= " + rating);
+					$(this).addClass("active");
+				}
+				else{
+					console.log("!active: " + $(elem).attr("value") + " > " + rating);
+					$(this).removeClass("active");
+				}
+			});
+		},
 		checkSubmit : function() {
 			var quantity = $("#quantity").val();
 			if( isNaN(quantity) ) {
@@ -86,5 +101,11 @@ $(document).ready(function() {
 			$("#user-review").hide();
 		})
 	}
+	$("input.reviewRating").click(function(){
+		console.log("hey");
+		if($(this).is(':checked')){
+			viewProduct.setRatings(this)
+		}
+	});
 	
 });
