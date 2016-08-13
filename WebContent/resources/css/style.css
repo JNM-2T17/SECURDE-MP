@@ -34,7 +34,7 @@ div#header {
     height: 75px;
     margin: 10px 40px 5px;
     display: inline-block; }
-  div#header input, div#header #userReview button, #userReview div#header button, div#header select {
+  div#header input, div#header div#content div#narrowContent button, div#content div#narrowContent div#header button, div#header select {
     height: 40px;
     border: 1px #000 solid;
     padding: 0 8px;
@@ -52,7 +52,7 @@ div#header {
     background-repeat: no-repeat;
     background-size: 10px 10px;
     background-position: center right 5px; }
-  div#header input#search, div#header #userReview button#search, #userReview div#header button#search {
+  div#header input#search, div#header div#content div#narrowContent button#search, div#content div#narrowContent div#header button#search {
     position: absolute;
     top: 28px;
     left: 250px;
@@ -166,10 +166,10 @@ div#content div#narrowContent {
           background: none;
           margin: 0;
           padding: 0; }
-          div#content div#narrowContent ul#filterList li ul li input, div#content div#narrowContent ul#filterList li ul li #userReview button, #userReview div#content div#narrowContent ul#filterList li ul li button {
+          div#content div#narrowContent ul#filterList li ul li input, div#content div#narrowContent ul#filterList li ul li button {
             position: relative;
             vertical-align: middle; }
-          div#content div#narrowContent ul#filterList li ul li input[type=number], div#content div#narrowContent ul#filterList li ul li #userReview button[type=number], #userReview div#content div#narrowContent ul#filterList li ul li button[type=number] {
+          div#content div#narrowContent ul#filterList li ul li input[type=number], div#content div#narrowContent ul#filterList li ul li button[type=number] {
             width: 80px;
             height: 25px;
             border-color: lightgray; }
@@ -274,7 +274,7 @@ div#loginForm {
       font-size: 1.2em;
       position: relative;
       top: 2px; }
-    div#loginForm div.form-group input.form-input, div#loginForm div.form-group #userReview button.form-input, #userReview div#loginForm div.form-group button.form-input {
+    div#loginForm div.form-group input.form-input, div#loginForm div.form-group div#content div#narrowContent button.form-input, div#content div#narrowContent div#loginForm div.form-group button.form-input {
       width: 180px;
       height: 30px; }
   div#loginForm .loginButton {
@@ -306,6 +306,17 @@ div.product {
   div.product div.product-price {
     display: inline-block;
     vertical-align: middle; }
+    div.product div.product-name button,
+    div.product div.product-description button,
+    div.product div.product-price button {
+      font-size: 1.5em;
+      background-color: transparent;
+      border: none;
+      outline: none; }
+      div.product div.product-name button:hover,
+      div.product div.product-description button:hover,
+      div.product div.product-price button:hover {
+        color: #b30000; }
   div.product div.product-name {
     font-weight: bold;
     font-size: 1.5em;
@@ -398,20 +409,20 @@ div.productReview {
   resize: vertical;
   min-height: 100px; }
 
-input.reviewRating, #userReview button.reviewRating {
+input.reviewRating, div#content div#narrowContent button.reviewRating {
   -webkit-appearance: none;
   width: 15px;
   height: 20px;
   outline: none;
   border: none; }
-  input.reviewRating:before, #userReview button.reviewRating:before {
+  input.reviewRating:before, div#content div#narrowContent button.reviewRating:before {
     content: "\2606";
     display: block;
     position: relative;
     width: 15px;
     left: 0;
     color: #b30000; }
-  input.reviewRating.active:before, #userReview button.reviewRating.active:before {
+  input.reviewRating.active:before, div#content div#narrowContent button.reviewRating.active:before {
     content: "\2605"; }
 
 #userReview-rating {
@@ -448,31 +459,31 @@ table#regForm {
     padding: 7px 10px 0 0; }
     table#regForm .regRow:first-of-type {
       padding: 0; }
-      table#regForm .regRow:first-of-type input:nth-of-type(1), table#regForm .regRow:first-of-type #userReview button:nth-of-type(1), #userReview table#regForm .regRow:first-of-type button:nth-of-type(1) {
+      table#regForm .regRow:first-of-type input:nth-of-type(1), table#regForm .regRow:first-of-type div#content div#narrowContent button:nth-of-type(1), div#content div#narrowContent table#regForm .regRow:first-of-type button:nth-of-type(1) {
         width: 100px;
         margin-right: 5px; }
-      table#regForm .regRow:first-of-type input:nth-of-type(2), table#regForm .regRow:first-of-type #userReview button:nth-of-type(2), #userReview table#regForm .regRow:first-of-type button:nth-of-type(2) {
+      table#regForm .regRow:first-of-type input:nth-of-type(2), table#regForm .regRow:first-of-type div#content div#narrowContent button:nth-of-type(2), div#content div#narrowContent table#regForm .regRow:first-of-type button:nth-of-type(2) {
         width: 195px; }
-    table#regForm .regRow:last-of-type input:nth-of-type(1), table#regForm .regRow:last-of-type #userReview button:nth-of-type(1), #userReview table#regForm .regRow:last-of-type button:nth-of-type(1) {
+    table#regForm .regRow:last-of-type input:nth-of-type(1), table#regForm .regRow:last-of-type div#content div#narrowContent button:nth-of-type(1), div#content div#narrowContent table#regForm .regRow:last-of-type button:nth-of-type(1) {
       width: 195px;
       margin-right: 5px; }
-    table#regForm .regRow:last-of-type input:nth-of-type(2), table#regForm .regRow:last-of-type #userReview button:nth-of-type(2), #userReview table#regForm .regRow:last-of-type button:nth-of-type(2) {
+    table#regForm .regRow:last-of-type input:nth-of-type(2), table#regForm .regRow:last-of-type div#content div#narrowContent button:nth-of-type(2), div#content div#narrowContent table#regForm .regRow:last-of-type button:nth-of-type(2) {
       width: 100px; }
-  table#regForm input, table#regForm #userReview button, #userReview table#regForm button {
+  table#regForm input, table#regForm div#content div#narrowContent button, div#content div#narrowContent table#regForm button {
     padding: 4px 10px;
     height: 30px;
     width: 300px;
     border-width: 2px; }
-  table#regForm #regName input:nth-of-type(1), table#regForm #regName #userReview button:nth-of-type(1), #userReview table#regForm #regName button:nth-of-type(1) {
+  table#regForm #regName input:nth-of-type(1), table#regForm #regName div#content div#narrowContent button:nth-of-type(1), div#content div#narrowContent table#regForm #regName button:nth-of-type(1) {
     width: 125px;
     margin-right: 5px; }
-  table#regForm #regName input:nth-of-type(2), table#regForm #regName #userReview button:nth-of-type(2), #userReview table#regForm #regName button:nth-of-type(2) {
+  table#regForm #regName input:nth-of-type(2), table#regForm #regName div#content div#narrowContent button:nth-of-type(2), div#content div#narrowContent table#regForm #regName button:nth-of-type(2) {
     width: 40px;
     margin-right: 5px; }
-  table#regForm #regName input:nth-of-type(3), table#regForm #regName #userReview button:nth-of-type(3), #userReview table#regForm #regName button:nth-of-type(3) {
+  table#regForm #regName input:nth-of-type(3), table#regForm #regName div#content div#narrowContent button:nth-of-type(3), div#content div#narrowContent table#regForm #regName button:nth-of-type(3) {
     width: 125px; }
 
-input#regButton, #userReview button#regButton {
+input#regButton, div#content div#narrowContent button#regButton {
   background-color: transparent;
   border: none;
   color: #b30000;
@@ -480,7 +491,7 @@ input#regButton, #userReview button#regButton {
   text-transform: lowercase;
   text-shadow: 1px 1px #939393;
   margin-top: 30px; }
-  input#regButton:hover, #userReview button#regButton:hover {
+  input#regButton:hover, div#content div#narrowContent button#regButton:hover {
     color: black; }
 
 h2, h3 {
@@ -493,7 +504,7 @@ h2, h3 {
   background-position: top 5px right;
   padding-right: 35px; }
 
-input, #userReview button {
+input, div#content div#narrowContent button {
   height: 40px;
   border: 1px #000 solid;
   padding: 0 8px;

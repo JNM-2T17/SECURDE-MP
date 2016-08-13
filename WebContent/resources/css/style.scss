@@ -214,6 +214,10 @@ div#content{
 			max-width: 280px;
 		}
 
+		button{
+			@extend input;
+		}
+
 		ul#filterList{
 			list-style: none;
 			margin-left: 5px;
@@ -457,6 +461,17 @@ div.product{
 	div.product-price{
 		display: inline-block;
 		vertical-align: middle;
+
+		button{
+			font-size: 1.5em;
+			background-color: transparent;
+			border: none;
+			outline: none;
+
+			&:hover{
+				color: $accentColor;
+			}
+		}
 	}
 
 	div.product-name{
@@ -577,10 +592,6 @@ div.productReview{
 	color: $fgColor1;
 	text-align: left;
 	margin-top: 20px;
-
-	button{
-		@extend input;
-	}
 }
 
 #reviewForm{
