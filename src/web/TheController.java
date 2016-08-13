@@ -186,7 +186,7 @@ public class TheController {
 			case 2:
 				Item[] items;
 				try {
-					items = ItemManager.getAllItems(null, null, 0, 25);
+					items = ItemManager.getAllItems(null, null, 0, 25,null,null,null);
 					if( items.length == 0 ) {
 						items = null;
 					}
@@ -371,6 +371,9 @@ public class TheController {
 	public void search(@RequestParam(value="type",required=false) Integer type, 
 			@RequestParam(value="query",required=false) String query, 
 			@RequestParam(value="start",required=false) Integer start,
+			@RequestParam(value="minRange",required=false) Double minRange,
+			@RequestParam(value="maxRange",required=false) Double maxRange,
+			@RequestParam(value="ratings[]",required=false) int[] ratings,
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		User u = restoreSession(request, response);
 		if( u == null ) {
@@ -383,14 +386,19 @@ public class TheController {
 			type = null;
 		}
 		try {
-			Item[] items = ItemManager.getAllItems(type,query,start,26);
-			request.setAttribute("products", items);
-			request.setAttribute("type",type);
-			request.setAttribute("query",query);
-			request.setAttribute("start",start);
-			request.setAttribute("more", items.length == 26 ? true : false);
-			ActivityManager.addActivity("searched for \"" + query + "\" of type " + type + ".");
-			request.getRequestDispatcher("WEB-INF/view/search.jsp").forward(request,response);
+			if(minRange == null || maxRange == null || minRange < maxRange) {
+				Item[] items = ItemManager.getAllItems(type,query,start,0,minRange,maxRange,ratings);
+				request.setAttribute("products", items);
+				request.setAttribute("type",type == null ? 0 : type);
+				request.setAttribute("query",query);
+//				request.setAttribute("start",start);
+//				request.setAttribute("more", items.length == 26 ? true : false);
+				ActivityManager.addActivity("searched for \"" + query + "\" of type " + type + ".");
+				request.getRequestDispatcher("WEB-INF/view/search.jsp").forward(request,response);
+			} else {
+				ActivityManager.addActivity("ran into data validation error on search.");
+				search(type,query,start,null,null,ratings,request,response);
+			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			logError(e);
