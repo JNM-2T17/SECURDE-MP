@@ -147,7 +147,6 @@ public class ItemManager {
 				ps.setInt(index++,ratings[i]);
 			}
 		}
-		System.out.println(ps);
 		ResultSet rs = ps.executeQuery();
 		
 		ArrayList<Item> items = new ArrayList<Item>();
