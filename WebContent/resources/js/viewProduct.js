@@ -107,5 +107,9 @@ $(document).ready(function() {
 			viewProduct.setRatings(this)
 		}
 	});
+	var isChecked = $("input.reviewRating:checked");
+	if(isChecked.length == 1){
+		viewProduct.setRatings(isChecked);
+	}
 	
 });
