@@ -91,7 +91,7 @@ public class TheController {
 			Cookie[] cookies = request.getCookies();
 			if( cookies != null ) {
 				for(Cookie c : cookies) {
-					if( c.getName().equals("sessionToken") ) {
+					if( c.getName().equals("tlSessionToken") ) {
 						try {
 							int dollar = c.getValue().indexOf('$');
 							u = UserManager.getUser(Integer.parseInt(c.getValue().substring(0,dollar)));
@@ -234,8 +234,8 @@ public class TheController {
 					request.getSession().invalidate();
 					request.getSession(true).setAttribute("sessionUser", u);
 					String genHash = genToken(request,response);
-					Cookie c = new Cookie("sessionToken",genHash);
-					c.setMaxAge(1800);
+					Cookie c = new Cookie("tlSessionToken",genHash);
+					c.setMaxAge(User.SESSION_EXPIRY * 60);
 					c.setSecure(true);
 					c.setHttpOnly(true);
 					response.addCookie(c);
@@ -356,7 +356,7 @@ public class TheController {
 		request.getSession().invalidate();
 		Cookie[] cookies = request.getCookies();
 		for(Cookie c : cookies) {
-			if( c.getName().equals("sessionToken") ) {
+			if( c.getName().equals("tlSessionToken") ) {
 				c.setMaxAge(0);
 				response.addCookie(c);
 			}
