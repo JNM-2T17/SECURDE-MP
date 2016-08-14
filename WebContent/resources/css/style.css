@@ -531,6 +531,15 @@ table#usersTable {
     text-align: left;
     font-size: 1.5em;
     border-bottom: 2px lightgray solid; }
+  table#usersTable a, table#usersTable button {
+    font-size: 1.5em;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    text-decoration: none;
+    color: inherit; }
+    table#usersTable a:hover, table#usersTable button:hover {
+      color: #b30000; }
 
 h2, h3 {
   line-height: 120%; }

@@ -2,13 +2,13 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
 
 <jsp:include page="header.jsp"/>
-	<div id="content">
+		<div id="content">
 				<div id="sectionTitle">
 					<h2>Users</h2>
 				</div>
 				
 				<div id="narrowContent" class="narrower">
-					<h3>Admin Actions</h3>
+					<h3>Administrator Actions</h3>
 					<a href="createAccount" class="regButton">Create Account</a>
 					<jsp:include page="sidefooter.jsp"/>
 				</div>
@@ -40,6 +40,5 @@
 				</div>
 				
 				<div class="clear"></div>
-			</div>
 		</div>
 <jsp:include page="footer.jsp"/>

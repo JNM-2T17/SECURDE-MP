@@ -31,7 +31,7 @@
 							&#8369;<fmt:formatNumber pattern="#.00" value="${p.item.price }"/> x <c:out value="${p.quantity }"/> = &#8369;<fmt:formatNumber pattern="#.00" value="${p.total }"/>
 						</div>
 						<div class="product-price">
-							<button class="regButton" onclick="cart.delete(<c:out value="${p.item.id }"/>);"><i class="fa fa-trash"></i></button>
+							<button onclick="cart.delete(<c:out value="${p.item.id }"/>);"><i class="fa fa-trash"></i></button>
 						</div>
 					</div>
 					</c:forEach>

@@ -784,6 +784,19 @@ table#usersTable{
 		font-size: 1.5em;
 		border-bottom: 2px $bgColor2 solid;
 	}
+
+	a, button{
+		font-size: 1.5em;
+		background-color: transparent;
+		border: none;
+		outline: none;
+		text-decoration: none;
+		color: inherit;
+
+		&:hover{
+			color: $accentColor;
+		}
+	}
 }
 
 // General
