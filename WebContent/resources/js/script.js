@@ -34,6 +34,7 @@ function showMessage(message) {
     $("#message-display .content").html(message);
     $("#message-display")
         .css("bottom", "10px")
+        .css("display", "inline-block")
         .animate(
             { bottom: "30px", opacity: 1 },
             800
