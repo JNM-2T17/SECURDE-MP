@@ -1,8 +1,8 @@
 var editAccount = (function(){
 	return {
 		checkSubmit : function() {
-			var password = $("#newPassword").val();
-			var confirmPassword = $("#confirmPassword").val();
+			var password = $("#newPass").val();
+			var confirmPassword = $("#confirmPass").val();
 			
 			var message = "";
 			

@@ -85,7 +85,7 @@ public class ItemManager {
 		con.close();
 	}
 	
-	public static Item[] getAllItems(Integer type, String query, int start, int limit) throws SQLException {
+	public static Item[] getAllItems(Integer type, String query, int start, int limit,Double minRange,Double maxRange,int[] ratings) throws SQLException {
 		Connection con = DBManager.getInstance().getConnection();
 		String sql = "SELECT I.id, I.name, T.name AS itemtype, description, price, ROUND(AVG(rating),0) AS rating "
 				+ "FROM tl_item I INNER JOIN tl_item_type T ON I.itemtype = T.id AND "
@@ -98,26 +98,55 @@ public class ItemManager {
 		if( query != null ) {
 			whereClause += (whereClause.length() == 6 ? "" : "AND ") + "I.name LIKE ? ";
 		}
-		sql += (whereClause.length() == 6 ? "" : whereClause) + "GROUP BY I.id ORDER BY I.dateAdded DESC ";
-		
+		if(minRange != null && maxRange != null ) {
+			whereClause += (whereClause.length() == 6 ? "" : "AND ") + "price BETWEEN ? AND ? ";
+		} else if( minRange != null ) {
+			whereClause += (whereClause.length() == 6 ? "" : "AND ") + "price >= ? ";
+		} else if(maxRange != null) {
+			whereClause += (whereClause.length() == 6 ? "" : "AND ") + "price <= ? ";
+		}
+		sql += (whereClause.length() == 6 ? "" : whereClause) + "GROUP BY I.id ";
+		sql += "ORDER BY I.dateAdded DESC ";
 		if( start != 0 && limit != 0) {
 			sql += "LIMIT ?,?";
 		}
+		if( ratings != null && ratings.length > 0 ) {
+			sql = "SELECT id, name, itemType, description, price, rating "
+					+ "FROM (" + sql + ")A WHERE rating IN (";
+			for(int i = 0; i < ratings.length; i++) {
+				if( i > 0 ) {
+					sql += ",";
+				}
+				sql += "?";
+			}
+			sql += ") ";
+		}
+		
 		PreparedStatement ps = con.prepareStatement(sql);
 		int index = 1;
 		if( type != null ) {
-			ps.setInt(index,type.intValue());
-			index++;
+			ps.setInt(index++,type.intValue());
 		}
 		if( query != null ) {
-			ps.setString(index,"%" + query + "%");
-			index++;
+			ps.setString(index++,"%" + query + "%");
+		}
+		if(minRange != null && maxRange != null ) {
+			ps.setDouble(index++,minRange);
+			ps.setDouble(index++,maxRange);
+		} else if( minRange != null ) {
+			ps.setDouble(index++,minRange);
+		} else if(maxRange != null) {
+			ps.setDouble(index++,maxRange);
 		}
 		if( start != 0 && limit != 0 ) {
-			ps.setInt(index, start);
-			ps.setInt(index + 1, limit);
+			ps.setInt(index++, start);
+			ps.setInt(index++, limit);
 		}
-		
+		if( ratings != null && ratings.length > 0 ) {
+			for(int i = 0; i < ratings.length; i++) {
+				ps.setInt(index++,ratings[i]);
+			}
+		}
 		ResultSet rs = ps.executeQuery();
 		
 		ArrayList<Item> items = new ArrayList<Item>();

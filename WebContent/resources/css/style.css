@@ -11,7 +11,7 @@ body {
   color: black;
   text-align: center;
   font-family: Zag;
-  line-height: 1.7em; }
+  line-height: 170%; }
 
 div#container {
   width: 1000px;
@@ -43,13 +43,6 @@ div#header {
     font-size: 1em;
     outline: none; }
   div#header select {
-    -webkit-padding-end: 16px;
-    -webkit-padding-start: 8px;
-    -webkit-appearance: button;
-    -webkit-border-radius: 0;
-    -webkit-box-shadow: none;
-    background-image: url("../images/arrow-down.png");
-    background-repeat: no-repeat;
     background-size: 10px 10px;
     background-position: center right 5px; }
   div#header input#search {
@@ -67,25 +60,20 @@ div#header {
     float: right;
     margin-right: 20px; }
     div#header div#header-right button, div#header div#header-right a {
+      display: inline-block;
       border: none;
       background-color: transparent;
       color: #b30000;
       font-family: Zag;
-      font-size: 1.4em;
-      margin: 25px 20px 0;
+      font-size: 1.3em;
+      margin: 25px 12px 0;
       height: 50px;
       padding: 10px 0;
-      text-transform: lowercase;
+      text-decoration: none;
       cursor: pointer;
       outline: none; }
       div#header div#header-right button:hover, div#header div#header-right a:hover {
         color: #6c6c6c; }
-    div#header div#header-right a#button-shoppingCart {
-      background-image: url("../images/cart.png");
-      background-repeat: no-repeat;
-      background-size: 30px 30px;
-      background-position: center right;
-      padding-right: 40px; }
 
 div#content div#sectionTitle h2 {
   text-transform: lowercase;
@@ -129,16 +117,37 @@ div#content div#narrowContent {
   float: left;
   margin: 10px 30px 20px;
   width: 280px;
-  font-size: 1.5em; }
+  font-size: 1.5em;
+  min-height: 250px;
+  position: relative;
+  padding-bottom: 70px; }
   div#content div#narrowContent.narrower {
     width: 220px; }
+    div#content div#narrowContent.narrower img {
+      max-width: 220px; }
   div#content div#narrowContent p {
     margin: 20px; }
   div#content div#narrowContent h3 {
     text-transform: uppercase;
     color: #939393;
     font-size: 1.2em;
-    margin: 0 0 10px; }
+    margin: 10px 0; }
+  div#content div#narrowContent img {
+    max-width: 280px; }
+  div#content div#narrowContent .regButton {
+    border: 1px #000 solid;
+    padding: 8px;
+    color: #6c6c6c;
+    font-family: Zag;
+    font-size: 1em;
+    outline: none;
+    text-decoration: none;
+    display: block;
+    background: lightgray;
+    border: 1px black solid;
+    text-align: center; }
+    div#content div#narrowContent .regButton:hover {
+      color: #b30000; }
   div#content div#narrowContent ul#filterList {
     list-style: none;
     margin-left: 5px;
@@ -179,12 +188,23 @@ div#content div#wideContent {
   width: 600px; }
   div#content div#wideContent.wider {
     width: 660px; }
+  div#content div#wideContent.widest {
+    width: auto;
+    float: none; }
+div#content div#fullContent {
+  margin: 10 30px 20px;
+  width: 930px; }
 
 div#footer {
   border-top: 2px black solid;
   text-align: center;
   padding-top: 10px;
-  font-size: 0.8em; }
+  font-size: 0.8em;
+  height: 50px;
+  width: inherit;
+  position: absolute;
+  bottom: 0;
+  left: 0; }
   div#footer a {
     color: #b30000;
     text-decoration: none; }
@@ -296,6 +316,17 @@ div.product {
   div.product div.product-price {
     display: inline-block;
     vertical-align: middle; }
+    div.product div.product-name button,
+    div.product div.product-description button,
+    div.product div.product-price button {
+      font-size: 1.5em;
+      background-color: transparent;
+      border: none;
+      outline: none; }
+      div.product div.product-name button:hover,
+      div.product div.product-description button:hover,
+      div.product div.product-price button:hover {
+        color: #b30000; }
   div.product div.product-name {
     font-weight: bold;
     font-size: 1.5em;
@@ -304,7 +335,8 @@ div.product {
     margin-left: 15px; }
     div.product div.product-name a {
       text-decoration: none;
-      color: #b30000; }
+      color: #b30000;
+      display: block; }
   div.product div.product-description {
     width: calc(50% - 30px);
     margin-left: 15px; }
@@ -312,6 +344,223 @@ div.product {
     text-align: right;
     width: calc(20% - 30px);
     margin-right: 15px; }
+
+h2#viewProductTitle {
+  color: #b30000;
+  text-shadow: 2px 2px #939393;
+  margin: 0 0 20px;
+  font-size: 2em;
+  word-wrap: break-word; }
+
+div#viewProduct {
+  font-size: 1.3em; }
+  div#viewProduct h3 {
+    font-size: 2em;
+    text-transform: lowercase;
+    border-top: 2px #6c6c6c solid;
+    padding-top: 15px;
+    margin: 40px 0 20px; }
+    div#viewProduct h3:first-of-type {
+      margin-top: 10px; }
+
+.addToCart-quantity {
+  float: left;
+  width: 80px; }
+
+.addToCartButton {
+  border: none;
+  background-color: transparent;
+  color: #b30000;
+  font-family: Zag;
+  height: 50px;
+  font-size: 1em;
+  text-transform: lowercase;
+  outline: none;
+  padding-left: 0;
+  float: right; }
+  .addToCartButton:hover {
+    color: #6c6c6c; }
+
+div#productRating {
+  font-size: 1em;
+  margin-top: 15px; }
+
+div#productPrice {
+  font-size: 1em;
+  font-weight: bold; }
+
+div#productOptions {
+  margin-top: 30px;
+  color: #b30000;
+  font-size: 0.8em;
+  text-align: right; }
+
+div.productReview {
+  margin-bottom: 15px; }
+  div.productReview div.productReview-name {
+    color: #939393;
+    float: left; }
+  div.productReview div.productReview-rating {
+    color: #939393;
+    font-size: 0.9em;
+    float: right; }
+  div.productReview div.productReview-review {
+    white-space: pre-wrap;
+    clear: both; }
+
+#userReview {
+  color: black;
+  text-align: left;
+  margin-top: 20px; }
+
+#reviewForm textarea {
+  width: 100%;
+  margin: 10px 0;
+  resize: vertical;
+  min-height: 100px; }
+
+input.reviewRating {
+  -webkit-appearance: none;
+  width: 15px;
+  height: 20px;
+  outline: none;
+  border: none; }
+  input.reviewRating:before {
+    content: "\2606";
+    display: block;
+    position: relative;
+    width: 15px;
+    left: 0;
+    color: #b30000; }
+  input.reviewRating.active:before {
+    content: "\2605"; }
+
+#userReview-rating {
+  margin-left: 15px;
+  color: #b30000;
+  letter-spacing: 3px; }
+
+#review-content {
+  font-size: 0.8em;
+  white-space: pre-wrap; }
+
+h2#regTitle {
+  font-size: 2.5em;
+  text-transform: lowercase;
+  margin: 15px 0 10px;
+  text-shadow: 1px 1px #939393; }
+
+div#regDesc {
+  font-size: 1.2em;
+  margin-bottom: 30px; }
+
+table#regForm {
+  margin-top: 15px; }
+  table#regForm th {
+    padding: 20px 0;
+    font-size: 1.5em;
+    text-align: left;
+    color: #b30000; }
+  table#regForm td {
+    padding-bottom: 5px; }
+  table#regForm tr td:first-child {
+    text-align: right;
+    text-transform: lowercase;
+    vertical-align: top;
+    padding: 7px 10px 0 0;
+    font-size: 1.2em; }
+  table#regForm .regRow {
+    display: block;
+    padding: 7px 10px 0 0; }
+    table#regForm .regRow:first-of-type {
+      padding: 0; }
+      table#regForm .regRow:first-of-type input:nth-of-type(1) {
+        width: 100px;
+        margin-right: 5px; }
+      table#regForm .regRow:first-of-type input:nth-of-type(2) {
+        width: 195px; }
+    table#regForm .regRow:last-of-type input:nth-of-type(1) {
+      width: 195px;
+      margin-right: 5px; }
+    table#regForm .regRow:last-of-type input:nth-of-type(2) {
+      width: 100px; }
+    table#regForm .regRow.regRowHalf:first-of-type input:nth-of-type(1) {
+      width: 100px;
+      margin-right: 5px; }
+    table#regForm .regRow.regRowHalf:first-of-type input:nth-of-type(2) {
+      width: 195px; }
+  table#regForm input[type='text'],
+  table#regForm input[type='number'],
+  table#regForm input[type='password'],
+  table#regForm select,
+  table#regForm textarea {
+    padding: 4px 10px;
+    width: 300px;
+    border-width: 2px; }
+  table#regForm input[type='text'],
+  table#regForm input[type='number'],
+  table#regForm input[type='password'],
+  table#regForm select {
+    height: 30px; }
+  table#regForm textarea {
+    min-height: 100px;
+    resize: vertical; }
+  table#regForm select {
+    background-size: 10px 10px;
+    background-position: center right 5px; }
+  table#regForm input[type="radio"] {
+    margin-top: -1px;
+    vertical-align: middle; }
+  table#regForm #regName input:nth-of-type(1) {
+    width: 125px;
+    margin-right: 5px; }
+  table#regForm #regName input:nth-of-type(2) {
+    width: 40px;
+    margin-right: 5px; }
+  table#regForm #regName input:nth-of-type(3) {
+    width: 125px; }
+
+input#regButton {
+  background-color: transparent;
+  border: none;
+  color: #b30000;
+  font-size: 1.5em;
+  text-transform: lowercase;
+  text-shadow: 1px 1px #939393;
+  margin-top: 30px; }
+  input#regButton:hover {
+    color: black; }
+
+table.manageTable {
+  border-collapse: collapse;
+  min-width: 280px; }
+  table.manageTable td, table.manageTable th {
+    padding: 10px; }
+  table.manageTable th {
+    text-align: left;
+    font-size: 1.5em;
+    border-bottom: 2px lightgray solid; }
+    table.manageTable th.alignRight {
+      text-align: right; }
+  table.manageTable a, table.manageTable button {
+    font-size: 1.5em;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    text-decoration: none;
+    color: inherit; }
+    table.manageTable a:hover, table.manageTable button:hover {
+      color: #b30000; }
+
+h2, h3 {
+  line-height: 120%; }
+
+.cartButton, div#header div#header-right a#button-shoppingCart, .addToCartButton {
+  background-image: url("../images/cart.png");
+  background-repeat: no-repeat;
+  background-size: 30px 30px;
+  background-position: top 5px right;
+  padding-right: 35px; }
 
 input {
   height: 40px;
@@ -327,5 +576,29 @@ input {
 
 .clear {
   clear: both; }
+
+select {
+  -webkit-padding-end: 16px;
+  -webkit-padding-start: 8px;
+  -webkit-appearance: button;
+  -webkit-border-radius: 0;
+  -webkit-box-shadow: none;
+  background-image: url("../images/arrow-down.png");
+  background-repeat: no-repeat; }
+
+.accentText {
+  color: #b30000;
+  font-weight: bold; }
+
+.thirdDiv {
+  width: 35%;
+  margin-left: 5%;
+  float: left; }
+  .thirdDiv:first-of-type {
+    width: 20%;
+    margin-left: 0; }
+
+.alignRight {
+  text-align: right; }
 
 /*# sourceMappingURL=style.css.map */

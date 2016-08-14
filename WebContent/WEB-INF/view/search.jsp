@@ -2,20 +2,19 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <jsp:include page="header.jsp"/>
-		<script src="<c:url value="resources/js/pmhome.js"/>"></script>
-		<!-- <a href="addProduct">Add Product</a> -->
 		<div id="content">
-
+			<script src="<c:url value="resources/js/search.js"/>"></script>
+			<input type="hidden" id="sType" value="${type }"/>
 			<div id="sectionTitle">
 					<c:if test="${not empty query}" >
 					<h2 class="resultsHeader"><span class="resultsText">Results for</span> <span class="resultsQuery"><c:out value="${query }"/></span></h2>
  					</c:if>
 				<ul id="typeList">
-					<li <c:if test="${empty type }">class="active"</c:if>><a href="search?type=0&query=<c:out value="${query }"/>&start=<c:out value="${start }"/>">All</a></li>
-					<li <c:if test="${type == 1 }">class="active"</c:if>><a href="search?type=1&query=<c:out value="${query }"/>&start=<c:out value="${start }"/>">Boots</a></li>
-					<li <c:if test="${type == 4 }">class="active"</c:if>><a href="search?type=4&query=<c:out value="${query }"/>&start=<c:out value="${start }"/>">Slippers</a></li>
-					<li <c:if test="${type == 3 }">class="active"</c:if>><a href="search?type=3&query=<c:out value="${query }"/>&start=<c:out value="${start }"/>">Sandals</a></li>
-					<li <c:if test="${type == 2 }">class="active"</c:if>><a href="search?type=2&query=<c:out value="${query }"/>&start=<c:out value="${start }"/>">Shoes</a></li>
+					<li id="sType-0"><a href="search?type=0&query=<c:out value="${query }"/>">All</a></li>
+					<li id="sType-1"><a href="search?type=1&query=<c:out value="${query }"/>">Boots</a></li>
+					<li id="sType-4"><a href="search?type=4&query=<c:out value="${query }"/>">Slippers</a></li>
+					<li id="sType-3"><a href="search?type=3&query=<c:out value="${query }"/>">Sandals</a></li>
+					<li id="sType-2"><a href="search?type=2&query=<c:out value="${query }"/>">Shoes</a></li>
 				</ul>
 			</div>
 
@@ -27,16 +26,16 @@
 				<ul id="filterList">
 					<li><div class="filterCat">Price Range</div>
 						<ul>
-							<li><input type="number" min="0" step="0.01"/> - <input type="number" min="0" step="0.01"/></li>
+							<li>&#8369;<input id="minRange" type="number" min="0" step="0.01"/> - &#8369;<input type="number" id="maxRange" min="0" step="0.01"/></li>
 						</ul>
 					</li>
 					<li><div class="filterCat">Customer Ratings</div>
 						<ul>
-							<li><input type="checkbox"/> &#9733; &#9734; &#9734; &#9734; &#9734;</li>
-							<li><input type="checkbox"/> &#9733; &#9733; &#9734; &#9734; &#9734;</li>
-							<li><input type="checkbox"/> &#9733; &#9733; &#9733; &#9734; &#9734;</li>
-							<li><input type="checkbox"/> &#9733; &#9733; &#9733; &#9733; &#9734;</li>
-							<li><input type="checkbox"/> &#9733; &#9733; &#9733; &#9733; &#9733;</li>
+							<li><input class="ratingSearch" data-rating="1" type="checkbox"/> &#9733; &#9734; &#9734; &#9734; &#9734;</li>
+							<li><input class="ratingSearch" data-rating="2" type="checkbox"/> &#9733; &#9733; &#9734; &#9734; &#9734;</li>
+							<li><input class="ratingSearch" data-rating="3" type="checkbox"/> &#9733; &#9733; &#9733; &#9734; &#9734;</li>
+							<li><input class="ratingSearch" data-rating="4" type="checkbox"/> &#9733; &#9733; &#9733; &#9733; &#9734;</li>
+							<li><input class="ratingSearch" data-rating="5" type="checkbox"/> &#9733; &#9733; &#9733; &#9733; &#9733;</li>
 						</ul>
 					</li>
 				</ul>
@@ -61,9 +60,9 @@
 					</div>
 				</div>
 				</c:forEach>
-				<c:if test="${more }">
+				<!-- <c:if test="${more }">
 				<a href="search?type=<c:out value="${type }"/>&query=<c:out value="${query }"/>&start=<c:out value="${start + 25 }"/>">Load More</a>
-				</c:if>
+				</c:if> -->
 			</div>
 
 			<div class="clear"></div>

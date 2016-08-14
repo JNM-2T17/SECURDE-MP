@@ -23,7 +23,7 @@ body{
 	color: $fgColor1;
 	text-align: center;
 	font-family: $mainFont;
-	line-height: 1.7em;
+	line-height: 170%;
 }
 
 div#container{
@@ -63,13 +63,6 @@ div#header{
 	}
 
 	select{
-		-webkit-padding-end: 16px;
-		-webkit-padding-start: 8px;
-		-webkit-appearance: button;
-		-webkit-border-radius: 0;
-		-webkit-box-shadow: none;
-		background-image: url('../images/arrow-down.png');
-		background-repeat: no-repeat;
 		background-size: 10px 10px;
 		background-position: center right 5px;
 	}
@@ -96,15 +89,16 @@ div#header{
 		margin-right: 20px;
 
 		button, a{
+			display: inline-block;
 			border: none;
 			background-color: transparent;
 			color: $accentColor;
 			font-family: Zag;
-			font-size: 1.4em;
-			margin: 25px 20px 0;
+			font-size: 1.3em;
+			margin: 25px 12px 0;
 			height: 50px;
 			padding: 10px 0;
-			text-transform: lowercase;
+			text-decoration: none;
 			cursor: pointer;
 			outline: none;
 
@@ -114,11 +108,7 @@ div#header{
 		}
 
 		a#button-shoppingCart{
-			background-image: url("../images/cart.png");
-			background-repeat: no-repeat;
-			background-size: 30px 30px;
-			background-position: center right;
-			padding-right: 40px;
+			@extend .cartButton;
 		}
 	}
 }
@@ -190,9 +180,16 @@ div#content{
 		margin: 10px 30px 20px;
 		width: 280px;
 		font-size: 1.5em;
+		min-height: 250px;
+		position: relative;
+		padding-bottom: 70px;
 
 		&.narrower{
 			width: 220px;
+
+			img{
+				max-width: 220px;
+			}
 		}
 
 		p{
@@ -203,7 +200,29 @@ div#content{
 			text-transform: uppercase;
 			color: $fgColor2;
 			font-size: 1.2em;
-			margin: 0 0 10px;
+			margin: 10px 0;
+		}
+
+		img{
+			max-width: 280px;
+		}
+
+		.regButton{
+			border: 1px #000 solid;
+			padding: 8px;
+			color: $fgColor1-fade;
+			font-family: $mainFont;
+			font-size: 1em;
+			outline: none;
+			text-decoration: none;
+		    display: block;
+		    background: $bgColor2;
+		    border: 1px $fgColor1 solid;
+		    text-align: center;
+
+			&:hover{
+				color: $accentColor;
+			}
 		}
 
 		ul#filterList{
@@ -269,6 +288,16 @@ div#content{
 		&.wider{
 			width: 660px;
 		}
+
+		&.widest{
+			width: auto;
+			float: none;
+		}
+	}
+
+	div#fullContent{
+		margin: 10 30px 20px;
+		width: 930px;
 	}
 }
 
@@ -277,6 +306,11 @@ div#footer{
 	text-align: center;
 	padding-top: 10px;
 	font-size: 0.8em;
+	height: 50px;
+	width: inherit;
+	position: absolute;
+		bottom: 0;
+		left: 0;
 
 	a{
 		color: $accentColor;
@@ -439,6 +473,17 @@ div.product{
 	div.product-price{
 		display: inline-block;
 		vertical-align: middle;
+
+		button{
+			font-size: 1.5em;
+			background-color: transparent;
+			border: none;
+			outline: none;
+
+			&:hover{
+				color: $accentColor;
+			}
+		}
 	}
 
 	div.product-name{
@@ -451,6 +496,7 @@ div.product{
 		a{
 			text-decoration: none;
 			color: $accentColor;
+			display: block;
 		}
 	}
 
@@ -467,7 +513,326 @@ div.product{
 
 }
 
+// View Product
+
+h2#viewProductTitle{
+	color: $accentColor;
+	text-shadow: 2px 2px $fgColor2;	
+	margin: 0 0 20px;
+	font-size: 2em;
+	word-wrap: break-word;
+}
+
+div#viewProduct{
+	font-size: 1.3em;
+
+	h3{
+		font-size: 2em;
+		text-transform: lowercase;
+		border-top: 2px $fgColor1-fade solid;
+		padding-top: 15px;
+		margin: 40px 0 20px;
+
+		&:first-of-type{
+			margin-top: 10px;
+		}
+	}
+}
+
+.addToCart-quantity{
+	float: left;
+	width: 80px;
+}
+
+.addToCartButton{
+	@extend .cartButton;
+
+	border: none;
+	background-color: transparent;
+	color: $accentColor;
+	font-family: Zag;
+	height: 50px;
+	font-size: 1em;
+	text-transform: lowercase;
+	outline: none;
+	padding-left: 0;
+	float: right;
+
+	&:hover{
+		color: $fgColor1-fade;
+	}
+}
+
+div#productRating{
+	font-size: 1em;
+	margin-top: 15px;
+}
+
+div#productPrice{
+	font-size: 1em;
+	font-weight: bold;
+}
+
+div#productOptions{
+	margin-top: 30px;
+	color: $accentColor;
+	font-size: 0.8em;
+	text-align: right;
+}
+
+div.productReview{
+	margin-bottom: 15px;
+
+	div.productReview-name{
+		color: $fgColor2;
+		float: left;
+	}
+
+	div.productReview-rating{
+		color: $fgColor2;
+		font-size: 0.9em;
+		float: right;
+	}
+
+	div.productReview-review{
+		white-space: pre-wrap;
+		clear: both;
+	}
+}
+
+#userReview{
+	color: $fgColor1;
+	text-align: left;
+	margin-top: 20px;
+}
+
+#reviewForm{
+	textarea{
+		width: 100%;
+		margin: 10px 0;
+		resize: vertical;
+		min-height: 100px;
+	}
+}
+
+input.reviewRating{
+	-webkit-appearance:none;
+	width:15px;
+	height:20px;
+	outline: none;
+	border: none;
+
+	&:before {
+	    content: "\2606";
+	    display: block;
+	    position: relative;
+	    width: 15px;
+	    left: 0;
+	    color: $accentColor;
+	}
+
+	&.active:before{
+		content: "\2605";
+	}
+}
+
+#userReview-rating{
+	margin-left: 15px;
+	color: $accentColor;
+	letter-spacing: 3px;
+}
+
+#review-content{
+	font-size: 0.8em;
+	white-space: pre-wrap;
+}
+
+// Register
+
+h2#regTitle{
+	font-size: 2.5em;
+	text-transform: lowercase;
+	margin: 15px 0 10px;
+	text-shadow: 1px 1px $fgColor2;	
+}
+
+div#regDesc{
+	font-size: 1.2em;
+	margin-bottom: 30px;
+}
+
+table#regForm{
+	margin-top: 15px;
+
+	th{
+		padding: 20px 0;
+		font-size: 1.5em;
+		text-align: left;
+		color: $accentColor;
+	}
+
+	td{
+		padding-bottom: 5px;
+	}
+
+	tr td:first-child{
+		text-align: right;
+		text-transform: lowercase;
+		vertical-align: top;
+		padding: 7px 10px 0 0;
+		font-size: 1.2em;
+	}
+
+	.regRow{
+		display: block;
+		padding: 7px 10px 0 0;
+
+		&:first-of-type{
+			padding: 0;
+
+			input:nth-of-type(1){
+				width: 100px;
+				margin-right: 5px;
+			}
+
+			input:nth-of-type(2){
+				width: 195px;
+			}
+		}
+
+		&:last-of-type{
+			input:nth-of-type(1){
+				width: 195px;
+				margin-right: 5px;
+			}
+
+			input:nth-of-type(2){
+				width: 100px;
+			}
+		}
+
+		&.regRowHalf:first-of-type{
+			input:nth-of-type(1){
+				width: 100px;
+				margin-right: 5px;
+			}
+
+			input:nth-of-type(2){
+				width: 195px;
+			}
+		}
+	}
+
+	input[type='text'],
+	input[type='number'],
+	input[type='password'],
+	select,
+	textarea{
+		padding: 4px 10px;
+		width: 300px;
+		border-width: 2px;
+	}
+
+	input[type='text'],
+	input[type='number'],
+	input[type='password'],
+	select{
+		height: 30px;
+	}
+
+	textarea{
+		min-height: 100px;
+		resize: vertical;
+	}
+
+	select{
+		background-size: 10px 10px;
+		background-position: center right 5px;
+	}
+
+	input[type="radio"]{
+		margin-top: -1px;
+		vertical-align: middle;
+	}
+
+	#regName{
+		input:nth-of-type(1){
+			width: 125px;
+			margin-right: 5px;
+		}
+
+		input:nth-of-type(2){
+			width: 40px;
+			margin-right: 5px;
+		}
+
+		input:nth-of-type(3){
+			width: 125px;
+		}
+	}
+}
+
+input#regButton{
+	background-color: transparent;
+	border: none;
+	color: $accentColor;
+	font-size: 1.5em;
+	text-transform: lowercase;
+	text-shadow: 1px 1px $fgColor2;
+	margin-top: 30px;
+
+	&:hover{
+		color: $fgColor1;
+	}
+}
+
+// Admin, PM, AM
+
+table.manageTable{
+	border-collapse: collapse;
+	min-width: 280px;
+
+	td, th{
+		padding: 10px;
+	}
+
+	th{
+		text-align: left;
+		font-size: 1.5em;
+		border-bottom: 2px $bgColor2 solid;
+
+		&.alignRight{
+			text-align: right;
+		}
+	}
+
+	a, button{
+		font-size: 1.5em;
+		background-color: transparent;
+		border: none;
+		outline: none;
+		text-decoration: none;
+		color: inherit;
+
+		&:hover{
+			color: $accentColor;
+		}
+	}
+}
+
 // General
+
+h2, h3{
+	line-height: 120%;
+}
+
+.cartButton{
+	background-image: url("../images/cart.png");
+	background-repeat: no-repeat;
+	background-size: 30px 30px;
+	background-position: top 5px right;
+	padding-right: 35px;
+}
 
 input{
 	height: 40px;
@@ -485,4 +850,34 @@ input{
 
 .clear{
 	clear: both;
+}
+
+select{
+	-webkit-padding-end: 16px;
+	-webkit-padding-start: 8px;
+	-webkit-appearance: button;
+	-webkit-border-radius: 0;
+	-webkit-box-shadow: none;
+	background-image: url('../images/arrow-down.png');
+	background-repeat: no-repeat;
+}
+
+.accentText{
+	color: $accentColor;
+	font-weight: bold;
+}
+
+.thirdDiv{
+	width: 35%;
+	margin-left: 5%;
+	float: left;
+
+	&:first-of-type{
+		width: 20%;
+		margin-left: 0;
+	}
+}
+
+.alignRight{
+	text-align: right;
 }

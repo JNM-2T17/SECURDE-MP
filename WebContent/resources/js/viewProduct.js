@@ -3,6 +3,7 @@ var viewProduct = (function() {
 	var prodId = 0;
 	return {
 		addToCart : function() {
+			console.log("addToCart");
 			$("#addForm").show();
 			$("#addButton").hide();
 		},
@@ -11,6 +12,21 @@ var viewProduct = (function() {
 				setOnce = true;
 				prodId = a;
 			}
+		},
+		setRatings : function(elem){
+			console.log("hi");
+			var rating = $(elem).attr("value");
+			
+			$(".reviewRating").each(function(){
+				if(parseInt($(this).attr("value")) <= parseInt(rating)){
+					console.log("active: " + $(elem).attr("value") + " <= " + rating);
+					$(this).addClass("active");
+				}
+				else{
+					console.log("!active: " + $(elem).attr("value") + " > " + rating);
+					$(this).removeClass("active");
+				}
+			});
 		},
 		checkSubmit : function() {
 			var quantity = $("#quantity").val();
@@ -84,6 +100,16 @@ $(document).ready(function() {
 			$("#reviewForm").show();
 			$("#user-review").hide();
 		})
+	}
+	$("input.reviewRating").click(function(){
+		console.log("hey");
+		if($(this).is(':checked')){
+			viewProduct.setRatings(this)
+		}
+	});
+	var isChecked = $("input.reviewRating:checked");
+	if(isChecked.length == 1){
+		viewProduct.setRatings(isChecked);
 	}
 	
 });

@@ -24,8 +24,8 @@ public class User {
 	private String mi;
 	private String lName;
 	private String emailAddress;
-	private Date endIdle;
-	private Date endSession;
+	private Calendar endIdle;
+	private Calendar endSession;
 	private String billHouseNo;
 	private String billStreet;
 	private String billSubd;
@@ -133,27 +133,25 @@ public class User {
 	
 	private void setSessionExpiry() {
 		Date d = new Date();
-		Calendar c = Calendar.getInstance();
-		c.setTime(d);
-		c.add(Calendar.MINUTE, SESSION_EXPIRY);
-		endSession = c.getTime();
+		endSession = Calendar.getInstance();
+		endSession.setTime(d);
+		endSession.add(Calendar.MINUTE, SESSION_EXPIRY);
 	}
 	
 	public void refreshIdle() {
 		Date d = new Date();
-		Calendar c = Calendar.getInstance();
-		c.setTime(d);
-		c.add(Calendar.MINUTE, IDLE_EXPIRY);
-		endIdle = c.getTime();
+		endIdle = Calendar.getInstance();
+		endIdle.setTime(d);
+		endIdle.add(Calendar.MINUTE, IDLE_EXPIRY);
 	}
 
 	public boolean isExpired() {
-		Date d = new Date();
+		Calendar now = Calendar.getInstance();
 		SimpleDateFormat df = new SimpleDateFormat("MMM/dd/yy hh:mm:ss aa");
-		System.out.println("Current Time: " + df.format(d));
-		System.out.println("Idle Expiry: " + df.format(endIdle));
-		System.out.println("Session Expiry: " + df.format(endSession));
-		return endSession.compareTo(d) <= 0 || endIdle.compareTo(d) <= 0;
+		System.out.println("Current Time: " + df.format(now.getTime()));
+		System.out.println("Idle Expiry: " + df.format(endIdle.getTime()));
+		System.out.println("Session Expiry: " + df.format(endSession.getTime()));
+		return endSession.compareTo(now) <= 0 || endIdle.compareTo(now) <= 0;
 	}
 	
 	public int getId() {

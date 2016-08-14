@@ -3,6 +3,7 @@ var createAccount = (function(){
 		checkSubmit : function() {
 			var username = $("#username").val();
 			var password = $("#password").val();
+			var role = $("input[name='role']:checked").val();
 			var confirmPassword = $("#confirmPassword").val();
 			var fname = $("#fname").val();
 			var mi = $("#mi").val();
@@ -19,6 +20,10 @@ var createAccount = (function(){
 				message = appendMessage(message,passCheck);
 			} else if(password != confirmPassword) {
 				message = appendMessage(message,"Passwords don't match.");
+			}
+			
+			if( !/^(2|3)$/.test(role)) {
+				message = appendMessage(message,"Please select a valid role");
 			}
 			
 			if(!/^[a-z ,.'-]+$/i.test(fname)) {

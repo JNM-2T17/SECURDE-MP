@@ -2,12 +2,49 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
 
 <jsp:include page="header.jsp"/>
-			<script src="<c:url value="resources/js/editAccount.js"/>"></script>
-			<form action="editAccount" method="POST" onsubmit="return editAccount.checkSubmit();">
-				<input type="hidden" value="${sessionToken }" name="token"/>
-				<input type="password" name="oldPassword" placeholder="Old Password" id="oldPass"/><br/>
-				<input type="password" name="newPassword" placeholder="New Password" id="newPass"/><br/>
-				<input type="password" name="confirmPassword" placeholder="Confirm Password" id="confirmPass"/><br/>
-				<input type="submit" value="Change Password"/>
-			</form>
+
+	<script src="<c:url value="resources/js/editAccount.js"/>"></script>
+	
+	<div id="content">
+		
+			<div id="sectionTitle">
+				<h2>Edit Account</h2>
+			</div>
+			
+			<div id="narrowContent">
+				<img src="<c:url value="resources/images/registerbg.png"/>" />
+				<jsp:include page="sidefooter.jsp"/>
+			</div>
+			
+			<div id="wideContent">
+				<form action="editAccount" method="POST" onsubmit="return editAccount.checkSubmit();">
+					<table id="regForm">
+						<tr>
+							<td>Old Password</td>
+							<td>
+								<input type="password" name="oldPassword" id="oldPass"/>
+							</td>
+						</tr>
+						<tr>
+							<td>New Password</td>
+							<td>
+								<input type="password" name="newPassword" id="newPass"/>
+							</td>
+						</tr>
+						<tr>
+							<td>Confirm New<br/>Password</td>
+							<td>
+								<input type="password" name="confirmPassword" id="confirmPass"/>
+							</td>
+						</tr>
+					</table>
+					<input type="hidden" value="${sessionToken }" name="token"/>
+					<input type="submit" value="Change Password &gt;" id="regButton"/>
+				</form>
+			</div>
+			
+			<div class="clear"></div>
+		</div>
+		
+		
 <jsp:include page="footer.jsp"/>

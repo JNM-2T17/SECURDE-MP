@@ -18,7 +18,7 @@
 			<div id="header">
 				<div id="header-left">
 					<a href="."><h1><span class="hidden">Talaria</span></h1></a>
-					<form action="search">
+					<form id="searchForm" action="search">
 					<input id="search" value="<c:out value="${query }"/>" name="query" placeholder="search item"/>
 					<select id="searchType" name="type">
 						<option value="0">All</option>
@@ -32,15 +32,14 @@
 				<div id="header-right">
 					<c:choose>
 					<c:when test="${empty sessionScope.sessionUser }">
-					<button id="button-register">Register</button>
-					<button id="button-login">Login</button>
+					<button id="button-register">register</button>
+					<button id="button-login">login</button>
 					</c:when>
 					<c:otherwise>
-					<h2>Welcome, <c:out value="${sessionUser.username }"/></h2>
-					<a href="editAccount">Edit Account</a>
-					<a href="logout">Logout</a>
+					<a href="editAccount">account</a>
+					<a href="logout">logout <c:out value="${sessionUser.username }"/></a>
 					<c:if test="${sessionScope.sessionUser.purchaseProduct }">
-					<a id="button-shoppingCart" href="shoppingCart">Shopping Cart</a>
+					<a id="button-shoppingCart" href="shoppingCart">shopping cart</a>
 					</c:if>
 					</c:otherwise>
 					</c:choose>

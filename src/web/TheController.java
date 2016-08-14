@@ -91,17 +91,24 @@ public class TheController {
 			Cookie[] cookies = request.getCookies();
 			if( cookies != null ) {
 				for(Cookie c : cookies) {
-					if( c.getName().equals("sessionToken") ) {
+					if( c.getName().equals("tlSessionToken") ) {
 						try {
 							int dollar = c.getValue().indexOf('$');
 							u = UserManager.getUser(Integer.parseInt(c.getValue().substring(0,dollar)));
 							if( u != null ) {
 								String genHash = genHash(u,request.getRemoteAddr());
-								if( genHash.equals(c.getValue())) {			
-									request.getSession().setAttribute("sessionUser",u);
+								if( genHash.equals(c.getValue())) {
+									request.getSession().invalidate();
+									request.getSession(true).setAttribute("sessionUser",u);
 									ActivityManager.setUser(u,request);
 									ActivityManager.addActivity("refreshed their session.");
-								} 
+								} else {
+									u = null;
+									c.setMaxAge(0);
+									response.addCookie(c);
+									logoutUser(request,response);
+									ActivityManager.addActivity("had an invalid cookie and was logged out.");
+								}
 							} else {
 								ActivityManager.setUser(request);
 							}
@@ -179,7 +186,7 @@ public class TheController {
 			case 2:
 				Item[] items;
 				try {
-					items = ItemManager.getAllItems(null, null, 0, 25);
+					items = ItemManager.getAllItems(null, null, 0, 25,null,null,null);
 					if( items.length == 0 ) {
 						items = null;
 					}
@@ -227,8 +234,10 @@ public class TheController {
 					request.getSession().invalidate();
 					request.getSession(true).setAttribute("sessionUser", u);
 					String genHash = genToken(request,response);
-					Cookie c = new Cookie("sessionToken",genHash);
-					c.setMaxAge(1800);
+					Cookie c = new Cookie("tlSessionToken",genHash);
+					c.setMaxAge(User.SESSION_EXPIRY * 60);
+					c.setSecure(true);
+					c.setHttpOnly(true);
 					response.addCookie(c);
 					ActivityManager.setUser(u,request);
 					ActivityManager.addActivity("logged in.");
@@ -242,11 +251,10 @@ public class TheController {
 				// TODO Auto-generated catch block
 				if(e.getMinutes() == UserManager.LOCKOUT_MINUTES) {
 					ActivityManager.addActivity("locked out " + username + "'s account." );
-					request.setAttribute("error", e.getMessage());
 				} else {
 					ActivityManager.addActivity("tried to login to " + username + "'s locked account." );
-					request.setAttribute("error", e.getMessage());
 				}
+				request.setAttribute("error", "Account has been locked. Try again later.");
 			} catch (ExpiredAccountException e) {
 				// TODO Auto-generated catch block
 				ActivityManager.addActivity("tried to login to " + username + "'s expired account.");
@@ -339,28 +347,32 @@ public class TheController {
 		User u = restoreSession(request,response);
 		if( u != null) {
 			logoutUser(request,response);
-			restoreToken(request,response);
 		}
 		homePage(null,request,response);
 	}
 	
-	public void logoutUser(HttpServletRequest request,HttpServletResponse response) {
+	public void logoutUser(HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {
 		request.getSession().invalidate();
 		Cookie[] cookies = request.getCookies();
 		for(Cookie c : cookies) {
-			if( c.getName().equals("sessionToken") ) {
+			if( c.getName().equals("tlSessionToken") ) {
 				c.setMaxAge(0);
 				response.addCookie(c);
 			}
 		}
 		ActivityManager.addActivity("logged out.");
 		ActivityManager.setUser(request);
+		request.getSession(true);
+		restoreToken(request,response);
 	}
 	
 	@RequestMapping("search")
 	public void search(@RequestParam(value="type",required=false) Integer type, 
 			@RequestParam(value="query",required=false) String query, 
 			@RequestParam(value="start",required=false) Integer start,
+			@RequestParam(value="minRange",required=false) Double minRange,
+			@RequestParam(value="maxRange",required=false) Double maxRange,
+			@RequestParam(value="ratings[]",required=false) int[] ratings,
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		User u = restoreSession(request, response);
 		if( u == null ) {
@@ -373,14 +385,19 @@ public class TheController {
 			type = null;
 		}
 		try {
-			Item[] items = ItemManager.getAllItems(type,query,start,26);
-			request.setAttribute("products", items);
-			request.setAttribute("type",type);
-			request.setAttribute("query",query);
-			request.setAttribute("start",start);
-			request.setAttribute("more", items.length == 26 ? true : false);
-			ActivityManager.addActivity("searched for \"" + query + "\" of type " + type + ".");
-			request.getRequestDispatcher("WEB-INF/view/search.jsp").forward(request,response);
+			if(minRange == null || maxRange == null || minRange < maxRange) {
+				Item[] items = ItemManager.getAllItems(type,query,start,0,minRange,maxRange,ratings);
+				request.setAttribute("products", items);
+				request.setAttribute("type",type == null ? 0 : type);
+				request.setAttribute("query",query);
+//				request.setAttribute("start",start);
+//				request.setAttribute("more", items.length == 26 ? true : false);
+				ActivityManager.addActivity("searched for \"" + query + "\" of type " + type + ".");
+				request.getRequestDispatcher("WEB-INF/view/search.jsp").forward(request,response);
+			} else {
+				ActivityManager.addActivity("ran into data validation error on search.");
+				search(type,query,start,null,null,ratings,request,response);
+			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			logError(e);
@@ -698,7 +715,7 @@ public class TheController {
 				if( u == null ) {
 					request.setAttribute("error", "Authentication Failed.");
 				} else {
-					if(username.matches("^[A-Za-z0-9_-]+$") && fname.matches("^[A-Za-z ,.'-]+$") && 
+					if(("" + role).matches("^(2|3)$") && username.matches("^[A-Za-z0-9_-]+$") && fname.matches("^[A-Za-z ,.'-]+$") && 
 							mi.matches("^[A-Za-z]{0,2}.?$") && lname.matches("^[A-Za-z ,.'-]+$") && 
 							email.matches("^([-.a-zA-Z0-9_]+)@([-.a-zA-Z0-9_]+)[.]([a-zA-Z]{2,5})$") && 
 							UserManager.checkPass(password) && password.equals(confirmPassword)) {
