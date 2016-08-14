@@ -210,7 +210,7 @@ public class TheController {
 					break;
 				} catch(SQLException se) {
 					logError(se);
-					
+					se.printStackTrace();
 				}
 			case 1:
 			default:

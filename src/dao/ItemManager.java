@@ -257,9 +257,13 @@ public class ItemManager {
 		Connection con = DBManager.getInstance().getConnection();
 		try {
 			String sql = "SELECT T.name AS ItemType, SUM(quantity * price) AS TotalSales "
-					+ "FROM tl_purchase P INNER JOIN tl_item I ON P.itemId = I.id AND "
-					+ "P.status = 1 AND I.status = 1 "
-					+ "RIGHT JOIN tl_item_type T ON I.itemtype = T.id AND T.status = 1 "
+					+ "FROM (SELECT itemId, quantity "
+					+ "FROM tl_purchase P "
+					+ "WHERE status = 1) P INNER JOIN (SELECT id, price, itemtype "
+					+ "FROM tl_item I WHERE I.status = 1) I ON P.itemId = I.id "
+					+ "RIGHT JOIN (SELECT id, name "
+					+ "FROM tl_item_type T "
+					+ "WHERE status = 1) T ON I.itemtype = T.id "
 					+ "GROUP BY T.name "
 					+ "ORDER BY TotalSales DESC";
 			PreparedStatement ps = con.prepareStatement(sql);
@@ -280,8 +284,11 @@ public class ItemManager {
 		Connection con = DBManager.getInstance().getConnection();
 		try {
 			String sql = "SELECT I.name, SUM(quantity * price) AS TotalSales "
-					+ "FROM tl_purchase P RIGHT JOIN tl_item I ON P.itemId = I.id AND "
-					+ "P.status = 1 AND I.status = 1 "
+					+ "FROM (SELECT itemId, quantity "
+					+ "FROM tl_purchase P "
+					+ "WHERE status = 1) P RIGHT JOIN (SELECT id, name, price "
+					+ "FROM tl_item I "
+					+ "WHERE status = 1) I ON P.itemId = I.id "
 					+ "GROUP BY I.id "
 					+ "ORDER BY TotalSales DESC";
 			PreparedStatement ps = con.prepareStatement(sql);
