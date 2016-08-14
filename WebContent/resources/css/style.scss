@@ -215,9 +215,17 @@ div#content{
 		}
 
 		.regButton{
-			@extend input;
-
-			width: 100%;
+			border: 1px #000 solid;
+			padding: 8px;
+			color: $fgColor1-fade;
+			font-family: $mainFont;
+			font-size: 1em;
+			outline: none;
+			text-decoration: none;
+		    display: block;
+		    background: $bgColor2;
+		    border: 1px $fgColor1 solid;
+		    text-align: center;
 
 			&:hover{
 				color: $accentColor;
@@ -746,6 +754,22 @@ input#regButton{
 
 	&:hover{
 		color: $fgColor1;
+	}
+}
+
+// Admin Main (Users)
+
+table#usersTable{
+	border-collapse: collapse;
+
+	td, th{
+		padding: 10px;
+	}
+
+	th{
+		text-align: left;
+		font-size: 1.5em;
+		border-bottom: 2px $bgColor2 solid;
 	}
 }
 
