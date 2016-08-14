@@ -157,7 +157,7 @@ public class UserManager {
 							ps.setString(1,username);
 							ps.execute();
 						}
-						sql = "UPDATE tl_user SET lockedUntil = NULL WHERE username = ?";
+						sql = "UPDATE tl_user SET loginAttempts = 0,lockedUntil = NULL WHERE username = ?";
 						ps = con.prepareStatement(sql);
 						ps.setString(1,username);
 						ps.execute();

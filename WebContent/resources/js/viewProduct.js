@@ -3,7 +3,6 @@ var viewProduct = (function() {
 	var prodId = 0;
 	return {
 		addToCart : function() {
-			console.log("addToCart");
 			$("#addForm").show();
 			$("#addButton").hide();
 		},
@@ -14,16 +13,13 @@ var viewProduct = (function() {
 			}
 		},
 		setRatings : function(elem){
-			console.log("hi");
 			var rating = $(elem).attr("value");
 			
 			$(".reviewRating").each(function(){
 				if(parseInt($(this).attr("value")) <= parseInt(rating)){
-					console.log("active: " + $(elem).attr("value") + " <= " + rating);
 					$(this).addClass("active");
 				}
 				else{
-					console.log("!active: " + $(elem).attr("value") + " > " + rating);
 					$(this).removeClass("active");
 				}
 			});
@@ -67,13 +63,13 @@ var viewProduct = (function() {
 							var ratingStr = "";
 							for(i = 0; i < 5; i++) {
 								if( i < rating ) {
-									ratingStr += "*";
+									ratingStr += "&#9733;";
 								} else {
-									ratingStr += "_";
+									ratingStr += "&#9734;";
 								}
 							}
 							$("#review-content").text(review);
-							$("#review-rating").text(ratingStr);
+							$("#userReview-rating").html(ratingStr);
 							$("#user-review").show();
 							showMessage("Review submitted.");
 						} else {
@@ -93,16 +89,14 @@ $(document).ready(function() {
 	viewProduct.setProdId($("#productId").val());
 	$("#addForm").hide();
 	$("#addButton").click(viewProduct.addToCart);
-	console.log($("#review-content").length);
-	if( $("#review-content").length > 0 ) {
-		$("#reviewForm").hide();
-		$("#button-update").click(function() {
-			$("#reviewForm").show();
-			$("#user-review").hide();
-		})
+	if( $("#review-content").text().length > 0 ) {
+		$("#reviewForm").hide();	
 	}
+	$("#button-update").click(function() {
+		$("#reviewForm").show();
+		$("#user-review").hide();
+	});
 	$("input.reviewRating").click(function(){
-		console.log("hey");
 		if($(this).is(':checked')){
 			viewProduct.setRatings(this)
 		}
