@@ -29,13 +29,22 @@
 							<c:choose>
 							<c:when test="${not empty review || canReview}">
 								<div id="userReview">
-								<c:if test="${not empty review }">
+								<c:choose>
+								<c:when test="${not empty review }">
 									<div id="user-review">
 									<b>Your Review</b> <span id="userReview-rating"><c:forEach begin="1" end="${review.rating }">&#9733;</c:forEach><c:forEach begin="${review.rating + 1 }" end="5">&#9734;</c:forEach></span>
 									<p id="review-content"><c:out value="${review.review }"/></p>
 									<button id="button-update" class="regButton">Update Review</button>
 									</div>
-								</c:if>
+								</c:when>
+								<c:otherwise>
+									<div style="display: none" id="user-review">
+									<b>Your Review</b> <span id="userReview-rating"></span>
+									<p id="review-content"></p>
+									<button id="button-update" class="regButton">Update Review</button>
+									</div>
+								</c:otherwise>
+								</c:choose>
 								
 								<form id="reviewForm" onsubmit="return viewProduct.checkReview();">
 									<b>Add Review</b>

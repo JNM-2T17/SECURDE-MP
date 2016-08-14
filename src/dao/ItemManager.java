@@ -45,8 +45,8 @@ public class ItemManager {
 		Connection con = DBManager.getInstance().getConnection();
 		try {
 			String sql = "SELECT username, review, rating "
-					+ "FROM tl_review P INNER JOIN tl_user U ON P.userId = U.id AND P.status = 1 AND U.status = 1 "
-					+ "WHERE userId = ? AND itemId = ?";
+					+ "FROM tl_review P INNER JOIN tl_user U ON P.userId = U.id "
+					+ "WHERE P.status = 1 AND U.status = 1 AND userId = ? AND itemId = ?";
 			PreparedStatement ps = con.prepareStatement(sql);
 			ps.setInt(1, userId);
 			ps.setInt(2, itemId);
