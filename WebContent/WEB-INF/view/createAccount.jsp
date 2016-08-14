@@ -3,14 +3,34 @@
 
 <jsp:include page="header.jsp"/>
 			<script src="<c:url value="resources/js/createAccount.js"/>"></script>
+			
+		<div id="content">
+		
+			<div id="sectionTitle">
+				<h2>Create an Account</h2>
+			</div>
+			
+			<div id="narrowContent">
+				<img src="<c:url value="resources/images/registerbg.png"/>" />
+				<jsp:include page="sidefooter.jsp"/>
+			</div>
+			
 			<div id="wideContent">
 				<form action="createAccount" method="POST" onsubmit="return createAccount.checkSubmit();">
 					<table id="regForm">
 						<tr>
-							<td>Re-enter your password</td>
+							<th></th>
+							<th>Authorization</th>
+						</tr>
+						<tr>
+							<td>Your password</td>
 							<td>
 								<input type="password" name="authPassword" id="authPassword"/>
 							</td>
+						</tr>
+						<tr>
+							<th></th>
+							<th>Account Details</th>
 						</tr>
 						<tr>
 							<td>Name</td>
@@ -53,9 +73,11 @@
 						</tr>
 					</table>
 					<input type="hidden" value="${sessionToken }" name="token"/>
-					<input type="submit" value="Register &gt;" id="regButton"/>
+					<input type="submit" value="Create account &gt;" id="regButton"/>
 				</form>
 			</div>
+			
+			<div class="clear"></div>
 			<!--  <form action="createAccount" method="POST" onsubmit="return createAccount.checkSubmit();">
 				<input type="password" name="authPassword" placeholder="Reenter your password" id="authPassword"/><br/>
 				<input name="role" type="radio" id="pm" value="2" checked />
@@ -71,4 +93,5 @@
 				<input type="text" name="email" placeholder="Email Address" id="email"/><br/>
 				<input type="submit" value="Create Account"/>
 			</form> -->
+		</div>
 <jsp:include page="footer.jsp"/>

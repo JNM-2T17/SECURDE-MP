@@ -666,6 +666,13 @@ div#regDesc{
 table#regForm{
 	margin-top: 15px;
 
+	th{
+		padding: 20px 0;
+		font-size: 1.5em;
+		text-align: left;
+		color: $accentColor;
+	}
+
 	td{
 		padding-bottom: 5px;
 	}
@@ -719,11 +726,17 @@ table#regForm{
 	}
 
 	input[type='text'],
-	input[type='number']{
+	input[type='number'],
+	input[type='password']{
 		padding: 4px 10px;
 		height: 30px;
 		width: 300px;
 		border-width: 2px;
+	}
+
+	input[type="radio"]{
+		margin-top: -1px;
+		vertical-align: middle;
 	}
 
 	#regName{

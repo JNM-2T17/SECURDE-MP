@@ -460,6 +460,11 @@ div#regDesc {
 
 table#regForm {
   margin-top: 15px; }
+  table#regForm th {
+    padding: 20px 0;
+    font-size: 1.5em;
+    text-align: left;
+    color: #b30000; }
   table#regForm td {
     padding-bottom: 5px; }
   table#regForm tr td:first-child {
@@ -489,11 +494,15 @@ table#regForm {
     table#regForm .regRow.regRowHalf:first-of-type input:nth-of-type(2) {
       width: 195px; }
   table#regForm input[type='text'],
-  table#regForm input[type='number'] {
+  table#regForm input[type='number'],
+  table#regForm input[type='password'] {
     padding: 4px 10px;
     height: 30px;
     width: 300px;
     border-width: 2px; }
+  table#regForm input[type="radio"] {
+    margin-top: -1px;
+    vertical-align: middle; }
   table#regForm #regName input:nth-of-type(1) {
     width: 125px;
     margin-right: 5px; }
