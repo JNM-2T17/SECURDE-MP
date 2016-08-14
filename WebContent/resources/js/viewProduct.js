@@ -62,7 +62,9 @@ var viewProduct = (function() {
 						rating : rating
 					}, 
 					success : function(a) {
+						console.log("viewProduct: " + a);
 						if( a == "true" ) {
+							console.log("viewProduct: if");
 							$("#reviewForm").hide();
 							var ratingStr = "";
 							for(i = 0; i < 5; i++) {
@@ -77,6 +79,7 @@ var viewProduct = (function() {
 							$("#user-review").show();
 							showMessage("Review submitted.");
 						} else {
+							console.log("viewProduct: else");
 							showError(a);
 						}
 					}
