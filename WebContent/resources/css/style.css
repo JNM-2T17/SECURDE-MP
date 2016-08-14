@@ -191,6 +191,9 @@ div#content div#wideContent {
   div#content div#wideContent.widest {
     width: auto;
     float: none; }
+div#content div#fullContent {
+  margin: 10 30px 20px;
+  width: 930px; }
 
 div#footer {
   border-top: 2px black solid;
@@ -528,22 +531,23 @@ input#regButton {
   input#regButton:hover {
     color: black; }
 
-table#usersTable {
-  border-collapse: collapse; }
-  table#usersTable td, table#usersTable th {
+table.manageTable {
+  border-collapse: collapse;
+  min-width: 280px; }
+  table.manageTable td, table.manageTable th {
     padding: 10px; }
-  table#usersTable th {
+  table.manageTable th {
     text-align: left;
     font-size: 1.5em;
     border-bottom: 2px lightgray solid; }
-  table#usersTable a, table#usersTable button {
+  table.manageTable a, table.manageTable button {
     font-size: 1.5em;
     background-color: transparent;
     border: none;
     outline: none;
     text-decoration: none;
     color: inherit; }
-    table#usersTable a:hover, table#usersTable button:hover {
+    table.manageTable a:hover, table.manageTable button:hover {
       color: #b30000; }
 
 h2, h3 {
@@ -579,5 +583,17 @@ select {
   -webkit-box-shadow: none;
   background-image: url("../images/arrow-down.png");
   background-repeat: no-repeat; }
+
+.accentText {
+  color: #b30000;
+  font-weight: bold; }
+
+.thirdDiv {
+  width: 35%;
+  margin-left: 5%;
+  float: left; }
+  .thirdDiv:first-of-type {
+    width: 20%;
+    margin-left: 0; }
 
 /*# sourceMappingURL=style.css.map */

@@ -23,7 +23,7 @@
 				<h2>No Products</h2>
 				</c:when>
 				<c:otherwise>
-				<table id="usersTable">
+				<table class="manageTable">
 					<tr>
 						<th>Name</th>
 						<th>Type</th>

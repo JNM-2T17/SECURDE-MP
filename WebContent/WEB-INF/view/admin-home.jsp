@@ -19,7 +19,7 @@
 					<h2>No Users</h2>
 					</c:when>
 					<c:otherwise>
-					<table id="usersTable">
+					<table class="manageTable">
 						<tr>
 							<th>Username</th>
 							<th>Account Type</th>

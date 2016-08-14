@@ -294,6 +294,11 @@ div#content{
 			float: none;
 		}
 	}
+
+	div#fullContent{
+		margin: 10 30px 20px;
+		width: 930px;
+	}
 }
 
 div#footer{
@@ -781,10 +786,11 @@ input#regButton{
 	}
 }
 
-// Admin Main (Users)
+// Admin, PM, AM
 
-table#usersTable{
+table.manageTable{
 	border-collapse: collapse;
+	min-width: 280px;
 
 	td, th{
 		padding: 10px;
@@ -850,4 +856,20 @@ select{
 	-webkit-box-shadow: none;
 	background-image: url('../images/arrow-down.png');
 	background-repeat: no-repeat;
+}
+
+.accentText{
+	color: $accentColor;
+	font-weight: bold;
+}
+
+.thirdDiv{
+	width: 35%;
+	margin-left: 5%;
+	float: left;
+
+	&:first-of-type{
+		width: 20%;
+		margin-left: 0;
+	}
 }

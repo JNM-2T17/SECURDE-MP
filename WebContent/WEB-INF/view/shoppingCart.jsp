@@ -16,7 +16,7 @@
 			<c:otherwise>
 				<div id="narrowContent" class="narrower">
 					<script src="<c:url value="resources/js/filter.js"/>"></script>
-					Total: &#8369; <fmt:formatNumber pattern="#.00" value="${sessionCart.total }"/>
+					Total: &#8369;<fmt:formatNumber pattern="#.00" value="${sessionCart.total }"/>
 					<button class="regButton" onclick="window.location='checkout';">Proceed to Checkout</button>
 					<jsp:include page="sidefooter.jsp"/>
 				</div>
