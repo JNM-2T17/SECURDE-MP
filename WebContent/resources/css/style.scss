@@ -214,8 +214,14 @@ div#content{
 			max-width: 280px;
 		}
 
-		button{
+		.regButton{
 			@extend input;
+
+			width: 100%;
+
+			&:hover{
+				color: $accentColor;
+			}
 		}
 
 		ul#filterList{

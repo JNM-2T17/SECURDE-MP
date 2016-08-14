@@ -33,7 +33,7 @@
 									<div id="user-review">
 									<b>Your Review</b> <span id="userReview-rating"><c:forEach begin="1" end="${review.rating }">&#9733;</c:forEach><c:forEach begin="${review.rating + 1 }" end="5">&#9734;</c:forEach></span>
 									<p id="review-content"><c:out value="${review.review }"/></p>
-									<button id="button-update">Update Review</button>
+									<button id="button-update" class="regButton">Update Review</button>
 									</div>
 								</c:if>
 								
@@ -46,7 +46,7 @@
 									<input class="reviewRating" type="radio" name="rating" id="rating-4" value="4" <c:if test="${review.rating == 4 }">checked</c:if>/>
 									<input class="reviewRating" type="radio" name="rating" id="rating-5" value="5" <c:if test="${review.rating == 5 }">checked</c:if>/>
 									<textarea id="review" name='review'><c:if test="${not empty review }"><c:out value="${review.review }"/></c:if></textarea>
-									<input type="submit" value="Send Review"/>
+									<input class="regButton" type="submit" value="Send Review"/>
 								</form>
 								</div>
 							</c:when>

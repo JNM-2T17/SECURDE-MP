@@ -4,9 +4,6 @@
 
 <jsp:include page="header.jsp"/>
 		<div id="content">
-			<script src="<c:url value="resources/js/register.js"/>"></script>
-			
-			<br /><br />
 			
 			<div id="narrowContent">
 				<img src="<c:url value="resources/images/registerbg.png"/>" />

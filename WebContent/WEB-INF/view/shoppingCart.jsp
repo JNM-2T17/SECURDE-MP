@@ -17,7 +17,7 @@
 				<div id="narrowContent" class="narrower">
 					<script src="<c:url value="resources/js/filter.js"/>"></script>
 					Total: &#8369; <fmt:formatNumber pattern="#.00" value="${sessionCart.total }"/>
-					<button onclick="window.location='checkout';">Proceed to Checkout</button>
+					<button class="regButton" onclick="window.location='checkout';">Proceed to Checkout</button>
 					<jsp:include page="sidefooter.jsp"/>
 				</div>
 				
@@ -31,7 +31,7 @@
 							&#8369;<fmt:formatNumber pattern="#.00" value="${p.item.price }"/> x <c:out value="${p.quantity }"/> = &#8369;<fmt:formatNumber pattern="#.00" value="${p.total }"/>
 						</div>
 						<div class="product-price">
-							<button onclick="cart.delete(<c:out value="${p.item.id }"/>);"><i class="fa fa-trash"></i></button>
+							<button class="regButton" onclick="cart.delete(<c:out value="${p.item.id }"/>);"><i class="fa fa-trash"></i></button>
 						</div>
 					</div>
 					</c:forEach>
