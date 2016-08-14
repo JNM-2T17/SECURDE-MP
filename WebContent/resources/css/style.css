@@ -43,13 +43,6 @@ div#header {
     font-size: 1em;
     outline: none; }
   div#header select {
-    -webkit-padding-end: 16px;
-    -webkit-padding-start: 8px;
-    -webkit-appearance: button;
-    -webkit-border-radius: 0;
-    -webkit-box-shadow: none;
-    background-image: url("../images/arrow-down.png");
-    background-repeat: no-repeat;
     background-size: 10px 10px;
     background-position: center right 5px; }
   div#header input#search {
@@ -495,11 +488,23 @@ table#regForm {
       width: 195px; }
   table#regForm input[type='text'],
   table#regForm input[type='number'],
-  table#regForm input[type='password'] {
+  table#regForm input[type='password'],
+  table#regForm select,
+  table#regForm textarea {
     padding: 4px 10px;
-    height: 30px;
     width: 300px;
     border-width: 2px; }
+  table#regForm input[type='text'],
+  table#regForm input[type='number'],
+  table#regForm input[type='password'],
+  table#regForm select {
+    height: 30px; }
+  table#regForm textarea {
+    min-height: 100px;
+    resize: vertical; }
+  table#regForm select {
+    background-size: 10px 10px;
+    background-position: center right 5px; }
   table#regForm input[type="radio"] {
     margin-top: -1px;
     vertical-align: middle; }
@@ -565,5 +570,14 @@ input {
 
 .clear {
   clear: both; }
+
+select {
+  -webkit-padding-end: 16px;
+  -webkit-padding-start: 8px;
+  -webkit-appearance: button;
+  -webkit-border-radius: 0;
+  -webkit-box-shadow: none;
+  background-image: url("../images/arrow-down.png");
+  background-repeat: no-repeat; }
 
 /*# sourceMappingURL=style.css.map */
