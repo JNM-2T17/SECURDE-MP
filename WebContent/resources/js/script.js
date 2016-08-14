@@ -58,6 +58,6 @@ $(document).ready(function() {
 	
 	var message= $("#message").val() ? $("#message").val() : "";
 	if( message.length > 0 ) {
-		showError(message);
+		showMessage(message);
 	}
 });

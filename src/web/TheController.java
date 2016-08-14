@@ -736,14 +736,26 @@ public class TheController {
 			} catch (MissingTokenException e) {
 				// TODO Auto-generated catch block
 				logError(e);
+				request.setAttribute("error", "An unexpected error occured.");
 				createAccount(request,response);
-			} catch (Exception e) {
+			} catch (LockoutException e) {
 				// TODO Auto-generated catch block
-				logError(e);
+				ActivityManager.addActivity("locked their account.");
+				ActivityManager.setUser(request);
+				request.setAttribute("error", "Account locked. Try again later.");
+				logout(request,response);
+				return;
+			} catch (ExpiredAccountException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				ActivityManager.addActivity("tried to log into an expired account.");
+				ActivityManager.setUser(request);
+				request.setAttribute("error", "Invalid username/password combination");
+				logout(request,response);
+				return;
+			} catch (AuthenticationException e) {
+				// TODO Auto-generated catch block
 				request.setAttribute("error", "Authentication Failed.");
-			}
+			} 
 			request.getRequestDispatcher("WEB-INF/view/createAccount.jsp").forward(request, response);
 		}
 	}
