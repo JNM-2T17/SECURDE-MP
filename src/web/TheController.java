@@ -562,6 +562,7 @@ public class TheController {
 					}
 				} else {
 					ItemManager.updateReview(u.getId(), prodId, rating, review);
+					ActivityManager.addActivity("updated their review of item " + prodId + ".");
 					response.getWriter().print("true");
 				}
 			} catch (MissingTokenException | SQLException e) {
