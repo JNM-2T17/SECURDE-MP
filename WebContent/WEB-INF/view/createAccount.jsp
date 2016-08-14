@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
 
 <jsp:include page="header.jsp"/>
-			<script src="<c:url value="resources/js/createAccount.js"/>"></script>
+		<script src="<c:url value="resources/js/createAccount.js"/>"></script>
 			
 		<div id="content">
 		
@@ -66,9 +66,9 @@
 							</td>
 						</tr>
 						<tr>
-							<td>Confirm</td>
+							<td>Confirm Password</td>
 							<td>
-								<input type="password" name="confirmPassword" placeholder="Confirm Password" id="confirmPassword"/>
+								<input type="password" name="confirmPassword" id="confirmPassword"/>
 							</td>
 						</tr>
 					</table>
@@ -78,20 +78,5 @@
 			</div>
 			
 			<div class="clear"></div>
-			<!--  <form action="createAccount" method="POST" onsubmit="return createAccount.checkSubmit();">
-				<input type="password" name="authPassword" placeholder="Reenter your password" id="authPassword"/><br/>
-				<input name="role" type="radio" id="pm" value="2" checked />
-				<label for="pm">Product Manager</label>
-				<input name="role" type="radio" id="am" value="3"/>
-				<label for="am">Accounting Manager</label><br/>
-				<input type="text" name="username" placeholder="Username" id="username"/><br/>
-				<input type="password" name="password" placeholder="Password" id="password"/><br/>
-				<input type="password" name="confirmPassword" placeholder="Confirm Password" id="confirmPassword"/><br/>
-				<input type="text" name="fname" placeholder="First Name" id="fname"/><br/>
-				<input type="text" name="mi" placeholder="Middle Initial" id="mi"/><br/>
-				<input type="text" name="lname" placeholder="Last Name" id="lname"/><br/>
-				<input type="text" name="email" placeholder="Email Address" id="email"/><br/>
-				<input type="submit" value="Create Account"/>
-			</form> -->
 		</div>
 <jsp:include page="footer.jsp"/>
