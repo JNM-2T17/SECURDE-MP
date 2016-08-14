@@ -800,6 +800,10 @@ table.manageTable{
 		text-align: left;
 		font-size: 1.5em;
 		border-bottom: 2px $bgColor2 solid;
+
+		&.alignRight{
+			text-align: right;
+		}
 	}
 
 	a, button{
@@ -872,4 +876,8 @@ select{
 		width: 20%;
 		margin-left: 0;
 	}
+}
+
+.alignRight{
+	text-align: right;
 }

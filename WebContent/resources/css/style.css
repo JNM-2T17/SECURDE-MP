@@ -540,6 +540,8 @@ table.manageTable {
     text-align: left;
     font-size: 1.5em;
     border-bottom: 2px lightgray solid; }
+    table.manageTable th.alignRight {
+      text-align: right; }
   table.manageTable a, table.manageTable button {
     font-size: 1.5em;
     background-color: transparent;
@@ -595,5 +597,8 @@ select {
   .thirdDiv:first-of-type {
     width: 20%;
     margin-left: 0; }
+
+.alignRight {
+  text-align: right; }
 
 /*# sourceMappingURL=style.css.map */

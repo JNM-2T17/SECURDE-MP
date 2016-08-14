@@ -17,12 +17,12 @@
 					<table class="manageTable">
 						<tr>
 							<th>Type</th>
-							<th>Sales</th>
+							<th class="alignRight">Sales</th>
 						</tr>
 						<c:forEach items="${byType }" var="sm">
 						<tr>
 							<td><c:out value="${sm.label }"/></td>
-							<td>&#8369;<fmt:formatNumber pattern="0.00" value="${sm.total }"/></td>
+							<td class="alignRight">&#8369;<fmt:formatNumber pattern="0.00" value="${sm.total }"/></td>
 						</tr>
 						</c:forEach>
 					</table>
@@ -33,12 +33,12 @@
 					<table class="manageTable">
 						<tr>
 							<th>Item</th>
-							<th>Sales</th>
+							<th class="alignRight">Sales</th>
 						</tr>
 						<c:forEach items="${byItem }" var="sm">
 						<tr>
 							<td><c:out value="${sm.label }"/></td>
-							<td>&#8369;<fmt:formatNumber pattern="0.00" value="${sm.total }"/></td>
+							<td class="alignRight">&#8369;<fmt:formatNumber pattern="0.00" value="${sm.total }"/></td>
 						</tr>
 						</c:forEach>
 					</table>
