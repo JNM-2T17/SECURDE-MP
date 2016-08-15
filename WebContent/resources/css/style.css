@@ -134,20 +134,6 @@ div#content div#narrowContent {
     margin: 10px 0; }
   div#content div#narrowContent img {
     max-width: 280px; }
-  div#content div#narrowContent .regButton {
-    border: 1px #000 solid;
-    padding: 8px;
-    color: #6c6c6c;
-    font-family: Zag;
-    font-size: 1em;
-    outline: none;
-    text-decoration: none;
-    display: block;
-    background: lightgray;
-    border: 1px black solid;
-    text-align: center; }
-    div#content div#narrowContent .regButton:hover {
-      color: #b30000; }
   div#content div#narrowContent ul#filterList {
     list-style: none;
     margin-left: 5px;
@@ -456,6 +442,8 @@ div#regDesc {
 
 table#regForm {
   margin-top: 15px; }
+  table#regForm a {
+    width: 282px; }
   table#regForm th {
     padding: 20px 0;
     font-size: 1.5em;
@@ -635,5 +623,20 @@ select {
 #message-display .head {
   left: 10px;
   font-size: 1.3em; }
+
+.regButton {
+  border: 1px #000 solid;
+  padding: 8px;
+  color: #6c6c6c;
+  font-family: Zag;
+  font-size: 1em;
+  outline: none;
+  text-decoration: none;
+  display: block;
+  background: lightgray;
+  border: 1px black solid;
+  text-align: center; }
+  .regButton:hover {
+    color: #b30000; }
 
 /*# sourceMappingURL=style.css.map */

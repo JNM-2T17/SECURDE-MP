@@ -78,6 +78,11 @@
 						<tr>
 							<td>Shipping<br/>Address</td>
 							<td>
+								<a class="regButton" onclick="register.copyBill()">Copy Billing Address</a>
+							</td>
+						<tr>
+							<td></td>
+							<td>
 								<div class="regRow">
 									<input type="text" name="shipHouseNo" placeholder="House #" id="shipHouseNo"/><input type="text" name="shipStreet" placeholder="Street" id="shipStreet"/>
 								</div>
