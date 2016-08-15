@@ -207,24 +207,6 @@ div#content{
 			max-width: 280px;
 		}
 
-		.regButton{
-			border: 1px #000 solid;
-			padding: 8px;
-			color: $fgColor1-fade;
-			font-family: $mainFont;
-			font-size: 1em;
-			outline: none;
-			text-decoration: none;
-		    display: block;
-		    background: $bgColor2;
-		    border: 1px $fgColor1 solid;
-		    text-align: center;
-
-			&:hover{
-				color: $accentColor;
-			}
-		}
-
 		ul#filterList{
 			list-style: none;
 			margin-left: 5px;
@@ -664,6 +646,10 @@ div#regDesc{
 table#regForm{
 	margin-top: 15px;
 
+	a{
+		width: 282px;
+	}
+
 	th{
 		padding: 20px 0;
 		font-size: 1.5em;
@@ -921,4 +907,22 @@ select{
 #message-display .head{
     left: 10px;
     font-size: 1.3em;
+}
+
+.regButton{
+	border: 1px #000 solid;
+	padding: 8px;
+	color: $fgColor1-fade;
+	font-family: $mainFont;
+	font-size: 1em;
+	outline: none;
+	text-decoration: none;
+    display: block;
+    background: $bgColor2;
+    border: 1px $fgColor1 solid;
+    text-align: center;
+
+	&:hover{
+		color: $accentColor;
+	}
 }
