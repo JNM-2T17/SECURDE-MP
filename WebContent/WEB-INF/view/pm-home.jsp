@@ -37,7 +37,7 @@
 						<td><c:out value="${p.name }"/></td>
 						<td><c:out value="${p.itemtype }"/></td>
 						<td><c:out value="${p.description }"/></td>
-						<td class="alignRight">&#8369;<fmt:formatNumber pattern="#.00" value="${p.price }"/></td>
+						<td class="alignRight">&#8369;<fmt:formatNumber pattern="0.00" value="${p.price }"/></td>
 						<td><a href="editProduct?id=<c:out value="${p.id }"/>"><i class="fa fa-edit"></i></a></td>
 						<td><button onclick="submit(<c:out value="${p.id }"/>)"><i class="fa fa-trash"></i></button></td>
 					</tr>
