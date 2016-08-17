@@ -523,7 +523,9 @@ input#regButton {
 
 table.manageTable {
   border-collapse: collapse;
-  min-width: 280px; }
+  table-layout: fixed;
+  width: 100%;
+  word-wrap: break-word; }
   table.manageTable td, table.manageTable th {
     padding: 10px; }
   table.manageTable th {
@@ -541,6 +543,24 @@ table.manageTable {
     color: inherit; }
     table.manageTable a:hover, table.manageTable button:hover {
       color: #b30000; }
+
+#pmTable td:nth-of-type(1), #pmTable th:nth-of-type(1) {
+  width: 20%; }
+#pmTable td:nth-of-type(2), #pmTable th:nth-of-type(2) {
+  width: 10%; }
+#pmTable td:nth-of-type(3), #pmTable th:nth-of-type(3) {
+  width: 30%; }
+#pmTable td:nth-of-type(4), #pmTable th:nth-of-type(4) {
+  width: 15%; }
+#pmTable td:nth-of-type(5), #pmTable th:nth-of-type(5) {
+  width: 10%; }
+#pmTable td:nth-of-type(6), #pmTable th:nth-of-type(6) {
+  width: 15%; }
+
+.amTable td:nth-of-type(1), .amTable th:nth-of-type(1) {
+  width: 75%; }
+.amTable td:nth-of-type(2), .amTable th:nth-of-type(2) {
+  width: 25%; }
 
 h2, h3 {
   line-height: 120%; }

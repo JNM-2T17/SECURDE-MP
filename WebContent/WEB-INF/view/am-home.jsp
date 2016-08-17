@@ -14,7 +14,7 @@
 			
 				<div class="thirdDiv">
 					<h3>Sales by Type</h3>
-					<table class="manageTable">
+					<table class="manageTable amTable">
 						<tr>
 							<th>Type</th>
 							<th class="alignRight">Sales</th>
@@ -30,7 +30,7 @@
 				
 				<div class="thirdDiv">
 					<h3>Sales by Item</h3>
-					<table class="manageTable">
+					<table class="manageTable amTable">
 						<tr>
 							<th>Item</th>
 							<th class="alignRight">Sales</th>

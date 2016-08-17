@@ -23,11 +23,11 @@
 				<h2>No Products</h2>
 				</c:when>
 				<c:otherwise>
-				<table class="manageTable">
+				<table class="manageTable" id="pmTable">
 					<tr>
 						<th>Name</th>
 						<th>Type</th>
-						<th>Description</th>
+						<th class="wideCol">Description</th>
 						<th>Price</th>	
 						<th>Edit</th>	
 						<th>Delete</th>				
@@ -36,7 +36,7 @@
 					<tr id="product-<c:out value="${p.id }"/>">
 						<td><c:out value="${p.name }"/></td>
 						<td><c:out value="${p.itemtype }"/></td>
-						<td><c:out value="${p.description }"/></td>
+						<td class="wideCol"><c:out value="${p.description }"/></td>
 						<td class="alignRight">&#8369;<fmt:formatNumber pattern="0.00" value="${p.price }"/></td>
 						<td><a href="editProduct?id=<c:out value="${p.id }"/>"><i class="fa fa-edit"></i></a></td>
 						<td><button onclick="submit(<c:out value="${p.id }"/>)"><i class="fa fa-trash"></i></button></td>
