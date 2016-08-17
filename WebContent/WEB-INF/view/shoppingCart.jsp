@@ -3,9 +3,9 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <jsp:include page="header.jsp"/>
 		<div id="content">
-		
+			<script src="<c:url value="resources/js/cart.js"/>"></script>
 			<div id="sectionTitle"><h2>Shopping Cart</h2></div>
-			
+			<input type="hidden" id="token" value="${sessionToken }"/>
 			<c:choose>
 			<c:when test="${empty sessionCart.purchases }">
 				<div id="narrowContent">
@@ -31,7 +31,7 @@
 							&#8369;<fmt:formatNumber pattern="0.00" value="${p.item.price }"/> x <c:out value="${p.quantity }"/> = &#8369;<fmt:formatNumber pattern="0.00" value="${p.total }"/>
 						</div>
 						<div class="product-price">
-							<button onclick="cart.delete(<c:out value="${p.item.id }"/>);"><i class="fa fa-trash"></i></button>
+							<button onclick="cart.deleteItem(<c:out value="${p.item.id }"/>);"><i class="fa fa-trash"></i></button>
 						</div>
 					</div>
 					</c:forEach>

@@ -482,21 +482,60 @@ public class TheController {
 			try {
 				checkToken(token,request,response);
 				if( quantity > 0 && quantity <= 2000 ) {
-					c.addPurchase(ItemManager.getItem(productId), quantity);
-					ActivityManager.addActivity("added " + quantity + " instances of item " + productId + " to their cart.");
-					shoppingCart(request,response);
+					try {
+						c.addPurchase(ItemManager.getItem(productId), quantity);
+						ActivityManager.addActivity("added " + quantity + " instances of item " + productId + " to their cart.");
+						shoppingCart(request,response);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						if( e instanceof SQLException ) {
+							e.printStackTrace();
+							logError(e);
+							request.setAttribute("error","Failed to add item to cart");
+							viewProduct(productId,request,response);
+						} else {
+							ActivityManager.addActivity("added too many instances of item " + productId + " to their cart.");
+							request.setAttribute("error","You can't add any more of that item.");
+							viewProduct(productId,request,response);
+						}
+					}
 				} else {
 					ActivityManager.addActivity("added too many instances of item " + productId + " to their cart.");
 					request.setAttribute("error","Data validation error.");
 					viewProduct(productId,request,response);
 				}
-			} catch (SQLException | MissingTokenException e) {
+			} catch (MissingTokenException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				logError(e);
 				request.setAttribute("error","Failed to add item to cart");
 				viewProduct(productId,request,response);
 			} 
+		}
+	}
+	
+	@RequestMapping("deleteCartItem")
+	@ResponseBody
+	public void deleteCartItem(@RequestParam("token") String token,
+			@RequestParam("productId") int productId,
+			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		if( isAuth(request,response,User.PURCHASE_PRODUCT)) {
+			Cart c = refreshCart(request);
+			try {
+				checkToken(token,request,response);
+				c.deleteItem(productId);
+				ActivityManager.addActivity("deleted item " + productId + " from their cart.");
+				response.getWriter().print("true");
+			} catch (MissingTokenException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				logError(e);
+				ActivityManager.addActivity("had an invalid token on delete cart item.");
+				response.getWriter().print("false");
+				viewProduct(productId,request,response);
+			} 
+		} else {
+			response.getWriter().print("null");
 		}
 	}
 	

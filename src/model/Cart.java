@@ -22,12 +22,25 @@ public class Cart {
 		this.purchases = purchases;
 	}
 	
-	public void addPurchase(Item item, int quantity) {
+	public void deleteItem(int itemId) {
+		for(Purchase p : purchases) {
+			if( p.getItem().getId() == itemId) {
+				this.purchases.remove(p);
+				break;
+			}
+		}
+	}
+	
+	public void addPurchase(Item item, int quantity) throws Exception {
 		if( quantity > 0 ) {
 			boolean added = false;
 			for(Purchase p : purchases) {
 				if( p.getItem().getId() == item.getId()) {
-					p.setQuantity(p.getQuantity() + quantity);
+					if( p.getQuantity() + quantity <= 2000) {
+						p.setQuantity(p.getQuantity() + quantity);
+					} else {
+						throw new Exception("Overflowing quantity");
+					}
 					added = true;
 					break;
 				}
