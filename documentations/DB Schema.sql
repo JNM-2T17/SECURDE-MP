@@ -1,0 +1,105 @@
+DROP SCHEMA IF EXISTS db_talaria;
+CREATE SCHEMA IF NOT EXISTS db_talaria;
+USE db_talaria;
+
+DROP TABLE IF EXISTS tl_role;
+CREATE TABLE IF NOT EXISTS tl_role (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    roleName VARCHAR(25) UNIQUE NOT NULL,
+    searchProduct TINYINT(1) NOT NULL DEFAULT 0,
+    purchaseProduct TINYINT(1) NOT NULL DEFAULT 0,
+    reviewProduct TINYINT(1) NOT NULL DEFAULT 0,
+    addProduct TINYINT(1) NOT NULL DEFAULT 0,
+    editProduct TINYINT(1) NOT NULL DEFAULT 0,
+    deleteProduct TINYINT(1) NOT NULL DEFAULT 0,
+    viewRecords TINYINT(1) NOT NULL DEFAULT 0,
+    createAccount TINYINT(1) NOT NULL DEFAULT 0,
+    dateAdded TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    status TINYINT(1) NOT NULL DEFAULT 1
+) engine = innoDB;
+
+DROP TABLE IF EXISTS tl_user;
+CREATE TABLE IF NOT EXISTS tl_user (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    role INT NOT NULL,
+    username VARCHAR(45) UNIQUE NOT NULL,
+    password VARCHAR(60) NOT NULL,
+    fName VARCHAR(45) NOT NULL,
+    mi CHAR(3),
+    lName VARCHAR(45) NOT NULL,
+    emailAddress VARCHAR(45) NOT NULL,
+    billHouseNo VARCHAR(10),
+    billStreet VARCHAR(45),
+    billSubd VARCHAR(45),
+    billCity VARCHAR(45),
+    billPostCode VARCHAR(10),
+    billCountry VARCHAR(45),
+    shipHouseNo VARCHAR(10),
+    shipStreet VARCHAR(45),
+    shipSubd VARCHAR(45),
+    shipCity VARCHAR(45),
+    shipPostCode VARCHAR(10),
+    shipCountry VARCHAR(45),
+    dateAdded TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    dateEdited TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    status TINYINT(1) NOT NULL DEFAULT 1,
+    CONSTRAINT userfk_1
+		FOREIGN KEY (role)
+        REFERENCES tl_role(id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+) engine = innoDB;
+
+DROP TABLE IF EXISTS tl_item_type;
+CREATE TABLE IF NOT EXISTS tl_item_type (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(45) UNIQUE NOT NULL,
+    dateAdded TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    status TINYINT(1) NOT NULL DEFAULT 1
+) engine = innoDB;
+
+DROP TABLE IF EXISTS tl_item;
+CREATE TABLE IF NOT EXISTS tl_item (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    itemtype INT NOT NULL,
+    name VARCHAR(45) UNIQUE NOT NULL,
+    description TEXT,
+    price REAL NOT NULL,
+    dateAdded TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    dateEdited TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    status TINYINT(1) NOT NULL DEFAULT 1,
+    CONSTRAINT itemfk_1
+		FOREIGN KEY (itemtype)
+        REFERENCES tl_item_type(id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+) engine = innoDB;
+
+DROP TABLE IF EXISTS tl_purchase;
+CREATE TABLE IF NOT EXISTS tl_purchase (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+	userId INT NOT NULL,
+    itemId INT NOT NULL,
+    quantity INT NOT NULL,
+    dateAdded TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    status TINYINT(1) NOT NULL DEFAULT 1,
+    CONSTRAINT purchasefk_1
+		FOREIGN KEY (userId)
+        REFERENCES tl_user(id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+	CONSTRAINT purchasefk_2
+		FOREIGN KEY (itemId)
+        REFERENCES tl_item(id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+) engine = innoDB;
+
+DROP TABLE IF EXISTS tl_activity;
+CREATE TABLE IF NOT EXISTS tl_activity (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    activity TEXT NOT NULL,
+    dateAdded TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    status TINYINT(1) NOT NULL DEFAULT 1
+) engine = innoDB;
+
