@@ -137,7 +137,7 @@ public class TheController {
 			restoreSession(request,response);
 			sessionToken = (String)request.getSession().getAttribute("sessionToken");
 		}
-		if(!sessionToken.equals(token)) {
+		if(token == null || !sessionToken.equals(token)) {
 			throw new MissingTokenException();
 		}
 	}
@@ -221,7 +221,7 @@ public class TheController {
 	
 	@ResponseBody
 	@RequestMapping("/login")
-	public void login(@RequestParam("token") String token,
+	public void login(@RequestParam(value="token",required=false) String token,
 			@RequestParam("username") String username,
 			@RequestParam("password") String password,
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -284,7 +284,7 @@ public class TheController {
 	
 	@ResponseBody
 	@RequestMapping("checkUsername")
-	public void checkUsername(@RequestParam("token") String token,
+	public void checkUsername(@RequestParam(value="token",required=false) String token,
 							@RequestParam("username") String username,
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
@@ -305,7 +305,7 @@ public class TheController {
 	
 	@ResponseBody
 	@RequestMapping(value="register",method = RequestMethod.POST)
-	public void register(@RequestParam("token") String token,
+	public void register(@RequestParam(value="token",required=false) String token,
 						@RequestParam("username") String username,
 						@RequestParam("password") String password,
 						@RequestParam("confirmPassword") String confirmPassword,
@@ -489,7 +489,7 @@ public class TheController {
 	
 	@RequestMapping("addToCart")
 	@ResponseBody
-	public void addToCart(@RequestParam("token") String token,
+	public void addToCart(@RequestParam(value="token",required=false) String token,
 			@RequestParam("productId") int productId,
 			@RequestParam("quantity") int quantity,
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -532,7 +532,7 @@ public class TheController {
 	
 	@RequestMapping("deleteCartItem")
 	@ResponseBody
-	public void deleteCartItem(@RequestParam("token") String token,
+	public void deleteCartItem(@RequestParam(value="token",required=false) String token,
 			@RequestParam("productId") int productId,
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if( isAuth(request,response,User.PURCHASE_PRODUCT)) {
@@ -578,7 +578,7 @@ public class TheController {
 	
 	@ResponseBody
 	@RequestMapping(value="checkout",method=RequestMethod.POST)
-	public void checkout(@RequestParam("token") String token,
+	public void checkout(@RequestParam(value="token",required=false) String token,
 			@RequestParam("ccno") String ccno,
 			@RequestParam("cardtype") String cardtype,
 			@RequestParam("expmm") int expmm,
@@ -621,7 +621,7 @@ public class TheController {
 	
 	@ResponseBody
 	@RequestMapping("review")
-	public void review(@RequestParam("token") String token,
+	public void review(@RequestParam(value="token",required=false) String token,
 			@RequestParam("prodId") int prodId,
 			@RequestParam("review") String review,
 			@RequestParam("rating") int rating,
@@ -670,7 +670,7 @@ public class TheController {
 	@ResponseBody
 	@RequestMapping(value="/addProduct",method=RequestMethod.POST)
 	public void addProduct(
-			@RequestParam("token") String token,
+			@RequestParam(value="token",required=false) String token,
 			@RequestParam("name") String name,
 			@RequestParam("itemtype") int itemtype,
 			@RequestParam("description") String description,
@@ -724,7 +724,7 @@ public class TheController {
 	
 	@ResponseBody
 	@RequestMapping(value="editProduct",method = RequestMethod.POST)
-	public void editProduct(@RequestParam("token") String token,
+	public void editProduct(@RequestParam(value="token",required=false) String token,
 			@RequestParam("id") int id,
 			@RequestParam("name") String name,
 			@RequestParam("itemtype") int itemtype,
@@ -756,7 +756,7 @@ public class TheController {
 	
 	@ResponseBody
 	@RequestMapping("/deleteProduct")
-	public void deleteProduct(@RequestParam("token") String token,
+	public void deleteProduct(@RequestParam(value="token",required=false) String token,
 			@RequestParam("id") int id,
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		PrintWriter pw = response.getWriter();
@@ -784,7 +784,7 @@ public class TheController {
 	@ResponseBody
 	@RequestMapping(value="/createAccount",method=RequestMethod.POST)
 	public void createAccount(
-			@RequestParam("token") String token,
+			@RequestParam(value="token",required=false) String token,
 			@RequestParam("authPassword") String authPassword,
 			@RequestParam("role") int role,
 			@RequestParam("username") String username,
@@ -858,7 +858,7 @@ public class TheController {
 	@ResponseBody
 	@RequestMapping(value="/editAccount",method=RequestMethod.POST)
 	public void editAccount(
-			@RequestParam("token") String token,
+			@RequestParam(value="token",required=false) String token,
 			@RequestParam("oldPassword") String oldPassword,
 			@RequestParam("newPassword") String newPassword,
 			@RequestParam("confirmPassword") String confirmPassword,
