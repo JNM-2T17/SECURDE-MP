@@ -99,7 +99,7 @@
 						</tr>
 					</table>
 					
-					<input type="hidden" name="token" value="<c:out value="${sessionToken }"/>"/>
+					<input type="hidden" id="token" name="token" value="<c:out value="${sessionToken }"/>"/>
 
 					<input type="submit" value="Register &gt;" id="regButton"/>
 				</form>

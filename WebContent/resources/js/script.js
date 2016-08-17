@@ -45,7 +45,7 @@ function showMessage(message) {
 }
 
 function appendMessage(message, add) {
-	return message + (message.length == 0 ? "" : "\n") + add;
+	return message + (message.length == 0 ? "" : "<br/>") + add;
 }
 
 function checkPass(pass) {

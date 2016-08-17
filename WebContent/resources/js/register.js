@@ -1,4 +1,24 @@
 var register = (function(){
+	var usernameReady = true;
+	var usernameValid = false;
+	$(document).ready(function() {
+		usernameReady = false;
+		$("#username").change(function() {
+			$.ajax({
+				url : "checkUsername",
+				method : "POST",
+				data : {
+					token : $("#token").val(),
+					username : $("#username").val()
+				},
+				success : function(a) {
+					usernameValid = a === "true";
+					usernameReady = true;
+				}
+			});
+		});
+	});
+	
 	return {
 		copyBill : function() {
 			$("#shipHouseNo").val($("#billHouseNo").val());
@@ -31,8 +51,12 @@ var register = (function(){
 			
 			var message = "";
 			
+			while(!usernameReady);
+			
 			if(!/^[A-Za-z0-9_\-]+$/.test(username)) {
 				message = appendMessage(message,"Username is not valid.");
+			} else if(!usernameValid ) {
+				message = appendMessage(message,"Username is in use.");
 			}
 			
 			var passCheck = checkPass(password);

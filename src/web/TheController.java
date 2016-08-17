@@ -283,6 +283,27 @@ public class TheController {
 	}
 	
 	@ResponseBody
+	@RequestMapping("checkUsername")
+	public void checkUsername(@RequestParam("token") String token,
+							@RequestParam("username") String username,
+			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		try {
+			checkToken(token,request,response);
+			response.getWriter().print(UserManager.getUser(username) == null);
+		} catch (MissingTokenException e) {
+			// TODO Auto-generated catch block
+			ActivityManager.addActivity("had an invalid token on check username.");
+			response.getWriter().print("false");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logError(e);
+			response.getWriter().print("false");
+		}
+		
+	}
+	
+	@ResponseBody
 	@RequestMapping(value="register",method = RequestMethod.POST)
 	public void register(@RequestParam("token") String token,
 						@RequestParam("username") String username,
@@ -321,9 +342,14 @@ public class TheController {
 						shipSubd.matches("^[A-Za-z ,.'-]+$") && shipCity.matches("^[A-Za-z ,.'-]+$") && 
 						shipPostCode.matches("^[A-Za-z0-9]+$") && shipCountry.matches("^[A-Za-z ]+$") && 
 						UserManager.checkPass(password) && password.equals(confirmPassword)) {
-					UserManager.addUser(username, password, fname, mi, lname, email, billHouseNo, billStreet, billSubd, billCity, billPostCode, billCountry, shipHouseNo, shipStreet, shipSubd, shipCity, shipPostCode, shipCountry);
-					login(token,username,password,request,response);
-					ActivityManager.addActivity("registered their account.");
+					if(UserManager.addUser(username, password, fname, mi, lname, email, billHouseNo, billStreet, billSubd, billCity, billPostCode, billCountry, shipHouseNo, shipStreet, shipSubd, shipCity, shipPostCode, shipCountry)) {
+						login(token,username,password,request,response);
+						ActivityManager.addActivity("registered their account.");
+					} else {
+						ActivityManager.addActivity("registered an existing account.");
+						request.setAttribute("error","That username is already in use.");
+						register(request,response);
+					}
 				} else {
 					logError(new Exception("Data validation failed on register."));
 					request.setAttribute("error","Failed to register account.");
