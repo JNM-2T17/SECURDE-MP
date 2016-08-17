@@ -926,3 +926,8 @@ select{
 		color: $accentColor;
 	}
 }
+
+textarea, select{
+	font-size: 1em;
+	font-family: $mainFont;
+}
