@@ -437,6 +437,7 @@ div.product{
 
 	border: 1px rgb(108,108,108) solid;
 	padding: 15px 0;
+	word-wrap: break-word;
 
 	&:nth-of-type(odd){
 		background-color: rgb(211,211,211);
