@@ -9,7 +9,7 @@
 				<img src="<c:url value="resources/images/registerbg.png"/>" />
 				<jsp:include page="sidefooter.jsp"/>
 			</div>
-
+			<script src="<c:url value="resources/js/checkout.js"/>"></script>
 			<div id="wideContent">
 				<h2 id="regTitle">Checkout</h2>
 				
@@ -51,14 +51,5 @@
 			<div class="clear"></div>
 			
 			
-		</div>
-<jsp:include page="footer.jsp"/>
-
-<jsp:include page="header.jsp"/>
-		<script src="<c:url value="resources/js/checkout.js"/>"></script>
-		<div id="content">
-			<form action="checkout" method="POST" onsubmit="return checkout.checkSubmit();">
-				
-			</form>
 		</div>
 <jsp:include page="footer.jsp"/>
