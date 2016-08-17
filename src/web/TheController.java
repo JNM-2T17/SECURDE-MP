@@ -395,22 +395,38 @@ public class TheController {
 	@RequestMapping("search")
 	public void search(@RequestParam(value="type",required=false) Integer type, 
 			@RequestParam(value="query",required=false) String query, 
-			@RequestParam(value="start",required=false) Integer start,
-			@RequestParam(value="minRange",required=false) Double minRange,
-			@RequestParam(value="maxRange",required=false) Double maxRange,
+			@RequestParam(value="start",required=false) String startS,
+			@RequestParam(value="minRange",required=false) String minRangeS,
+			@RequestParam(value="maxRange",required=false) String maxRangeS,
 			@RequestParam(value="ratings[]",required=false) int[] ratings,
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		User u = restoreSession(request, response);
 		if( u == null ) {
 			ActivityManager.setUser(request);
 		}
-		if( start == null ) {
+		Integer start = null;
+		if( startS == null ) {
 			start = 0;
+		} else {
+			try {
+				start = Integer.parseInt(startS);
+			} catch(NumberFormatException nfe) {
+				start = 0;
+			}
 		}
+		
 		if( type != null && type.intValue() == 0 ) {
 			type = null;
 		}
 		try {
+			Double minRange = null;
+			try {
+				minRange = Double.parseDouble(minRangeS);
+			} catch(NumberFormatException nfe ) {}
+			Double maxRange = null;
+			try {
+				maxRange = Double.parseDouble(maxRangeS);
+			} catch(NumberFormatException nfe ) {}
 			if(minRange == null || maxRange == null || minRange < maxRange) {
 				Item[] items = ItemManager.getAllItems(type,query,start,0,minRange,maxRange,ratings);
 				request.setAttribute("products", items);
@@ -422,7 +438,7 @@ public class TheController {
 				request.getRequestDispatcher("WEB-INF/view/search.jsp").forward(request,response);
 			} else {
 				ActivityManager.addActivity("ran into data validation error on search.");
-				search(type,query,start,null,null,ratings,request,response);
+				search(type,query,"0",null,null,ratings,request,response);
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
