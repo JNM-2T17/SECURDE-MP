@@ -29,6 +29,12 @@ var viewProduct = (function() {
 			if( isNaN(quantity) ) {
 				showError("Quantity must be a number.");
 				return false;
+			} else if( quantity <= 0 ){
+				showError("Quantity must be greater than 0.");
+				return false;
+			} else if( quantity > 2000 ){
+				showError("Quantity must be less than or equal to 2000.");
+				return false;
 			} else {
 				$("#productId").val(prodId);
 				return true;

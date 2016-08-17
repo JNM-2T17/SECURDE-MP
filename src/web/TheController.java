@@ -481,9 +481,15 @@ public class TheController {
 			Cart c = refreshCart(request);
 			try {
 				checkToken(token,request,response);
-				c.addPurchase(ItemManager.getItem(productId), quantity);
-				ActivityManager.addActivity("added " + quantity + " instances of item " + productId + " to their cart.");
-				shoppingCart(request,response);
+				if( quantity > 0 && quantity <= 2000 ) {
+					c.addPurchase(ItemManager.getItem(productId), quantity);
+					ActivityManager.addActivity("added " + quantity + " instances of item " + productId + " to their cart.");
+					shoppingCart(request,response);
+				} else {
+					ActivityManager.addActivity("added too many instances of item " + productId + " to their cart.");
+					request.setAttribute("error","Data validation error.");
+					viewProduct(productId,request,response);
+				}
 			} catch (SQLException | MissingTokenException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
