@@ -16,6 +16,7 @@ html, body{
 	margin: 0;
 	padding: 0;
 	height: 100%;
+	word-wrap: break-word;
 }
 
 body{
@@ -65,6 +66,13 @@ div#header{
 	select{
 		background-size: 10px 10px;
 		background-position: center right 5px;
+	}
+
+	a#logoutLink{
+		max-width: 150px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis
 	}
 
 	input#search{

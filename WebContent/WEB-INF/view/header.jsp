@@ -37,7 +37,7 @@
 					</c:when>
 					<c:otherwise>
 					<a href="editAccount">account</a>
-					<a href="logout">logout <c:out value="${sessionUser.username }"/></a>
+					<a href="logout" id="logoutLink">logout <c:out value="${sessionUser.username }"/></a>
 					<c:if test="${sessionScope.sessionUser.purchaseProduct }">
 					<a id="button-shoppingCart" href="shoppingCart">shopping cart</a>
 					</c:if>
