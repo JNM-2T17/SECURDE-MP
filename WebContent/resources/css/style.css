@@ -639,4 +639,8 @@ select {
   .regButton:hover {
     color: #b30000; }
 
+textarea, select {
+  font-size: 1em;
+  font-family: Zag; }
+
 /*# sourceMappingURL=style.css.map */
