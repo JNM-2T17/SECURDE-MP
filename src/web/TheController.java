@@ -819,9 +819,13 @@ public class TheController {
 							mi.matches("^[A-Za-z]{0,2}.?$") && lname.matches("^[A-Za-z ,.'-]+$") && 
 							email.matches("^([-.a-zA-Z0-9_]+)@([-.a-zA-Z0-9_]+)[.]([a-zA-Z]{2,5})$") && 
 							UserManager.checkPass(password) && password.equals(confirmPassword)) {
-						UserManager.addUser(role, username, password, fname, mi, lname, email);
-						ActivityManager.addActivity("created user " + username + ".");
-						home(request,response);
+						if(UserManager.addUser(role, username, password, fname, mi, lname, email)) {
+							ActivityManager.addActivity("created user " + username + ".");
+							home(request,response);
+						} else {
+							ActivityManager.addActivity("tried to create existing user " + username + ".");
+							createAccount(request,response);
+						}
 					} else {
 						logError(new Exception("Data validation failed on create account."));
 						request.setAttribute("error","Failed to create account.");
