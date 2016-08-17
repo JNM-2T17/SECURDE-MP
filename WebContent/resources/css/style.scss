@@ -778,7 +778,9 @@ input#regButton{
 
 table.manageTable{
 	border-collapse: collapse;
-	min-width: 280px;
+	table-layout: fixed;
+	width: 100%;
+	word-wrap: break-word;
 
 	td, th{
 		padding: 10px;
@@ -804,6 +806,46 @@ table.manageTable{
 
 		&:hover{
 			color: $accentColor;
+		}
+	}
+}
+
+#pmTable{
+	td, th{
+		&:nth-of-type(1){
+			width: 20%;
+		}
+
+		&:nth-of-type(2){
+			width: 10%;
+		}
+
+		&:nth-of-type(3){
+			width: 30%;
+		}
+
+		&:nth-of-type(4){
+			width: 15%;
+		}
+
+		&:nth-of-type(5){
+			width: 10%;
+		}
+
+		&:nth-of-type(6){
+			width: 15%;
+		}
+	}
+}
+
+.amTable{
+	td, th{
+		&:nth-of-type(1){
+			width: 75%;
+		}
+
+		&:nth-of-type(2){
+			width: 25%;
 		}
 	}
 }
