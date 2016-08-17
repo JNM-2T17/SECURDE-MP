@@ -39,6 +39,7 @@
 						</ul>
 					</li>
 				</ul>
+				<button class="regButton" id="filterButton">Filter</button>
 				<jsp:include page="sidefooter.jsp"/>
 			</div>
 

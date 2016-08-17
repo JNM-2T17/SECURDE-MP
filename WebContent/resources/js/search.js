@@ -5,7 +5,13 @@ var search = (function(){
 		$("#searchType").val($("#sType").val());
 		$("#sType-" + $("#sType").val()).addClass("active");
 		$("#searchForm").submit(ret.checkSubmit);
+		
+		$("#filterButton").click(function(){
+			console.log("filter");
+			$("#searchForm").submit();
+		});
 	});
+	
 	var ret = {
 		checkSubmit : function() {
 			console.log("ERE");
