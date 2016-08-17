@@ -94,6 +94,14 @@ public class TheController {
 					if( c.getName().equals("tlSessionToken") ) {
 						try {
 							int dollar = c.getValue().indexOf('$');
+							if( dollar == -1 ) {
+								u = null;
+								c.setMaxAge(0);
+								response.addCookie(c);
+								logoutUser(request,response);
+								ActivityManager.addActivity("had an invalid cookie and was logged out.");
+								return null;
+							}
 							u = UserManager.getUser(Integer.parseInt(c.getValue().substring(0,dollar)));
 							if( u != null ) {
 								String genHash = genHash(u,request.getRemoteAddr());
@@ -420,13 +428,17 @@ public class TheController {
 		}
 		try {
 			Double minRange = null;
-			try {
-				minRange = Double.parseDouble(minRangeS);
-			} catch(NumberFormatException nfe ) {}
+			if( minRangeS != null ) {
+				try {
+					minRange = Double.parseDouble(minRangeS);
+				} catch(NumberFormatException nfe ) {}
+			}
 			Double maxRange = null;
-			try {
-				maxRange = Double.parseDouble(maxRangeS);
-			} catch(NumberFormatException nfe ) {}
+			if(maxRangeS != null) {
+				try {
+					maxRange = Double.parseDouble(maxRangeS);
+				} catch(NumberFormatException nfe ) {}
+			}
 			if(minRange == null || maxRange == null || minRange < maxRange) {
 				Item[] items = ItemManager.getAllItems(type,query,start,0,minRange,maxRange,ratings);
 				request.setAttribute("products", items);
