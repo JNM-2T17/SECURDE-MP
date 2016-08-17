@@ -51,6 +51,7 @@ div#header {
     left: 250px;
     width: 200px; }
   div#header select#searchType {
+    padding-right: 20px;
     position: absolute;
     top: 28px;
     left: 455px; }
@@ -290,7 +291,8 @@ span.noResults {
 
 div.product {
   border: 1px #6c6c6c solid;
-  padding: 15px 0; }
+  padding: 15px 0;
+  word-wrap: break-word; }
   div.product:nth-of-type(odd) {
     background-color: lightgray; }
   div.product:nth-of-type(even) {
