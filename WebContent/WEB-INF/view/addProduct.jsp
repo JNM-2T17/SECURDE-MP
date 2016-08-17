@@ -7,7 +7,7 @@
 		<div id="content">
 		
 			<div id="sectionTitle">
-				<h2>Edit Product</h2>
+				<h2>Add Product</h2>
 			</div>
 			
 			<div id="narrowContent">
