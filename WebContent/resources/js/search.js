@@ -31,7 +31,18 @@ var search = (function(){
 					startRange * 1.0 > endRange * 1.0 ) {
 				message = appendMessage(message,"Start Range must be less than End Range.");
 			}
-			console.log(message + " is the message");
+			
+			var invalid = false; 
+			$(".ratingSearch:checked").each(function(){
+				if(!/^[1-5]$/.test($(this).data('rating')) ) {
+					invalid = true;
+				}
+			});
+			
+			if( invalid ) {
+				message = appendMessage(message,"One of your rating filters is invalid.");
+			}
+			
 			if( message.length > 0 ) {
 				showError(message);
 				return false;

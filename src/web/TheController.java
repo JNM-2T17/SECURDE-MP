@@ -145,7 +145,7 @@ public class TheController {
 			restoreSession(request,response);
 			sessionToken = (String)request.getSession().getAttribute("sessionToken");
 		}
-		if(!sessionToken.equals(token)) {
+		if(token == null || !sessionToken.equals(token)) {
 			throw new MissingTokenException();
 		}
 	}
@@ -229,7 +229,7 @@ public class TheController {
 	
 	@ResponseBody
 	@RequestMapping("/login")
-	public void login(@RequestParam("token") String token,
+	public void login(@RequestParam(value="token",required=false) String token,
 			@RequestParam("username") String username,
 			@RequestParam("password") String password,
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -292,7 +292,7 @@ public class TheController {
 	
 	@ResponseBody
 	@RequestMapping("checkUsername")
-	public void checkUsername(@RequestParam("token") String token,
+	public void checkUsername(@RequestParam(value="token",required=false) String token,
 							@RequestParam("username") String username,
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
@@ -313,7 +313,7 @@ public class TheController {
 	
 	@ResponseBody
 	@RequestMapping(value="register",method = RequestMethod.POST)
-	public void register(@RequestParam("token") String token,
+	public void register(@RequestParam(value="token",required=false) String token,
 						@RequestParam("username") String username,
 						@RequestParam("password") String password,
 						@RequestParam("confirmPassword") String confirmPassword,
@@ -406,7 +406,7 @@ public class TheController {
 			@RequestParam(value="start",required=false) String startS,
 			@RequestParam(value="minRange",required=false) String minRangeS,
 			@RequestParam(value="maxRange",required=false) String maxRangeS,
-			@RequestParam(value="ratings[]",required=false) int[] ratings,
+			@RequestParam(value="ratings[]",required=false) String[] ratingsS,
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		User u = restoreSession(request, response);
 		if( u == null ) {
@@ -439,7 +439,22 @@ public class TheController {
 					maxRange = Double.parseDouble(maxRangeS);
 				} catch(NumberFormatException nfe ) {}
 			}
-			if(minRange == null || maxRange == null || minRange < maxRange) {
+			
+			boolean error = false;
+			int[] ratings = null;
+			if( ratingsS != null ) {
+				ratings = new int[ratingsS.length];
+				for(int i = 0; !error && i < ratingsS.length; i++) {
+					if( ratingsS[i] != null && ratingsS[i].matches("^[1-5]$") ) {
+						ratings[i] = Integer.parseInt(ratingsS[i]);
+					} else {
+						error = true;
+					}
+					System.out.println(ratingsS[i] + " " + ratingsS[i].matches("^[1-5]$") + " " + error);
+				}
+			}
+			
+			if(!error && (minRange == null || maxRange == null || minRange < maxRange)) {
 				Item[] items = ItemManager.getAllItems(type,query,start,0,minRange,maxRange,ratings);
 				request.setAttribute("products", items);
 				request.setAttribute("type",type == null ? 0 : type);
@@ -450,7 +465,8 @@ public class TheController {
 				request.getRequestDispatcher("WEB-INF/view/search.jsp").forward(request,response);
 			} else {
 				ActivityManager.addActivity("ran into data validation error on search.");
-				search(type,query,"0",null,null,ratings,request,response);
+				request.setAttribute("error","An unexpected error occured.");
+				search(type,query,"0",null,null,null,request,response);
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -477,7 +493,6 @@ public class TheController {
 			}
 			Review[] reviews = ItemManager.getReviews(id, null, null);
 			request.setAttribute("reviews",reviews.length == 0 ? null : reviews);
-			request.setAttribute("loadMore",reviews.length == 11 ? true : false);
 			request.setAttribute("review", r);
 			request.setAttribute("canReview", canReview);
 			ActivityManager.addActivity("viewed item " + id + ": " + i.getName() + ".");
@@ -501,7 +516,7 @@ public class TheController {
 	
 	@RequestMapping("addToCart")
 	@ResponseBody
-	public void addToCart(@RequestParam("token") String token,
+	public void addToCart(@RequestParam(value="token",required=false) String token,
 			@RequestParam("productId") int productId,
 			@RequestParam("quantity") int quantity,
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -544,7 +559,7 @@ public class TheController {
 	
 	@RequestMapping("deleteCartItem")
 	@ResponseBody
-	public void deleteCartItem(@RequestParam("token") String token,
+	public void deleteCartItem(@RequestParam(value="token",required=false) String token,
 			@RequestParam("productId") int productId,
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if( isAuth(request,response,User.PURCHASE_PRODUCT)) {
@@ -590,7 +605,7 @@ public class TheController {
 	
 	@ResponseBody
 	@RequestMapping(value="checkout",method=RequestMethod.POST)
-	public void checkout(@RequestParam("token") String token,
+	public void checkout(@RequestParam(value="token",required=false) String token,
 			@RequestParam("ccno") String ccno,
 			@RequestParam("cardtype") String cardtype,
 			@RequestParam("expmm") int expmm,
@@ -633,7 +648,7 @@ public class TheController {
 	
 	@ResponseBody
 	@RequestMapping("review")
-	public void review(@RequestParam("token") String token,
+	public void review(@RequestParam(value="token",required=false) String token,
 			@RequestParam("prodId") int prodId,
 			@RequestParam("review") String review,
 			@RequestParam("rating") int rating,
@@ -682,7 +697,7 @@ public class TheController {
 	@ResponseBody
 	@RequestMapping(value="/addProduct",method=RequestMethod.POST)
 	public void addProduct(
-			@RequestParam("token") String token,
+			@RequestParam(value="token",required=false) String token,
 			@RequestParam("name") String name,
 			@RequestParam("itemtype") int itemtype,
 			@RequestParam("description") String description,
@@ -736,7 +751,7 @@ public class TheController {
 	
 	@ResponseBody
 	@RequestMapping(value="editProduct",method = RequestMethod.POST)
-	public void editProduct(@RequestParam("token") String token,
+	public void editProduct(@RequestParam(value="token",required=false) String token,
 			@RequestParam("id") int id,
 			@RequestParam("name") String name,
 			@RequestParam("itemtype") int itemtype,
@@ -768,7 +783,7 @@ public class TheController {
 	
 	@ResponseBody
 	@RequestMapping("/deleteProduct")
-	public void deleteProduct(@RequestParam("token") String token,
+	public void deleteProduct(@RequestParam(value="token",required=false) String token,
 			@RequestParam("id") int id,
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		PrintWriter pw = response.getWriter();
@@ -796,7 +811,7 @@ public class TheController {
 	@ResponseBody
 	@RequestMapping(value="/createAccount",method=RequestMethod.POST)
 	public void createAccount(
-			@RequestParam("token") String token,
+			@RequestParam(value="token",required=false) String token,
 			@RequestParam("authPassword") String authPassword,
 			@RequestParam("role") int role,
 			@RequestParam("username") String username,
@@ -819,9 +834,13 @@ public class TheController {
 							mi.matches("^[A-Za-z]{0,2}.?$") && lname.matches("^[A-Za-z ,.'-]+$") && 
 							email.matches("^([-.a-zA-Z0-9_]+)@([-.a-zA-Z0-9_]+)[.]([a-zA-Z]{2,5})$") && 
 							UserManager.checkPass(password) && password.equals(confirmPassword)) {
-						UserManager.addUser(role, username, password, fname, mi, lname, email);
-						ActivityManager.addActivity("created user " + username + ".");
-						home(request,response);
+						if(UserManager.addUser(role, username, password, fname, mi, lname, email)) {
+							ActivityManager.addActivity("created user " + username + ".");
+							home(request,response);
+						} else {
+							ActivityManager.addActivity("tried to create existing user " + username + ".");
+							createAccount(request,response);
+						}
 					} else {
 						logError(new Exception("Data validation failed on create account."));
 						request.setAttribute("error","Failed to create account.");
@@ -870,7 +889,7 @@ public class TheController {
 	@ResponseBody
 	@RequestMapping(value="/editAccount",method=RequestMethod.POST)
 	public void editAccount(
-			@RequestParam("token") String token,
+			@RequestParam(value="token",required=false) String token,
 			@RequestParam("oldPassword") String oldPassword,
 			@RequestParam("newPassword") String newPassword,
 			@RequestParam("confirmPassword") String confirmPassword,
