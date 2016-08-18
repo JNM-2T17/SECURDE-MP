@@ -18,6 +18,7 @@
 					</div>
 					<div id="productOptions">
 						<c:if test="${not empty sessionUser }">
+							<c:if test="${sessionUser.role == 1 }">
 							<form id="addForm" action="addToCart" method="post" onsubmit="return viewProduct.checkSubmit();">
 								<input type="hidden" value="${sessionToken }" name="token"/>
 								<input type="hidden" id="productId" name="productId" value="<c:out value="${p.id }"/>"/>
@@ -62,6 +63,7 @@
 							<c:otherwise>
 							</c:otherwise>
 							</c:choose>
+							</c:if>
 						</c:if>
 					</div>
 					
