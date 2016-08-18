@@ -406,7 +406,7 @@ public class TheController {
 			@RequestParam(value="start",required=false) String startS,
 			@RequestParam(value="minRange",required=false) String minRangeS,
 			@RequestParam(value="maxRange",required=false) String maxRangeS,
-			@RequestParam(value="ratings[]",required=false) int[] ratings,
+			@RequestParam(value="ratings[]",required=false) String[] ratingsS,
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		User u = restoreSession(request, response);
 		if( u == null ) {
@@ -439,7 +439,22 @@ public class TheController {
 					maxRange = Double.parseDouble(maxRangeS);
 				} catch(NumberFormatException nfe ) {}
 			}
-			if(minRange == null || maxRange == null || minRange < maxRange) {
+			
+			boolean error = false;
+			int[] ratings = null;
+			if( ratingsS != null ) {
+				ratings = new int[ratingsS.length];
+				for(int i = 0; !error && i < ratingsS.length; i++) {
+					if( ratingsS[i] != null && ratingsS[i].matches("^[1-5]$") ) {
+						ratings[i] = Integer.parseInt(ratingsS[i]);
+					} else {
+						error = true;
+					}
+					System.out.println(ratingsS[i] + " " + ratingsS[i].matches("^[1-5]$") + " " + error);
+				}
+			}
+			
+			if(!error && (minRange == null || maxRange == null || minRange < maxRange)) {
 				Item[] items = ItemManager.getAllItems(type,query,start,0,minRange,maxRange,ratings);
 				request.setAttribute("products", items);
 				request.setAttribute("type",type == null ? 0 : type);
@@ -450,7 +465,8 @@ public class TheController {
 				request.getRequestDispatcher("WEB-INF/view/search.jsp").forward(request,response);
 			} else {
 				ActivityManager.addActivity("ran into data validation error on search.");
-				search(type,query,"0",null,null,ratings,request,response);
+				request.setAttribute("error","An unexpected error occured.");
+				search(type,query,"0",null,null,null,request,response);
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -477,7 +493,6 @@ public class TheController {
 			}
 			Review[] reviews = ItemManager.getReviews(id, null, null);
 			request.setAttribute("reviews",reviews.length == 0 ? null : reviews);
-			request.setAttribute("loadMore",reviews.length == 11 ? true : false);
 			request.setAttribute("review", r);
 			request.setAttribute("canReview", canReview);
 			ActivityManager.addActivity("viewed item " + id + ": " + i.getName() + ".");

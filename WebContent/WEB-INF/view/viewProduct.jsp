@@ -7,7 +7,7 @@
 				<div id="sectionTitle">
 					<h2></h2>
 				</div>
-				
+				<input type="hidden" id="username" value="<c:out value="${sessionUser.username }"/>"/>
 				<div id="narrowContent" class="narrower">
 					<h2 id="viewProductTitle"><c:out value="${p.name }"/></h2>
 					<div id="productPrice">
@@ -75,23 +75,22 @@
 						<p><c:out value="${p.description }"/></p>
 						
 						<h3>Customer Ratings</h3>
+						<div id="reviews">
 						<c:choose>
 							<c:when test="${empty reviews }">
 								No reviews yet
 							</c:when>
 							<c:otherwise>
 								<c:forEach items="${reviews }" var="r">
-								<div class="productReview">
+								<div class="productReview" <c:if test="${sessionUser.username == r.username }"> id="activeReview"</c:if> >
 									<div class="productReview-name"><c:out value="${r.username }"/></div>
 									<div class="productReview-rating"><c:forEach begin="1" end="${r.rating }">&#9733;</c:forEach><c:forEach begin="${r.rating + 1 }" end="5">&#9734;</c:forEach></div>
 									<div class="productReview-review"><c:out value="${r.review }"/></div>
 								</div>
 								</c:forEach>
-								<c:if test="${loadMore }">
-									<button id="button-load">Load More</button>
-								</c:if>
 							</c:otherwise>
 						</c:choose>
+						</div>
 					</div>
 				</div>
 				<div class="clear"></div>

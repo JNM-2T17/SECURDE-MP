@@ -1,16 +1,36 @@
 var viewProduct = (function() {
 	var setOnce = false;
 	var prodId = 0;
+	var username = null;
+	
+	$(document).ready(function() {
+		prodId = $("#productId").val();
+		username = $("#username").val();
+		$("#addForm").hide();
+		$("#addButton").click(viewProduct.addToCart);
+		if( $("#review-content").text().length > 0 ) {
+			$("#reviewForm").hide();	
+		}
+		$("#button-update").click(function() {
+			$("#reviewForm").show();
+			$("#user-review").hide();
+		});
+		$("input.reviewRating").click(function(){
+			if($(this).is(':checked')){
+				viewProduct.setRatings(this)
+			}
+		});
+		var isChecked = $("input.reviewRating:checked");
+		if(isChecked.length == 1){
+			viewProduct.setRatings(isChecked);
+		}
+		
+	});
+	
 	return {
 		addToCart : function() {
 			$("#addForm").show();
 			$("#addButton").hide();
-		},
-		setProdId : function(a) {
-			if( !setOnce ) {
-				setOnce = true;
-				prodId = a;
-			}
 		},
 		setRatings : function(elem){
 			var rating = $(elem).attr("value");
@@ -49,7 +69,7 @@ var viewProduct = (function() {
 			if( review.length == 0 ) {
 				message = appendMessage(message,"Review cannot be empty");
 			}
-			if( !/^(1|2|3|4|5)$/.test(rating) ) {
+			if( !/^[1-5]$/.test(rating) ) {
 				message = appendMessage(message,"Please select a rating");
 			}
 			
@@ -77,6 +97,23 @@ var viewProduct = (function() {
 							$("#review-content").text(review);
 							$("#userReview-rating").html(ratingStr);
 							$("#user-review").show();
+							
+							if($("#reviews div").length == 0 ) {
+								$("#reviews").html("<div class='productReview' id='activeReview'> \
+									<div class='productReview-name'>" + escapeHtml(username) + "</div> \
+									<div class='productReview-rating'>" + ratingStr + "</div>\
+									<div class='productReview-review'>" + escapeHtml(review) + "</div>\
+								</div>");
+							} else if($("#activeReview").length == 0){
+								$("#reviews").prepend("<div class='productReview' id='activeReview'> \
+										<div class='productReview-name'>" + escapeHtml(username) + "</div> \
+										<div class='productReview-rating'>" + ratingStr + "</div>\
+										<div class='productReview-review'>" + escapeHtml(review) + "</div>\
+									</div>");
+							} else {
+								$("#activeReview .productReview-rating").html(ratingStr);
+								$("#activeReview .productReview-review").html(escapeHtml(review));
+							}
 							showMessage("Review submitted.");
 						} else {
 							showError(a);
@@ -90,26 +127,3 @@ var viewProduct = (function() {
 		}
 	};
 })();
-
-$(document).ready(function() {
-	viewProduct.setProdId($("#productId").val());
-	$("#addForm").hide();
-	$("#addButton").click(viewProduct.addToCart);
-	if( $("#review-content").text().length > 0 ) {
-		$("#reviewForm").hide();	
-	}
-	$("#button-update").click(function() {
-		$("#reviewForm").show();
-		$("#user-review").hide();
-	});
-	$("input.reviewRating").click(function(){
-		if($(this).is(':checked')){
-			viewProduct.setRatings(this)
-		}
-	});
-	var isChecked = $("input.reviewRating:checked");
-	if(isChecked.length == 1){
-		viewProduct.setRatings(isChecked);
-	}
-	
-});
