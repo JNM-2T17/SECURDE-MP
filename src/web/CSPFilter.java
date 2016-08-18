@@ -51,6 +51,14 @@ public class CSPFilter implements Filter {
 		HttpServletRequest httpRequest = ((HttpServletRequest) request);
 		HttpServletResponse httpResponse = ((HttpServletResponse) response);
 
+		String prompt = "" + httpRequest.getSession().getAttribute("prompt");
+		if( prompt == null || !prompt.equals("true") ) { 
+			httpRequest.getSession().setAttribute("error", null);
+			httpRequest.getSession().setAttribute("message", null);
+		} else {
+			httpRequest.getSession().setAttribute("prompt", false);
+			
+		}
 		httpResponse.addHeader("X-FRAME-OPTIONS", "sameorigin");
 		httpResponse.addHeader("X-XSS-Protection", "1;mode=block");
 		httpResponse.addHeader("X-Content-Type-Options", "nosniff");
