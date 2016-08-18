@@ -50,7 +50,8 @@ div#header {
     max-width: 150px;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; }
+    text-overflow: ellipsis;
+    vertical-align: top; }
   div#header input#search {
     position: absolute;
     top: 28px;
