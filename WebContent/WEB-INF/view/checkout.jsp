@@ -20,7 +20,7 @@
 						<tr>
 							<td>Credit Card Number</td>
 							<td>
-								<input type="text" name="ccno" id="ccno"/>
+								<input type="text" name="ccno" id="ccno" placeholder="XXXX-XXXX-XXXX-XXXX"/>
 							</td>
 						</tr>
 						<tr>
@@ -40,7 +40,7 @@
 						</tr>
 						<tr>
 							<td>Card Verification Code</td>
-							<td><input type="number" min="0" max="9999" step="1" name="cvc" id="cvc"/></td>
+							<td><input type="number" min="0" max="9999" step="1"  placeholder="XXX" name="cvc" id="cvc"/></td>
 						</tr>
 					</table>
 					

@@ -112,6 +112,7 @@ public class TheController {
 									request.getSession().invalidate();
 									request.getSession(true).setAttribute("sessionUser",u);
 									request.getSession().setAttribute("auditor", new ActivityManager(u,request));
+									request.getSession().setAttribute("sessionToken",genHash);
 									((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("refreshed their session.");
 								} else {
 									u = null;
@@ -545,9 +546,17 @@ public class TheController {
 				checkToken(token,request,response);
 				if( quantity > 0 && quantity <= 2000 ) {
 					try {
-						c.addPurchase(ItemManager.getItem(productId), quantity);
-						((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("added " + quantity + " instances of item " + productId + " to their cart.");
-						response.sendRedirect("/SECURDE-MP/shoppingCart");
+						Item i = ItemManager.getItem(productId);
+						if( i != null ) {
+							c.addPurchase(ItemManager.getItem(productId), quantity);
+							((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("added " + quantity + " instances of item " + productId + " to their cart.");
+							response.sendRedirect("/SECURDE-MP/shoppingCart");
+						} else {
+							request.getSession().setAttribute("error","Failed to add item to cart");
+							request.getSession().setAttribute("prompt",true);
+							((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("tried to add a nonexistent item to their cart.");
+							response.sendRedirect("/SECURDE-MP/viewProduct?id=?" + productId);
+						}
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						if( e instanceof SQLException ) {
