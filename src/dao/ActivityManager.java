@@ -9,17 +9,25 @@ import javax.servlet.http.HttpServletRequest;
 import model.User;
 
 public class ActivityManager {
-	private static String start = "Anonymous user "; 
+	private String start = "Anonymous user "; 
 	
-	public static void setUser(User u,HttpServletRequest request) {
+	public ActivityManager(HttpServletRequest request) {
+		setUser(request);
+	}
+	
+	public ActivityManager(User u, HttpServletRequest request) {
+		setUser(u,request);
+	}
+	
+	public void setUser(User u,HttpServletRequest request) {
 		start = u == null ? "Anonymous user " : "User with id#" + u.getId() + " - " + u.getUsername() + " and ip address " + request.getRemoteAddr() + " ";
 	}
 	
-	public static void setUser(HttpServletRequest request) {
+	public void setUser(HttpServletRequest request) {
 		start = "Anonymous user with ip address " + request.getRemoteAddr() + " ";
 	}
 	
-	public static void addActivity(String activity) {
+	public void addActivity(String activity) {
 		Connection con = DBManager.getInstance().getConnection();
 		try {
 			String sql = "INSERT INTO tl_activity(activity) VALUES (?)";

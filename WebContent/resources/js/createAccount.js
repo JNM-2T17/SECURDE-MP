@@ -45,7 +45,7 @@ var createAccount = (function(){
 				message = appendMessage(message,"Passwords don't match.");
 			}
 			
-			if( !/^(2|3)$/.test(role)) {
+			if( !/^[2-3]$/.test(role)) {
 				message = appendMessage(message,"Please select a valid role");
 			}
 			
@@ -53,7 +53,7 @@ var createAccount = (function(){
 				message = appendMessage(message,"First Name is invalid.");	
 			}
 			
-			if(!/^[A-Za-z]{0,2}.?$/.test(mi)) {
+			if(!/^[A-Za-z]{0,2}\.?$/.test(mi)) {
 				message = appendMessage(message,"Middle Initial is invalid.");	
 			}
 						

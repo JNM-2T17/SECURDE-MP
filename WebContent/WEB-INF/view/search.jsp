@@ -57,7 +57,7 @@
 						<c:out value="${p.description }"/>
 					</div>
 					<div class="product-price">
-						&#8369;<fmt:formatNumber pattern="0.00" value="${p.price }"/>
+						&#8369;<fmt:formatNumber pattern="#,##0.00" value="${p.price }"/>
 					</div>
 				</div>
 				</c:forEach>

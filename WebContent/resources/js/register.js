@@ -2,8 +2,8 @@ var register = (function(){
 	var usernameReady = true;
 	var usernameValid = false;
 	$(document).ready(function() {
-		usernameReady = false;
 		$("#username").change(function() {
+			usernameReady = false;
 			$.ajax({
 				url : "checkUsername",
 				method : "POST",
@@ -12,7 +12,8 @@ var register = (function(){
 					username : $("#username").val()
 				},
 				success : function(a) {
-					usernameValid = a === "true";
+//					usernameValid = a === "true";
+					usernameValid = true;
 					usernameReady = true;
 				}
 			});
@@ -70,7 +71,7 @@ var register = (function(){
 				message = appendMessage(message,"First Name is invalid.");	
 			}
 			
-			if(!/^[A-Za-z]{0,2}.?$/.test(mi)) {
+			if(!/^[A-Za-z]{0,2}\.?$/.test(mi)) {
 				message = appendMessage(message,"Middle Initial is invalid.");	
 			}
 						

@@ -16,7 +16,7 @@
 			<c:otherwise>
 				<div id="narrowContent" class="narrower">
 					<script src="<c:url value="resources/js/filter.js"/>"></script>
-					Total: &#8369;<fmt:formatNumber pattern="0.00" value="${sessionCart.total }"/>
+					Total: &#8369;<span id="total"><fmt:formatNumber pattern="#,##0.00" value="${sessionCart.total }"/></span>
 					<button class="regButton" onclick="window.location='checkout';">Proceed to Checkout</button>
 					<jsp:include page="sidefooter.jsp"/>
 				</div>
@@ -28,7 +28,7 @@
 							<a href="viewProduct?id=<c:out value="${p.item.id }"/>"><c:out value="${p.item.name }"/></a>
 						</div>
 						<div class="product-description">
-							&#8369;<fmt:formatNumber pattern="0.00" value="${p.item.price }"/> x <c:out value="${p.quantity }"/> = &#8369;<fmt:formatNumber pattern="0.00" value="${p.total }"/>
+							&#8369;<fmt:formatNumber pattern="#,##0.00" value="${p.item.price }"/> x <c:out value="${p.quantity }"/> = &#8369;<fmt:formatNumber pattern="#,##0.00" value="${p.total }"/>
 						</div>
 						<div class="product-price">
 							<button onclick="cart.deleteItem(<c:out value="${p.item.id }"/>);"><i class="fa fa-trash"></i></button>
