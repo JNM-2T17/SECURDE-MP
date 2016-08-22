@@ -239,7 +239,7 @@ public class ItemManager {
 		try {
 			String sql = "SELECT SUM(quantity * price) AS TotalSales "
 					+ "FROM tl_purchase P INNER JOIN tl_item I ON P.itemId = I.id AND "
-					+ "P.status = 1 AND I.status = 1";
+					+ "P.status = 1";
 			PreparedStatement ps = con.prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
 			if( rs.next() ) {
@@ -260,7 +260,7 @@ public class ItemManager {
 					+ "FROM (SELECT itemId, quantity "
 					+ "FROM tl_purchase P "
 					+ "WHERE status = 1) P INNER JOIN (SELECT id, price, itemtype "
-					+ "FROM tl_item I WHERE I.status = 1) I ON P.itemId = I.id "
+					+ "FROM tl_item I ) I ON P.itemId = I.id "
 					+ "RIGHT JOIN (SELECT id, name "
 					+ "FROM tl_item_type T "
 					+ "WHERE status = 1) T ON I.itemtype = T.id "
@@ -283,14 +283,15 @@ public class ItemManager {
 	public static SaleMapping[] getTotalSalesPerItem() throws SQLException {
 		Connection con = DBManager.getInstance().getConnection();
 		try {
-			String sql = "SELECT I.name, SUM(quantity * price) AS TotalSales "
+			String sql = "SELECT name, TotalSales FROM (" + 
+					"SELECT I.name, SUM(quantity * price) AS TotalSales, I.status "
 					+ "FROM (SELECT itemId, quantity "
 					+ "FROM tl_purchase P "
-					+ "WHERE status = 1) P RIGHT JOIN (SELECT id, name, price "
-					+ "FROM tl_item I "
-					+ "WHERE status = 1) I ON P.itemId = I.id "
+					+ "WHERE status = 1) P RIGHT JOIN (SELECT id, name, price, status "
+					+ "FROM tl_item I ) I ON P.itemId = I.id "
 					+ "GROUP BY I.id "
-					+ "ORDER BY TotalSales DESC";
+					+ "ORDER BY TotalSales DESC ) A "
+					+ "WHERE status = 1 OR TotalSales > 0 ";
 			PreparedStatement ps = con.prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
 			ArrayList<SaleMapping> sm = new ArrayList<SaleMapping>();
