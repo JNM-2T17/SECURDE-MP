@@ -10,9 +10,6 @@ var cart = (function() {
 				},
 				success : function(a) {
 					switch(a) {
-						case "true":
-							$("#product-" + id).remove();
-							break;
 						case "false":
 							showError("Failed to delete product");
 							location = "shoppingCart";
@@ -21,6 +18,9 @@ var cart = (function() {
 							location = ".";
 							break;
 						default:
+							$("#product-" + id).remove();
+							$("#total").text(escapeHtml(a))
+							break;
 					}
 				}
 			});

@@ -9,7 +9,7 @@
 			
 			<div id="fullContent">
 				<div class="thirdDiv">
-					<h3 class="accentText">Total: &#8369;<fmt:formatNumber pattern="0.00" value="${total }"/></h3>
+					<h3 class="accentText">Total: &#8369;<fmt:formatNumber pattern="#,##0.00" value="${total }"/></h3>
 				</div>
 			
 				<div class="thirdDiv">
@@ -22,7 +22,7 @@
 						<c:forEach items="${byType }" var="sm">
 						<tr>
 							<td><c:out value="${sm.label }"/></td>
-							<td class="alignRight">&#8369;<fmt:formatNumber pattern="0.00" value="${sm.total }"/></td>
+							<td class="alignRight">&#8369;<fmt:formatNumber pattern="#,##0.00" value="${sm.total }"/></td>
 						</tr>
 						</c:forEach>
 					</table>
@@ -38,7 +38,7 @@
 						<c:forEach items="${byItem }" var="sm">
 						<tr>
 							<td><c:out value="${sm.label }"/></td>
-							<td class="alignRight">&#8369;<fmt:formatNumber pattern="0.00" value="${sm.total }"/></td>
+							<td class="alignRight">&#8369;<fmt:formatNumber pattern="#,##0.00" value="${sm.total }"/></td>
 						</tr>
 						</c:forEach>
 					</table>

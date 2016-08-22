@@ -72,7 +72,7 @@
 							</td>
 						</tr>
 					</table>
-					<input type="hidden" value="${sessionToken }" name="token"/>
+					<input type="hidden" value="${sessionToken }" id="token" name="token"/>
 					<input type="submit" value="Create account &gt;" id="regButton"/>
 				</form>
 			</div>

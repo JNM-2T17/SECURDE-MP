@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -90,8 +91,10 @@ public class TheController {
 		if( u == null ) {
 			Cookie[] cookies = request.getCookies();
 			if( cookies != null ) {
+				boolean foundCookie = false;
 				for(Cookie c : cookies) {
 					if( c.getName().equals("tlSessionToken") ) {
+						foundCookie = true;
 						try {
 							int dollar = c.getValue().indexOf('$');
 							if( dollar == -1 ) {
@@ -99,7 +102,7 @@ public class TheController {
 								c.setMaxAge(0);
 								response.addCookie(c);
 								logoutUser(request,response);
-								ActivityManager.addActivity("had an invalid cookie and was logged out.");
+								((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("had an invalid cookie and was logged out.");
 								return null;
 							}
 							u = UserManager.getUser(Integer.parseInt(c.getValue().substring(0,dollar)));
@@ -108,29 +111,33 @@ public class TheController {
 								if( genHash.equals(c.getValue())) {
 									request.getSession().invalidate();
 									request.getSession(true).setAttribute("sessionUser",u);
-									ActivityManager.setUser(u,request);
-									ActivityManager.addActivity("refreshed their session.");
+									request.getSession().setAttribute("auditor", new ActivityManager(u,request));
+									request.getSession().setAttribute("sessionToken",genHash);
+									((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("refreshed their session.");
 								} else {
 									u = null;
 									c.setMaxAge(0);
 									response.addCookie(c);
 									logoutUser(request,response);
-									ActivityManager.addActivity("had an invalid cookie and was logged out.");
+									((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("had an invalid cookie and was logged out.");
 								}
 							} else {
-								ActivityManager.setUser(request);
+								request.getSession().setAttribute("auditor", new ActivityManager(request));
 							}
 						} catch(SQLException se) {
-							logError(se);
+							logError(se,request);
 							se.printStackTrace();
 						}
 						break;
 					}
 				}
+				if( !foundCookie ) {
+					request.getSession().setAttribute("auditor", new ActivityManager(request));
+				}
 			}
 		} else {
 			if( u.isExpired() ) {
-				ActivityManager.addActivity("'s session expired.");
+				((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("'s session expired.");
 				logoutUser(request,response);
 				return null;
 			}
@@ -150,21 +157,21 @@ public class TheController {
 		}
 	}
 	
-	private void logError(Exception e) {
-		ActivityManager.addActivity("ran into the error " + e.getMessage() + ".");
+	private void logError(Exception e,HttpServletRequest request){
+		((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("ran into the error " + e.getMessage() + ".");
 	}
 	
 	private boolean isAuth(HttpServletRequest request, HttpServletResponse response, String privilege) throws ServletException, IOException {
 		User u = restoreSession(request,response);
 		if( u == null ) {
-			ActivityManager.addActivity("tried to access " + privilege + " and failed.");
-			request.getRequestDispatcher("WEB-INF/view/index.jsp").forward(request, response);
+			((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("tried to access " + privilege + " and failed.");
+			response.sendRedirect("/SECURDE-MP/.");
 		} else {
 			if( u.isAuth(privilege) ) {
 				return true;
 			} else {
-				ActivityManager.addActivity("tried to access " + privilege + " and failed.");
-				home(request,response);
+				((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("tried to access " + privilege + " and failed.");
+				response.sendRedirect("/SECURDE-MP/.");
 			}
 		}
 		return false;
@@ -186,7 +193,7 @@ public class TheController {
 					User[] users = UserManager.getSpecialUsers();
 					request.setAttribute("users", users.length == 0 ? null : users);
 				} catch(SQLException se) {
-					logError(se);
+					logError(se,request);
 					se.printStackTrace();
 				}
 				request.getRequestDispatcher("WEB-INF/view/admin-home.jsp").forward(request, response);
@@ -200,7 +207,7 @@ public class TheController {
 					}
 					request.setAttribute("products",items);
 				} catch (SQLException e) {
-					logError(e);
+					logError(e,request);
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -217,7 +224,7 @@ public class TheController {
 					request.getRequestDispatcher("WEB-INF/view/am-home.jsp").forward(request, response);
 					break;
 				} catch(SQLException se) {
-					logError(se);
+					logError(se,request);
 					se.printStackTrace();
 				}
 			case 1:
@@ -247,44 +254,51 @@ public class TheController {
 					c.setSecure(true);
 					c.setHttpOnly(true);
 					response.addCookie(c);
-					ActivityManager.setUser(u,request);
-					ActivityManager.addActivity("logged in.");
+					request.getSession().setAttribute("auditor", new ActivityManager(u,request));
+					((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("logged in.");
 				} else {
-					request.setAttribute("error","Invalid username/password combination");
+					request.getSession().setAttribute("error","Invalid username/password combination");
+					request.getSession().setAttribute("prompt",true);
 				}
 			} catch(SQLException se) {
-				logError(se);
+				logError(se,request);
 				se.printStackTrace();
 			} catch (LockoutException e) {
 				// TODO Auto-generated catch block
 				if(e.getMinutes() == UserManager.LOCKOUT_MINUTES) {
-					ActivityManager.addActivity("locked out " + username + "'s account." );
+					((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("locked out " + username + "'s account." );
 				} else {
-					ActivityManager.addActivity("tried to login to " + username + "'s locked account." );
+					((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("tried to login to " + username + "'s locked account." );
 				}
-				request.setAttribute("error", "Account has been locked. Try again later.");
+				request.getSession().setAttribute("error", "Account has been locked. Try again later.");
+				request.getSession().setAttribute("prompt",true);
 			} catch (ExpiredAccountException e) {
 				// TODO Auto-generated catch block
-				ActivityManager.addActivity("tried to login to " + username + "'s expired account.");
-				request.setAttribute("error", "Invalid username/password combination");
+				((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("tried to login to " + username + "'s expired account.");
+				request.getSession().setAttribute("error", "Invalid username/password combination");
+				request.getSession().setAttribute("prompt",true);
 			} catch (AuthenticationException e) {
 				// TODO Auto-generated catch block
-				ActivityManager.addActivity("failed to login to " + username + "'s account.");
-				request.setAttribute("error", "Invalid username/password combination");
+				((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("failed to login to " + username + "'s account.");
+				request.getSession().setAttribute("error", "Invalid username/password combination");
+				request.getSession().setAttribute("prompt",true);
 			} catch (MissingTokenException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				request.setAttribute("error", "An unexpected error occured.");
+				request.getSession().setAttribute("error", "An unexpected error occured.");
+				request.getSession().setAttribute("prompt",true);
 			} 
 		}
-		home(request,response);
+		response.sendRedirect("/SECURDE-MP/.");
 	}
 	
 	@RequestMapping(value="register",method = RequestMethod.GET)
 	public void register(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		User u = restoreSession(request, response);
 		if( u != null ) {
-			home(request,response);
+			request.getSession().setAttribute("error", "You can't register if you are already logged in!");
+			request.getSession().setAttribute("prompt",true);
+			response.sendRedirect("/SECURDE-MP/.");
 		} else {
 			request.getRequestDispatcher("WEB-INF/view/register.jsp").forward(request, response);
 		}
@@ -300,12 +314,12 @@ public class TheController {
 			response.getWriter().print(UserManager.getUser(username) == null);
 		} catch (MissingTokenException e) {
 			// TODO Auto-generated catch block
-			ActivityManager.addActivity("had an invalid token on check username.");
+			((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("had an invalid token on check username.");
 			response.getWriter().print("false");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			logError(e);
+			logError(e,request);
 			response.getWriter().print("false");
 		}
 		
@@ -336,7 +350,9 @@ public class TheController {
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		User u = restoreSession(request, response);
 		if( u != null ) {
-			home(request,response);
+			request.getSession().setAttribute("error", "You can't register if you are already logged in!");
+			request.getSession().setAttribute("prompt",true);
+			response.sendRedirect("/SECURDE-MP/.");
 		} else {
 			try {
 				checkToken(token,request,response);
@@ -352,26 +368,32 @@ public class TheController {
 						UserManager.checkPass(password) && password.equals(confirmPassword)) {
 					if(UserManager.addUser(username, password, fname, mi, lname, email, billHouseNo, billStreet, billSubd, billCity, billPostCode, billCountry, shipHouseNo, shipStreet, shipSubd, shipCity, shipPostCode, shipCountry)) {
 						login(token,username,password,request,response);
-						ActivityManager.addActivity("registered their account.");
+						((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("registered their account.");
 					} else {
-						ActivityManager.addActivity("registered an existing account.");
-						request.setAttribute("error","That username is already in use.");
-						register(request,response);
+						((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("registered an existing account.");
+						request.getSession().setAttribute("error","That username is already in use.");
+						request.getSession().setAttribute("prompt",true);
+						response.sendRedirect("/SECURDE-MP/register");
 					}
 				} else {
-					logError(new Exception("Data validation failed on register."));
-					request.setAttribute("error","Failed to register account.");
-					register(request,response);
+					logError(new Exception("Data validation failed on register."),request);
+					request.getSession().setAttribute("error","Failed to register account.");
+					request.getSession().setAttribute("prompt",true);
+					response.sendRedirect("/SECURDE-MP/register");
 				}
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				logError(e);
-				request.setAttribute("error","An unexpected error occured.");
-				register(request,response);
+				logError(e,request);
+				request.getSession().setAttribute("error","An unexpected error occured.");
+				request.getSession().setAttribute("prompt",true);
+				response.sendRedirect("/SECURDE-MP/register");
 			} catch (MissingTokenException e) {
 				// TODO Auto-generated catch block
-				logError(e);
+				logError(e,request);
+				request.getSession().setAttribute("error","An unexpected error occured.");
+				request.getSession().setAttribute("prompt",true);
+				response.sendRedirect("/SECURDE-MP/register");
 			} 
 		}
 	}
@@ -386,6 +408,7 @@ public class TheController {
 	}
 	
 	public void logoutUser(HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {
+		((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("logged out.");
 		request.getSession().invalidate();
 		Cookie[] cookies = request.getCookies();
 		for(Cookie c : cookies) {
@@ -394,8 +417,7 @@ public class TheController {
 				response.addCookie(c);
 			}
 		}
-		ActivityManager.addActivity("logged out.");
-		ActivityManager.setUser(request);
+		request.getSession().setAttribute("auditor", new ActivityManager(request));
 		request.getSession(true);
 		restoreToken(request,response);
 	}
@@ -410,7 +432,7 @@ public class TheController {
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		User u = restoreSession(request, response);
 		if( u == null ) {
-			ActivityManager.setUser(request);
+			request.getSession().setAttribute("auditor", new ActivityManager(request));
 		}
 		Integer start = null;
 		if( startS == null ) {
@@ -461,16 +483,17 @@ public class TheController {
 				request.setAttribute("query",query);
 //				request.setAttribute("start",start);
 //				request.setAttribute("more", items.length == 26 ? true : false);
-				ActivityManager.addActivity("searched for \"" + query + "\" of type " + type + ".");
+				((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("searched for \"" + query + "\" of type " + type + ".");
 				request.getRequestDispatcher("WEB-INF/view/search.jsp").forward(request,response);
 			} else {
-				ActivityManager.addActivity("ran into data validation error on search.");
-				request.setAttribute("error","An unexpected error occured.");
+				((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("ran into data validation error on search.");
+				request.getSession().setAttribute("error","An unexpected error occured.");
+				request.getSession().setAttribute("prompt",true);
 				search(type,query,"0",null,null,null,request,response);
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			logError(e);
+			logError(e,request);
 			e.printStackTrace();
 			home(request,response);
 		}
@@ -480,9 +503,6 @@ public class TheController {
 	public void viewProduct(@RequestParam("id") int id,
 			HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		User u = restoreSession(request, response);
-		if( u == null ) {
-			ActivityManager.setUser(request);
-		}
 		try {
 			Item i = ItemManager.getItem(id);
 			request.setAttribute("p", i);
@@ -495,13 +515,13 @@ public class TheController {
 			request.setAttribute("reviews",reviews.length == 0 ? null : reviews);
 			request.setAttribute("review", r);
 			request.setAttribute("canReview", canReview);
-			ActivityManager.addActivity("viewed item " + id + ": " + i.getName() + ".");
+			((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("viewed item " + id + ": " + i.getName() + ".");
 			request.getRequestDispatcher("WEB-INF/view/viewProduct.jsp").forward(request,response);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			logError(e);
-			home(request,response);
+			logError(e,request);
+			response.sendRedirect("/SECURDE-MP/.");
 		}
 	}
 	
@@ -526,33 +546,45 @@ public class TheController {
 				checkToken(token,request,response);
 				if( quantity > 0 && quantity <= 2000 ) {
 					try {
-						c.addPurchase(ItemManager.getItem(productId), quantity);
-						ActivityManager.addActivity("added " + quantity + " instances of item " + productId + " to their cart.");
-						shoppingCart(request,response);
+						Item i = ItemManager.getItem(productId);
+						if( i != null ) {
+							c.addPurchase(ItemManager.getItem(productId), quantity);
+							((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("added " + quantity + " instances of item " + productId + " to their cart.");
+							response.sendRedirect("/SECURDE-MP/shoppingCart");
+						} else {
+							request.getSession().setAttribute("error","Failed to add item to cart");
+							request.getSession().setAttribute("prompt",true);
+							((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("tried to add a nonexistent item to their cart.");
+							response.sendRedirect("/SECURDE-MP/viewProduct?id=?" + productId);
+						}
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						if( e instanceof SQLException ) {
 							e.printStackTrace();
-							logError(e);
-							request.setAttribute("error","Failed to add item to cart");
-							viewProduct(productId,request,response);
+							logError(e,request);
+							request.getSession().setAttribute("error","Failed to add item to cart");
+							request.getSession().setAttribute("prompt",true);
+							response.sendRedirect("/SECURDE-MP/viewProduct?id=?" + productId);
 						} else {
-							ActivityManager.addActivity("added too many instances of item " + productId + " to their cart.");
-							request.setAttribute("error","You can't add any more of that item.");
-							viewProduct(productId,request,response);
+							((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("added too many instances of item " + productId + " to their cart.");
+							request.getSession().setAttribute("error","You can't add any more of that item.");
+							request.getSession().setAttribute("prompt",true);
+							response.sendRedirect("/SECURDE-MP/viewProduct?id=?" + productId);
 						}
 					}
 				} else {
-					ActivityManager.addActivity("added too many instances of item " + productId + " to their cart.");
-					request.setAttribute("error","Data validation error.");
-					viewProduct(productId,request,response);
+					((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("added too many instances of item " + productId + " to their cart.");
+					request.getSession().setAttribute("error","Data validation error.");
+					request.getSession().setAttribute("prompt",true);
+					response.sendRedirect("/SECURDE-MP/viewProduct?id=?" + productId);
 				}
 			} catch (MissingTokenException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				logError(e);
-				request.setAttribute("error","Failed to add item to cart");
-				viewProduct(productId,request,response);
+				logError(e,request);
+				request.getSession().setAttribute("error","Failed to add item to cart");
+				request.getSession().setAttribute("prompt",true);
+				response.sendRedirect("/SECURDE-MP/viewProduct?id=?" + productId);
 			} 
 		}
 	}
@@ -567,13 +599,13 @@ public class TheController {
 			try {
 				checkToken(token,request,response);
 				c.deleteItem(productId);
-				ActivityManager.addActivity("deleted item " + productId + " from their cart.");
-				response.getWriter().print("true");
+				((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("deleted item " + productId + " from their cart.");
+				response.getWriter().print((new DecimalFormat("#,##0.00")).format(c.getTotal()));
 			} catch (MissingTokenException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				logError(e);
-				ActivityManager.addActivity("had an invalid token on delete cart item.");
+				logError(e,request);
+				((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("had an invalid token on delete cart item.");
 				response.getWriter().print("false");
 				viewProduct(productId,request,response);
 			} 
@@ -597,7 +629,8 @@ public class TheController {
 			if( c.size() > 0 ) {
 				request.getRequestDispatcher("WEB-INF/view/checkout.jsp").forward(request,response);
 			} else {
-				request.setAttribute("error", "Cart is empty.");
+				request.getSession().setAttribute("error", "Cart is empty.");
+				request.getSession().setAttribute("prompt",true);
 				request.getRequestDispatcher("WEB-INF/view/shoppingCart.jsp").forward(request,response);
 			}
 		}
@@ -624,24 +657,28 @@ public class TheController {
 							("" + expyy).matches("^2[0-9]{3}$") && 
 							cvc.matches("^[0-9]{3}$") ){
 						ItemManager.purchaseCart(u.getId(), c, cardtype, expmm, expyy, cvc);
-						request.setAttribute("message", "Transaction Successful");
-						ActivityManager.addActivity("checked out their cart with a total of " + c.getTotal() + ".");
+						request.getSession().setAttribute("message", "Transaction Successful");
+						request.getSession().setAttribute("prompt",true);
+						((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("checked out their cart with a total of " + c.getTotal() + ".");
 						c.clear();
-						home(request,response);
+						response.sendRedirect("/SECURDE-MP/.");
 					} else {
-						logError(new Exception("Data validation failed on checkout."));
-						request.setAttribute("error","Failed to checkout.");
-						checkout(request,response);
+						logError(new Exception("Data validation failed on checkout."),request);
+						request.getSession().setAttribute("error","Failed to checkout.");
+						request.getSession().setAttribute("prompt",true);
+						response.sendRedirect("/SECURDE-MP/checkout");
 					}
 				} else {
-					request.setAttribute("error", "Cart is empty.");
-					request.getRequestDispatcher("WEB-INF/view/shoppingCart.jsp").forward(request,response);
+					request.getSession().setAttribute("error", "Cart is empty.");
+					request.getSession().setAttribute("prompt",true);
+					response.sendRedirect("/SECURDE-MP/shoppingCart");
 				}
 			} catch (MissingTokenException | SQLException e) {
-				logError(e);
+				logError(e,request);
 				e.printStackTrace();
-				request.setAttribute("error", "An unexpected error occured.");
-				checkout(request,response);
+				request.getSession().setAttribute("error", "An unexpected error occured.");
+				request.getSession().setAttribute("prompt",true);
+				response.sendRedirect("/SECURDE-MP/checkout");
 			}
 		}
 	}
@@ -663,24 +700,25 @@ public class TheController {
 					if( canReview ) {
 						if( review.length() > 0 && rating >= 1 && rating <= 5 ) {
 							ItemManager.reviewItem(u.getId(), prodId, rating, review);
-							request.setAttribute("message", "Review Submitted");
-							response.getWriter().print("true");
-							ActivityManager.addActivity("reviewed item " + prodId + ".");
+							Item i = ItemManager.getItem(prodId);
+							response.getWriter().print(i.getRating());
+							((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("reviewed item " + prodId + ".");
 						} else {
-							logError(new Exception("Data validation failed on review product."));
+							logError(new Exception("Data validation failed on review product."),request);
 							response.getWriter().print("Failed to review product.");
 						}
 					} else {
 						response.getWriter().print("Please purchase this item before reviewing.");
-						ActivityManager.addActivity("tried to review item " + prodId + " but hasn't purchased it yet.");
+						((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("tried to review item " + prodId + " but hasn't purchased it yet.");
 					}
 				} else {
 					ItemManager.updateReview(u.getId(), prodId, rating, review);
-					ActivityManager.addActivity("updated their review of item " + prodId + ".");
-					response.getWriter().print("true");
+					((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("updated their review of item " + prodId + ".");
+					Item i = ItemManager.getItem(prodId);
+					response.getWriter().print(i.getRating());
 				}
 			} catch (MissingTokenException | SQLException e) {
-				logError(e);
+				logError(e,request);
 				e.printStackTrace();
 				response.getWriter().print("An unexpected error occured.");
 			}
@@ -709,21 +747,23 @@ public class TheController {
 				if(name.matches( "^[A-Za-z0-9.,! \\-'&]+$") && ("" + itemtype).matches("^[1-4]$") &&  description.length() > 0 && 
 						("" + price).matches( "^[0-9]+([.][0-9]+)?|[0-9]*[.][0-9]+$")) {
 						ItemManager.addItem(itemtype,name,description,price);
-						ActivityManager.addActivity("added product " + name + ".");
-						home(request,response);						
+						((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("added product " + name + ".");
+						response.sendRedirect("/SECURDE-MP/.");					
 				} else {
-					request.setAttribute("error", "Failed to add product.");
-					logError(new Exception("Data validation failed on add product."));
-					addProduct(request,response);
+					request.getSession().setAttribute("error", "Failed to add product.");
+					request.getSession().setAttribute("prompt",true);
+					logError(new Exception("Data validation failed on add product."),request);
+					response.sendRedirect("/SECURDE-MP/addProduct");
 				}
 				return;
 			} catch(SQLException | MissingTokenException se) {
-				logError(se);
+				logError(se,request);
 				se.printStackTrace();
-				request.setAttribute("error", "An unexpected error occured");
+				request.getSession().setAttribute("error", "An unexpected error occured");
+				request.getSession().setAttribute("prompt",true);
 			}
 		}
-		request.getRequestDispatcher("WEB-INF/view/addProduct.jsp").forward(request, response);
+		response.sendRedirect("/SECURDE-MP/addProduct");
 	}
 	
 	@RequestMapping(value="/editProduct",method=RequestMethod.GET)
@@ -735,16 +775,18 @@ public class TheController {
 				if( i != null ) {
 					request.setAttribute("item",i);
 				} else {
-					request.setAttribute("error", "Invalid Item Id");
-					home(request,response);
+					request.getSession().setAttribute("error", "Invalid Item Id");
+					request.getSession().setAttribute("prompt",true);
+					response.sendRedirect("/SECURDE-MP/.");
 					return;
 				}
 				request.getRequestDispatcher("WEB-INF/view/editProduct.jsp").forward(request, response);
 			} catch(SQLException se) {
-				logError(se);
+				logError(se,request);
 				se.printStackTrace();
-				request.setAttribute("error", "An unexpected error occured.");
-				home(request,response);
+				request.getSession().setAttribute("error", "An unexpected error occured.");
+				request.getSession().setAttribute("prompt",true);
+				response.sendRedirect("/SECURDE-MP/.");
 			}
 		}
 	}
@@ -764,19 +806,21 @@ public class TheController {
 				if(name.matches( "^[A-Za-z0-9.,! \\-'&]+$") && ("" + itemtype).matches("^[1-4]$") &&  description.length() > 0 && 
 						("" + price).matches( "^[0-9]+([.][0-9]+)?|[0-9]*[.][0-9]+$")) {
 					ItemManager.editItem(id, itemtype, name, description, price);
-					ActivityManager.addActivity("edited item " + id + ".");
-					home(request,response);
+					((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("edited item " + id + ".");
+					response.sendRedirect("/SECURDE-MP/.");
 				} else {
-					request.setAttribute("error", "Failed to edit product.");
-					logError(new Exception("Data validation failed on edit product."));
-					editProduct(id,request,response);
+					request.getSession().setAttribute("error", "Failed to edit product.");
+					request.getSession().setAttribute("prompt",true);
+					logError(new Exception("Data validation failed on edit product."),request);
+					response.sendRedirect("/SECURDE-MP/editProduct?id=" + id);
 				}
 				return;
 			} catch(SQLException | MissingTokenException se) {
-				logError(se);
+				logError(se,request);
 				se.printStackTrace();
-				request.setAttribute("error", "An unexpected error occured.");
-				editProduct(id,request,response);
+				request.getSession().setAttribute("error", "An unexpected error occured.");
+				request.getSession().setAttribute("prompt",true);
+				response.sendRedirect("/SECURDE-MP/editProduct?id=" + id);
 			}
 		}
 	}
@@ -791,10 +835,10 @@ public class TheController {
 			try {
 				ItemManager.deleteItem(id);
 				pw.println("true");
-				ActivityManager.addActivity("deleted item " + id + ".");
+				((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("deleted item " + id + ".");
 				return;
 			} catch(SQLException se) {
-				logError(se);
+				logError(se,request);
 				se.printStackTrace();
 			}
 		}
@@ -828,54 +872,63 @@ public class TheController {
 				User u = (User)request.getSession().getAttribute("sessionUser");
 				u = UserManager.login(u.getUsername(), authPassword);
 				if( u == null ) {
-					request.setAttribute("error", "Authentication Failed.");
+					request.getSession().setAttribute("error", "Authentication Failed.");
+					request.getSession().setAttribute("prompt",true);
 				} else {
 					if(("" + role).matches("^(2|3)$") && username.matches("^[A-Za-z0-9_-]+$") && fname.matches("^[A-Za-z ,.'-]+$") && 
 							mi.matches("^[A-Za-z]{0,2}.?$") && lname.matches("^[A-Za-z ,.'-]+$") && 
 							email.matches("^([-.a-zA-Z0-9_]+)@([-.a-zA-Z0-9_]+)[.]([a-zA-Z]{2,5})$") && 
 							UserManager.checkPass(password) && password.equals(confirmPassword)) {
 						if(UserManager.addUser(role, username, password, fname, mi, lname, email)) {
-							ActivityManager.addActivity("created user " + username + ".");
-							home(request,response);
+							((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("created user " + username + ".");
+							response.sendRedirect("/SECURDE-MP/.");
 						} else {
-							ActivityManager.addActivity("tried to create existing user " + username + ".");
-							createAccount(request,response);
+							((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("tried to create existing user " + username + ".");
+							request.getSession().setAttribute("error","Username in use.");
+							request.getSession().setAttribute("prompt",true);
+							response.sendRedirect("/SECURDE-MP/createAccount");
 						}
 					} else {
-						logError(new Exception("Data validation failed on create account."));
-						request.setAttribute("error","Failed to create account.");
-						createAccount(request,response);
+						logError(new Exception("Data validation failed on create account."),request);
+						request.getSession().setAttribute("error","Failed to create account.");
+						request.getSession().setAttribute("prompt",true);
+						response.sendRedirect("/SECURDE-MP/createAccount");
 					}
 					return;
 				}
 			} catch(SQLException se) {
-				logError(se);
+				logError(se,request);
 				se.printStackTrace();
-				request.setAttribute("error", "An unexpected error occured.");
+				request.getSession().setAttribute("error", "An unexpected error occured.");
+				request.getSession().setAttribute("prompt",true);
 			} catch (MissingTokenException e) {
 				// TODO Auto-generated catch block
-				logError(e);
-				request.setAttribute("error", "An unexpected error occured.");
+				logError(e,request);
+				request.getSession().setAttribute("error", "An unexpected error occured.");
+				request.getSession().setAttribute("prompt",true);
 				createAccount(request,response);
 			} catch (LockoutException e) {
 				// TODO Auto-generated catch block
-				ActivityManager.addActivity("locked their account.");
-				ActivityManager.setUser(request);
-				request.setAttribute("error", "Account locked. Try again later.");
+				((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("locked their account.");
+				request.getSession().setAttribute("auditor", new ActivityManager(request));
+				request.getSession().setAttribute("error", "Account locked. Try again later.");
+				request.getSession().setAttribute("prompt",true);
 				logout(request,response);
 				return;
 			} catch (ExpiredAccountException e) {
 				// TODO Auto-generated catch block
-				ActivityManager.addActivity("tried to log into an expired account.");
-				ActivityManager.setUser(request);
-				request.setAttribute("error", "Invalid username/password combination");
+				((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("tried to log into an expired account.");
+				request.getSession().setAttribute("auditor", new ActivityManager(request));
+				request.getSession().setAttribute("error", "Invalid username/password combination");
+				request.getSession().setAttribute("prompt",true);
 				logout(request,response);
 				return;
 			} catch (AuthenticationException e) {
 				// TODO Auto-generated catch block
-				request.setAttribute("error", "Authentication Failed.");
+				request.getSession().setAttribute("error", "Authentication Failed.");
+				request.getSession().setAttribute("prompt",true);
 			} 
-			request.getRequestDispatcher("WEB-INF/view/createAccount.jsp").forward(request, response);
+			response.sendRedirect("/SECURDE-MP/createAccount");
 		}
 	}
 	
@@ -901,43 +954,48 @@ public class TheController {
 				if( UserManager.login(u.getUsername(),oldPassword) != null ) {
 					if( newPassword.equals(confirmPassword) ) {
 						UserManager.changePass(u.getId(), newPassword);
-						ActivityManager.addActivity("changed their password.");
-						home(request,response);
+						((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("changed their password.");
+						response.sendRedirect("/SECURDE-MP/.");
 						return;
 					} else {
-						request.setAttribute("error", "Passwords don't match.");
+						request.getSession().setAttribute("error", "Passwords don't match.");
+						request.getSession().setAttribute("prompt",true);
 					}
 				} else {
-					request.setAttribute("error", "Authentication Failed");
+					request.getSession().setAttribute("error", "Authentication Failed");
+					request.getSession().setAttribute("prompt",true);
 				}
 			} catch(SQLException se) {
-				logError(se);
+				logError(se,request);
 				se.printStackTrace();
-				request.setAttribute("error", "An unexpected error occured.");
+				request.getSession().setAttribute("error", "An unexpected error occured.");
+				request.getSession().setAttribute("prompt",true);
 			} catch (LockoutException e) {
 				// TODO Auto-generated catch block
 				if(e.getMinutes() == UserManager.LOCKOUT_MINUTES) {
-					ActivityManager.addActivity("locked out " + u.getUsername() + "'s account." );
+					((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("locked out " + u.getUsername() + "'s account." );
 				} else {
-					ActivityManager.addActivity("tried to login to " + u.getUsername() + "'s locked account." );
+					((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("tried to login to " + u.getUsername() + "'s locked account." );
 				}
 				logout(request,response);
 				return;
 			} catch (ExpiredAccountException e) {
 				// TODO Auto-generated catch block
-				ActivityManager.addActivity("tried to login to " + u.getUsername() + "'s expired account.");
+				((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("tried to login to " + u.getUsername() + "'s expired account.");
 				logout(request,response);
 				return;
 			} catch (AuthenticationException e) {
 				// TODO Auto-generated catch block
-				ActivityManager.addActivity("failed to login to " + u.getUsername() + "'s account.");
-				request.setAttribute("error", "Authentication Failed");
+				((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("failed to login to " + u.getUsername() + "'s account.");
+				request.getSession().setAttribute("error", "Authentication Failed");
+				request.getSession().setAttribute("prompt",true);
 			} catch (MissingTokenException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				request.setAttribute("error", "An unexpected error occured.");
+				request.getSession().setAttribute("error", "An unexpected error occured.");
+				request.getSession().setAttribute("prompt",true);
 			} 
-			request.getRequestDispatcher("WEB-INF/view/editAccount.jsp").forward(request, response);
+			response.sendRedirect("/SECURDE-MP/editAccount");
 		}
 	}
 }

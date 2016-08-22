@@ -84,7 +84,7 @@ var viewProduct = (function() {
 						rating : rating
 					}, 
 					success : function(a) {
-						if( a == "true" ) {
+						if( /^[1-5]$/.test(a) ) {
 							$("#reviewForm").hide();
 							var ratingStr = "";
 							for(i = 0; i < 5; i++) {
@@ -114,6 +114,15 @@ var viewProduct = (function() {
 								$("#activeReview .productReview-rating").html(ratingStr);
 								$("#activeReview .productReview-review").html(escapeHtml(review));
 							}
+							ratingStr = "";
+							for(i = 0; i < 5; i++) {
+								if( i < a ) {
+									ratingStr += "&#9733;";
+								} else {
+									ratingStr += "&#9734;";
+								}
+							}
+							$("#productRating").html(ratingStr);
 							showMessage("Review submitted.");
 						} else {
 							showError(a);
