@@ -555,7 +555,7 @@ public class TheController {
 							request.getSession().setAttribute("error","Failed to add item to cart");
 							request.getSession().setAttribute("prompt",true);
 							((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("tried to add a nonexistent item to their cart.");
-							response.sendRedirect("/SECURDE-MP/viewProduct?id=?" + productId);
+							response.sendRedirect("/SECURDE-MP/viewProduct?id=" + productId);
 						}
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
@@ -564,19 +564,19 @@ public class TheController {
 							logError(e,request);
 							request.getSession().setAttribute("error","Failed to add item to cart");
 							request.getSession().setAttribute("prompt",true);
-							response.sendRedirect("/SECURDE-MP/viewProduct?id=?" + productId);
+							response.sendRedirect("/SECURDE-MP/viewProduct?id=" + productId);
 						} else {
 							((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("added too many instances of item " + productId + " to their cart.");
 							request.getSession().setAttribute("error","You can't add any more of that item.");
 							request.getSession().setAttribute("prompt",true);
-							response.sendRedirect("/SECURDE-MP/viewProduct?id=?" + productId);
+							response.sendRedirect("/SECURDE-MP/viewProduct?id=" + productId);
 						}
 					}
 				} else {
 					((ActivityManager)request.getSession().getAttribute("auditor")).addActivity("added too many instances of item " + productId + " to their cart.");
 					request.getSession().setAttribute("error","Data validation error.");
 					request.getSession().setAttribute("prompt",true);
-					response.sendRedirect("/SECURDE-MP/viewProduct?id=?" + productId);
+					response.sendRedirect("/SECURDE-MP/viewProduct?id=" + productId);
 				}
 			} catch (MissingTokenException e) {
 				// TODO Auto-generated catch block
@@ -584,7 +584,7 @@ public class TheController {
 				logError(e,request);
 				request.getSession().setAttribute("error","Failed to add item to cart");
 				request.getSession().setAttribute("prompt",true);
-				response.sendRedirect("/SECURDE-MP/viewProduct?id=?" + productId);
+				response.sendRedirect("/SECURDE-MP/viewProduct?id=" + productId);
 			} 
 		}
 	}
